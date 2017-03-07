@@ -59,5 +59,11 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
-# Windows shortcuts
-*.lnk
+.idea/compiler.xml
+.idea/copyright/profiles_settings.xml
+*.xml
+!pom.xml
+CWTavernBot.iml
+*.class
+target/test-classes/ex1.txt
+src/main/resources/credentials.properties
