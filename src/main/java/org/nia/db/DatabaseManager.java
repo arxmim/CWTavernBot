@@ -58,9 +58,6 @@ public class DatabaseManager {
     }
 
     private void createNewTables() throws SQLException {
-        connectionDB.executeQuery(DBStrings.createProfileTable);
-        connectionDB.executeQuery(DBStrings.createEquipmentTable);
-        connectionDB.executeQuery(DBStrings.createBattleStatTable);
-        connectionDB.executeQuery(DBStrings.createDonatorTable);
+        connectionDB.executeQuery(DBStrings.createUserTable);
     }
 }

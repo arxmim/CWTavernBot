@@ -14,8 +14,8 @@ import org.telegram.telegrambots.logging.BotLogger;
  * @author IANazarov
  */
 public class CWTavernBot extends TelegramLongPollingBot {
-    public static final String BOT_NAME = "CWOfficerBot";
-    private static final String LOGTAG = "CWOfficerBot";
+    public static final String BOT_NAME = "CWTavernBot";
+    private static final String LOGTAG = "CWTavernBot";
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -54,13 +54,15 @@ public class CWTavernBot extends TelegramLongPollingBot {
         if (message.getFrom() != null) {
             BotLogger.info(LOGTAG, message.getFrom().getUserName());
         }
-        if (isCommandForMe(message.getText()) || message.isUserMessage()) {
+//        if (!message.getChat().getTitle().equals("test_grp_cw_off")) {
+//            return;
+//        }
+        if (isCommand(message.getText()) || message.isUserMessage()) {
             for (Commands command : Commands.values()) {
                 if (command.isApplicable(message)) {
                     String answer = command.apply(message);
                     if (!StringUtils.isEmpty(answer)) {
                         sendMessageRequest = command.getMessage(message, answer);
-                        sendMessage(sendMessageRequest);
                     }
                     break;
                 }
@@ -75,13 +77,15 @@ public class CWTavernBot extends TelegramLongPollingBot {
         }
     }
 
+
+
     /**
      * Если чат с пользователем еще не стартовал, а текущая команда не является одной из базовых команд чата
      *
      * @param text текст команды пользователя
      * @return true если команда не базовая и не должна обрабатываться, false - иначе
      */
-    private static boolean isCommandForMe(String text) {
-        return text.startsWith("/") && text.endsWith("@" + BOT_NAME);
+    private static boolean isCommand(String text) {
+        return text.contains("/");
     }
 }
