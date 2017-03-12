@@ -25,10 +25,9 @@ public class User {
     private int alkoCount;
     private int drinkedToday;
 
-    public static User getFromMessage(Message message) {
+    public static User getByID(int userID) {
         User res = null;
         try {
-            int userID = message.getFrom().getId();
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, isAdmin, alkoCount, lastDrinkTime, drinkedToday, drinkType, wanted from cwt_User where UserID = ?");
             preparedStatement.setInt(1, userID);
@@ -44,20 +43,13 @@ public class User {
                 res.drinkedToday = resultSet.getInt(6);
                 try {
                     res.drinkType = DrinkType.valueOf(resultSet.getString(7));
+                } catch (Exception ignored) {
+                }
+                try {
                     res.wanted = DrinkType.valueOf(resultSet.getString(8));
                 } catch (Exception ignored) {
-
                 }
-            } else {
-                res = new User();
-                org.telegram.telegrambots.api.objects.User from = message.getFrom();
-                res.nick = from.getUserName();
-                res.name = from.getFirstName() + " " + from.getLastName();
-                res.userID = userID;
-                res.alkoCount = 0;
-                res.isAdmin = false;
-                res.drinkedToday = 0;
-                res.save();
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -65,8 +57,29 @@ public class User {
         return res;
     }
 
+    public static User getFromMessage(Message message) {
+        return getFromMessage(message.getFrom());
+    }
+
+    public static User getFromMessage(org.telegram.telegrambots.api.objects.User user) {
+        int userID = user.getId();
+        User res = getByID(userID);
+        if (res == null) {
+            res = new User();
+            res.nick = user.getUserName();
+            res.name = user.getFirstName();
+            res.userID = userID;
+            res.alkoCount = 0;
+            res.isAdmin = false;
+            res.drinkedToday = 0;
+            res.save();
+        }
+        return res;
+    }
+
     public static User getByNick(String nick) {
         User res = null;
+        nick = nick.replace("@", "");
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select userID, name, isAdmin, alkoCount, lastDrinkTime, drinkedToday, drinkType, wanted from cwt_User where nick = ?");
@@ -83,10 +96,44 @@ public class User {
                 res.drinkedToday = resultSet.getInt(6);
                 try {
                     res.drinkType = DrinkType.valueOf(resultSet.getString(7));
+                } catch (Exception ignored) {
+                }
+                try {
                     res.wanted = DrinkType.valueOf(resultSet.getString(8));
                 } catch (Exception ignored) {
-
                 }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static List<User> getAll() {
+        List<User> res = new ArrayList<>();
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select userID, nick, name, isAdmin, alkoCount, lastDrinkTime, drinkedToday, drinkType, wanted from cwt_User");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.userID = resultSet.getInt(1);
+                user.nick = resultSet.getString(2);
+                user.name = resultSet.getString(3);
+                user.isAdmin = resultSet.getBoolean(4);
+                user.alkoCount = resultSet.getInt(5);
+                user.lastDrinkTime = resultSet.getTimestamp(6);
+                user.drinkedToday = resultSet.getInt(7);
+                try {
+                    user.drinkType = DrinkType.valueOf(resultSet.getString(8));
+                } catch (Exception ignored) {
+                }
+                try {
+                    user.wanted = DrinkType.valueOf(resultSet.getString(9));
+                } catch (Exception ignored) {
+                }
+                res.add(user);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -224,17 +271,29 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 5 nick, drinkedToday from cwt_User order by drinkedToday desc");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, drinkedToday from cwt_User order by drinkedToday desc");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
                 user.nick = resultSet.getString(1);
-                user.drinkedToday = resultSet.getInt(2) /2;
+                user.drinkedToday = resultSet.getInt(2) / 2;
                 res.add(user);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public DrinkType getWanted() {
+        return wanted;
+    }
+
+    public void setWanted(DrinkType wanted) {
+        this.wanted = wanted;
+    }
+
+    public int getUserID() {
+        return userID;
     }
 }

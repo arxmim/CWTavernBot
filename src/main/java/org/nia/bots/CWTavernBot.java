@@ -3,17 +3,24 @@ package org.nia.bots;
 import org.apache.commons.lang.StringUtils;
 import org.nia.PropertiesLoader;
 import org.nia.logic.Commands;
+import org.nia.logic.CommonCommands;
+import org.nia.logic.DrinkType;
+import org.nia.model.Tournament;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
+
+import java.util.Random;
 
 /**
  * @author IANazarov
  */
 public class CWTavernBot extends TelegramLongPollingBot {
+    public static CWTavernBot INSTANCE = new CWTavernBot();
     public static final String BOT_NAME = "CWTavernBot";
     private static final String LOGTAG = "CWTavernBot";
 
@@ -25,6 +32,17 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 if (message.hasText() || message.hasLocation()) {
                     handleIncomingMessage(message);
                 } else {
+                    User newChatMember = message.getNewChatMember();
+                    if (newChatMember != null) {
+                        org.nia.model.User user = org.nia.model.User.getFromMessage(newChatMember);
+                        user.setAlkoCount(2);
+                        int rand = new Random().nextInt(DrinkType.values().length);
+                        DrinkType drinkType = DrinkType.values()[rand];
+                        user.setDrinkType(drinkType);
+                        user.save();
+                        String answer = user + " добро пожаловать в нашу таверну! Держи для рывка " + drinkType.getOnGive() + ", можешь смело /drink! ну или /throw, но мы же тут разумные люди, да?";
+                        sendMessage(CommonCommands.getMessage(message, answer));
+                    }
                     BotLogger.info(LOGTAG, "no text");
                 }
             } else {
@@ -48,28 +66,41 @@ public class CWTavernBot extends TelegramLongPollingBot {
 
     private void handleIncomingMessage(Message message) throws TelegramApiException {
         SendMessage sendMessageRequest = null;
-        if (message.getChat() != null) {
-            BotLogger.info(LOGTAG, message.getChat().getTitle());
-        }
-        if (message.getFrom() != null) {
-            BotLogger.info(LOGTAG, message.getFrom().getUserName());
-        }
+//        if (message.getChat() != null) {
+//            BotLogger.info(LOGTAG, message.getChat().getTitle());
+//        }
+//        if (message.getFrom() != null) {
+//            BotLogger.info(LOGTAG, message.getFrom().getUserName());
+//        }
 //        if (!message.getChat().getTitle().equals("test_grp_cw_off")) {
 //            return;
 //        }
         if (isCommand(message.getText()) || message.isUserMessage()) {
-            for (Commands command : Commands.values()) {
-                if (command.isApplicable(message)) {
-                    String answer = command.apply(message);
-                    if (!StringUtils.isEmpty(answer)) {
-                        sendMessageRequest = command.getMessage(message, answer);
+            Tournament current = Tournament.getCurrent();
+            if (current != null && current.isInProgress()) {
+                for (Commands command : current.getType().getCommands()) {
+                    if (command.isApplicable(message)) {
+                        String answer = command.apply(message);
+                        if (!StringUtils.isEmpty(answer)) {
+                            sendMessageRequest = CommonCommands.getMessage(message, answer);
+                        }
+                        break;
                     }
-                    break;
+                }
+            } else {
+                for (CommonCommands command : CommonCommands.values()) {
+                    if (command.isApplicable(message)) {
+                        String answer = command.apply(message);
+                        if (!StringUtils.isEmpty(answer)) {
+                            sendMessageRequest = CommonCommands.getMessage(message, answer);
+                        }
+                        break;
+                    }
                 }
             }
             if (sendMessageRequest == null && message.isUserMessage()) {
-                String answer = Commands.HELP.apply(message);
-                sendMessageRequest = Commands.HELP.getMessage(message, answer);
+                String answer = CommonCommands.HELP.apply(message);
+                sendMessageRequest = CommonCommands.getMessage(message, answer);
             }
         }
         if (sendMessageRequest != null) {

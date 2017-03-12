@@ -59,5 +59,8 @@ public class DatabaseManager {
 
     private void createNewTables() throws SQLException {
         connectionDB.executeQuery(DBStrings.createUserTable);
+        connectionDB.executeQuery(DBStrings.createUserPrefTable);
+        connectionDB.executeQuery(DBStrings.createTournamentTable);
+        connectionDB.executeQuery(DBStrings.createTournamentUsersTable);
     }
 }

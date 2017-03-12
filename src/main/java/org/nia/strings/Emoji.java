@@ -23,6 +23,8 @@ public enum Emoji {
     CUP('\uD83C', '\uDFC6'),
     FLAG('\uD83D', '\uDEA9'),
     MEDAL('\uD83C', '\uDF96'),
+    DRINK('\uD83C', '\uDF7A'),
+    DRINKS('\uD83C', '\uDF7B'),
     GRINNING_FACE_WITH_SMILING_EYES('\uD83D', '\uDE01'),
     FACE_WITH_TEARS_OF_JOY('\uD83D', '\uDE02'),
     SMILING_FACE_WITH_OPEN_MOUTH('\uD83D', '\uDE03'),
@@ -185,26 +187,10 @@ public enum Emoji {
         this.characters = characters;
     }
 
-    public static Emoji getFlagByText(String text) {
-        return TF_FLAGS().stream().filter(v -> v.toString().equals(text)).findFirst().orElse(null);
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Arrays.stream(characters).forEach(sb::append);
         return sb.toString();
-    }
-
-    public static List<Emoji> TF_FLAGS() {
-        ArrayList<Emoji> res = new ArrayList<>();
-        res.add(RED_FLAG);
-        res.add(BLACK_FLAG);
-        res.add(YELLOW_FLAG);
-        res.add(WHITE_FLAG);
-        res.add(BLUE_FLAG);
-        res.add(FOREST);
-        res.add(MOUNTAIN);
-        return res;
     }
 }
