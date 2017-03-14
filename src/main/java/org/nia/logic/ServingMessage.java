@@ -19,7 +19,7 @@ public class ServingMessage {
         sendMessage.enableHtml(true);
         StringBuilder sb = new StringBuilder();
         sb.append("А вот и я! Принесла напитки для посетителей:\n");
-        served.forEach(usr -> sb.append(usr).append(" - ").append(usr.getDrinkType().getOnGive()).append("\n"));
+        served.forEach(usr -> sb.append(usr).append(" - ").append(usr.getDrinkType().getName()).append("\n"));
         sb.append("Можете приступать к /drink! (и попробуйте мне только /throw сделать!)");
         sendMessage.setText(sb.toString());
 
@@ -44,6 +44,14 @@ public class ServingMessage {
         replyKeyboardMarkup.setOneTimeKeyboad(true);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
+        return sendMessage;
+    }
+
+    public static SendMessage getTimedMessage(Integer userID, String answer) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(userID.longValue());
+        sendMessage.enableHtml(true);
+        sendMessage.setText(answer);
         return sendMessage;
     }
 }

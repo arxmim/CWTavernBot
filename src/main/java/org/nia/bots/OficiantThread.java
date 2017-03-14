@@ -77,15 +77,13 @@ public class OficiantThread extends Thread {
     private void serve() {
         List<User> users = User.getAll();
         List<User> served = new ArrayList<>();
-        for (User usr : users) {
-            if (usr.getWanted() != null) {
-                served.add(usr);
-                usr.setDrinkType(usr.getWanted());
-                usr.setAlkoCount(2);
-                usr.setWanted(null);
-                usr.save();
-            }
-        }
+        users.stream().filter(usr -> usr.getWanted() != null).forEach(usr -> {
+            served.add(usr);
+            usr.setDrinkType(usr.getWanted());
+            usr.setAlkoCount(2);
+            usr.setWanted(null);
+            usr.save();
+        });
         try {
             if (!served.isEmpty()) {
                 bot.sendMessage(ServingMessage.getMessage(served));

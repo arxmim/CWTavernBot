@@ -226,7 +226,7 @@ public class Tournament {
                         right.setLose(true);
                         left.save();
                         right.save();
-                        res = "Оба участника пропустили состязание и были дисквалифицированы! " + left.getUser() + ", " + right.getUser() + " в следующий раз будьте по-смелее!\n";
+                        res = "Оба участника пропустили состязание и были дисквалифицированы! " + left.getUser() + ", " + right.getUser() + " в следующий раз будете смелее!\n";
                     } else if (left.getScore() == 0 || right.getScore() == 0) {
                         TournamentUsers winner = left;
                         TournamentUsers loser = right;

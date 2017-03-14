@@ -1,9 +1,11 @@
 package org.nia.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
 import org.nia.logic.DrinkType;
+import org.nia.logic.Location;
 import org.telegram.telegrambots.api.objects.Message;
 
 import java.sql.*;
@@ -21,15 +23,20 @@ public class User {
     private Date lastDrinkTime;
     private DrinkType drinkType;
     private DrinkType wanted;
+    private boolean isBarmen;
     private boolean isAdmin;
+    private int gold;
     private int alkoCount;
-    private int drinkedToday;
+    private int drinkedTotal;
+    private Date visitTavern;
+    private Location location;
+    private Date locationReturnTime;
 
-    public static User getByID(int userID) {
+    static User getByID(int userID) {
         User res = null;
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, isAdmin, alkoCount, lastDrinkTime, drinkedToday, drinkType, wanted from cwt_User where UserID = ?");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, isBarmen, alkoCount, lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin, gold, visitTavern, location, locationReturnTime from cwt_User where UserID = ?");
             preparedStatement.setInt(1, userID);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -37,10 +44,10 @@ public class User {
                 res.userID = userID;
                 res.nick = resultSet.getString(1);
                 res.name = resultSet.getString(2);
-                res.isAdmin = resultSet.getBoolean(3);
+                res.isBarmen = resultSet.getBoolean(3);
                 res.alkoCount = resultSet.getInt(4);
                 res.lastDrinkTime = resultSet.getTimestamp(5);
-                res.drinkedToday = resultSet.getInt(6);
+                res.drinkedTotal = resultSet.getInt(6);
                 try {
                     res.drinkType = DrinkType.valueOf(resultSet.getString(7));
                 } catch (Exception ignored) {
@@ -49,6 +56,11 @@ public class User {
                     res.wanted = DrinkType.valueOf(resultSet.getString(8));
                 } catch (Exception ignored) {
                 }
+                res.isAdmin = resultSet.getBoolean(9);
+                res.gold = resultSet.getInt(10);
+                res.visitTavern = resultSet.getTimestamp(11);
+                res.location = Location.valueOf(resultSet.getString(12));
+                res.locationReturnTime = resultSet.getTimestamp(13);
 
             }
         } catch (SQLException e) {
@@ -70,8 +82,13 @@ public class User {
             res.name = user.getFirstName();
             res.userID = userID;
             res.alkoCount = 0;
+            res.isBarmen = false;
+            res.drinkedTotal = 0;
             res.isAdmin = false;
-            res.drinkedToday = 0;
+            res.gold = 30;
+            res.visitTavern = null;
+            res.location = Location.TAVERN;
+            res.locationReturnTime = null;
             res.save();
         }
         return res;
@@ -82,7 +99,7 @@ public class User {
         nick = nick.replace("@", "");
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select userID, name, isAdmin, alkoCount, lastDrinkTime, drinkedToday, drinkType, wanted from cwt_User where nick = ?");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select userID, name, isBarmen, alkoCount, lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin, gold, visitTavern, location, locationReturnTime from cwt_User where nick = ?");
             preparedStatement.setString(1, nick);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -90,10 +107,10 @@ public class User {
                 res.nick = nick;
                 res.userID = resultSet.getInt(1);
                 res.name = resultSet.getString(2);
-                res.isAdmin = resultSet.getBoolean(3);
+                res.isBarmen = resultSet.getBoolean(3);
                 res.alkoCount = resultSet.getInt(4);
                 res.lastDrinkTime = resultSet.getTimestamp(5);
-                res.drinkedToday = resultSet.getInt(6);
+                res.drinkedTotal = resultSet.getInt(6);
                 try {
                     res.drinkType = DrinkType.valueOf(resultSet.getString(7));
                 } catch (Exception ignored) {
@@ -102,6 +119,11 @@ public class User {
                     res.wanted = DrinkType.valueOf(resultSet.getString(8));
                 } catch (Exception ignored) {
                 }
+                res.isAdmin = resultSet.getBoolean(9);
+                res.gold = resultSet.getInt(10);
+                res.visitTavern = resultSet.getTimestamp(11);
+                res.location = Location.valueOf(resultSet.getString(12));
+                res.locationReturnTime = resultSet.getTimestamp(13);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -113,17 +135,20 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select userID, nick, name, isAdmin, alkoCount, lastDrinkTime, drinkedToday, drinkType, wanted from cwt_User");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
+                    "Select userID, nick, name, isBarmen, alkoCount" +
+                            ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
+                            ", gold, visitTavern, location, locationReturnTime from cwt_User");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
                 user.userID = resultSet.getInt(1);
                 user.nick = resultSet.getString(2);
                 user.name = resultSet.getString(3);
-                user.isAdmin = resultSet.getBoolean(4);
+                user.isBarmen = resultSet.getBoolean(4);
                 user.alkoCount = resultSet.getInt(5);
                 user.lastDrinkTime = resultSet.getTimestamp(6);
-                user.drinkedToday = resultSet.getInt(7);
+                user.drinkedTotal = resultSet.getInt(7);
                 try {
                     user.drinkType = DrinkType.valueOf(resultSet.getString(8));
                 } catch (Exception ignored) {
@@ -132,6 +157,11 @@ public class User {
                     user.wanted = DrinkType.valueOf(resultSet.getString(9));
                 } catch (Exception ignored) {
                 }
+                user.isAdmin = resultSet.getBoolean(10);
+                user.gold = resultSet.getInt(11);
+                user.visitTavern = resultSet.getTimestamp(12);
+                user.location = Location.valueOf(resultSet.getString(13));
+                user.locationReturnTime = resultSet.getTimestamp(14);
                 res.add(user);
 
             }
@@ -152,23 +182,28 @@ public class User {
             if (exists) {
                 preparedStatement = connectionDB.getPreparedStatement("update cwt_User set nick = ?" +
                         ", name = ?" +
-                        ", isAdmin = ?" +
+                        ", isBarmen = ?" +
                         ", alkoCount = ?" +
                         ", lastDrinkTime = ?" +
-                        ", drinkedToday = ?" +
+                        ", drinkedTotal = ?" +
                         ", drinkType = ?" +
                         ", wanted = ?" +
+                        ", isAdmin = ?" +
+                        ", gold = ?" +
+                        ", visitTavern = ?" +
+                        ", location = ?" +
+                        ", locationReturnTime = ?" +
                         " where UserID = ?");
                 preparedStatement.setString(1, nick);
                 preparedStatement.setString(2, name);
-                preparedStatement.setBoolean(3, isAdmin);
+                preparedStatement.setBoolean(3, isBarmen);
                 preparedStatement.setInt(4, alkoCount);
                 if (lastDrinkTime != null) {
                     preparedStatement.setTimestamp(5, new Timestamp(lastDrinkTime.getTime()));
                 } else {
                     preparedStatement.setNull(5, Types.TIMESTAMP);
                 }
-                preparedStatement.setInt(6, drinkedToday);
+                preparedStatement.setInt(6, drinkedTotal);
                 if (drinkType != null) {
                     preparedStatement.setString(7, drinkType.name());
                 } else {
@@ -179,22 +214,40 @@ public class User {
                 } else {
                     preparedStatement.setNull(8, Types.VARCHAR);
                 }
-                preparedStatement.setInt(9, userID);
+                preparedStatement.setBoolean(9, isAdmin);
+                preparedStatement.setInt(10, gold);
+                if (visitTavern != null) {
+                    preparedStatement.setTimestamp(11, new Timestamp(visitTavern.getTime()));
+                } else {
+                    preparedStatement.setNull(11, Types.TIMESTAMP);
+                }
+                preparedStatement.setString(12, location.name());
+                if (locationReturnTime != null) {
+                    preparedStatement.setTimestamp(13, new Timestamp(locationReturnTime.getTime()));
+                } else {
+                    preparedStatement.setNull(13, Types.TIMESTAMP);
+                }
+                preparedStatement.setInt(14, userID);
                 preparedStatement.execute();
             } else {
-                preparedStatement = connectionDB.getPreparedStatement("INSERT INTO cwt_User (UserID, nick, name, isAdmin, alkoCount, lastDrinkTime, drinkedToday, drinkType, wanted) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                preparedStatement = connectionDB.getPreparedStatement(
+                        "INSERT INTO cwt_User (UserID, nick, name, isBarmen, alkoCount" +
+                                ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
+                                ", gold, visitTavern, location, locationReturnTime) VALUES" +
+                                " (?, ?, ?, ?, ?" +
+                                ", ?, ?, ?, ?, ?" +
+                                ", ?, ?, ?, ?)");
                 preparedStatement.setInt(1, userID);
                 preparedStatement.setString(2, nick);
                 preparedStatement.setString(3, name);
-                preparedStatement.setBoolean(4, isAdmin);
+                preparedStatement.setBoolean(4, isBarmen);
                 preparedStatement.setInt(5, alkoCount);
                 if (lastDrinkTime != null) {
                     preparedStatement.setTimestamp(6, new Timestamp(lastDrinkTime.getTime()));
                 } else {
                     preparedStatement.setNull(6, Types.TIMESTAMP);
                 }
-                preparedStatement.setInt(7, drinkedToday);
+                preparedStatement.setInt(7, drinkedTotal);
                 if (drinkType != null) {
                     preparedStatement.setString(8, drinkType.name());
                 } else {
@@ -205,6 +258,19 @@ public class User {
                 } else {
                     preparedStatement.setNull(9, Types.VARCHAR);
                 }
+                preparedStatement.setBoolean(10, isAdmin);
+                preparedStatement.setInt(11, gold);
+                if (visitTavern != null) {
+                    preparedStatement.setTimestamp(12, new Timestamp(visitTavern.getTime()));
+                } else {
+                    preparedStatement.setNull(12, Types.TIMESTAMP);
+                }
+                preparedStatement.setString(13, location.name());
+                if (locationReturnTime != null) {
+                    preparedStatement.setTimestamp(14, new Timestamp(locationReturnTime.getTime()));
+                } else {
+                    preparedStatement.setNull(14, Types.TIMESTAMP);
+                }
                 preparedStatement.execute();
             }
             res = true;
@@ -214,11 +280,15 @@ public class User {
         return res;
     }
 
-    public void setIsAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
+    public void setIsBarmen(boolean isBarmen) {
+        this.isBarmen = isBarmen;
     }
 
-    public boolean IsAdmin() {
+    public boolean isBarmen() {
+        return isBarmen;
+    }
+
+    public boolean isAdmin() {
         return isAdmin;
     }
 
@@ -243,8 +313,8 @@ public class User {
         }
     }
 
-    public void setDrinkedToday(int drinkedToday) {
-        this.drinkedToday = drinkedToday;
+    public void setDrinkedTotal(int drinkedTotal) {
+        this.drinkedTotal = drinkedTotal;
     }
 
     public void setLastDrinkTime(Date lastDrinkTime) {
@@ -255,8 +325,8 @@ public class User {
         return lastDrinkTime;
     }
 
-    public int getDrinkedToday() {
-        return drinkedToday;
+    public int getDrinkedTotal() {
+        return drinkedTotal;
     }
 
     public DrinkType getDrinkType() {
@@ -271,12 +341,12 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, drinkedToday from cwt_User order by drinkedToday desc");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, drinkedTotal from cwt_User order by drinkedTotal desc");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
                 user.nick = resultSet.getString(1);
-                user.drinkedToday = resultSet.getInt(2) / 2;
+                user.drinkedTotal = resultSet.getInt(2) / 2;
                 res.add(user);
             }
         } catch (SQLException e) {
@@ -295,5 +365,40 @@ public class User {
 
     public int getUserID() {
         return userID;
+    }
+
+    public int getGold() {
+        return gold;
+    }
+
+    public void setGold(int gold) {
+        this.gold = gold;
+    }
+
+    public boolean IsVisitTavernToday() {
+        return DateUtils.isSameDay(visitTavern, new Date());
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public boolean inTavern() {
+        return location == Location.TAVERN;
+    }
+    public boolean onQuest() {
+        return location.isQuest();
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public void setLocationReturnTime(Date locationReturnTime) {
+        this.locationReturnTime = locationReturnTime;
+    }
+
+    public Date getLocationReturnTime() {
+        return locationReturnTime;
     }
 }

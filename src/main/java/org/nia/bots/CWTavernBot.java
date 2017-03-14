@@ -2,9 +2,7 @@ package org.nia.bots;
 
 import org.apache.commons.lang.StringUtils;
 import org.nia.PropertiesLoader;
-import org.nia.logic.Commands;
-import org.nia.logic.CommonCommands;
-import org.nia.logic.DrinkType;
+import org.nia.logic.*;
 import org.nia.model.Tournament;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
@@ -14,6 +12,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -21,7 +22,7 @@ import java.util.Random;
  */
 public class CWTavernBot extends TelegramLongPollingBot {
     public static CWTavernBot INSTANCE = new CWTavernBot();
-    public static final String BOT_NAME = "CWTavernBot";
+    private static final String BOT_NAME = "CWTavernBot";
     private static final String LOGTAG = "CWTavernBot";
 
     @Override
@@ -40,8 +41,8 @@ public class CWTavernBot extends TelegramLongPollingBot {
                         DrinkType drinkType = DrinkType.values()[rand];
                         user.setDrinkType(drinkType);
                         user.save();
-                        String answer = user + " добро пожаловать в нашу таверну! Держи для рывка " + drinkType.getOnGive() + ", можешь смело /drink! ну или /throw, но мы же тут разумные люди, да?";
-                        sendMessage(CommonCommands.getMessage(message, answer));
+                        String answer = String.format(drinkType.getEnterPhrase(), user);
+                        sendMessage(TavernCommands.GIVE.getMessage(message, answer));
                     }
                     BotLogger.info(LOGTAG, "no text");
                 }
@@ -78,29 +79,45 @@ public class CWTavernBot extends TelegramLongPollingBot {
         if (isCommand(message.getText()) || message.isUserMessage()) {
             Tournament current = Tournament.getCurrent();
             if (current != null && current.isInProgress()) {
-                for (Commands command : current.getType().getCommands()) {
+                org.nia.model.User user = org.nia.model.User.getFromMessage(message);
+                List<Commands> commandsList = new ArrayList<>();
+                if (user.inTavern()) {
+                    commandsList.addAll(current.getType().getCommands());
+                }
+                if (message.isUserMessage()) {
+                    commandsList.addAll(Arrays.asList(PersonalCommands.values()));
+                }
+                for (Commands command : commandsList) {
                     if (command.isApplicable(message)) {
                         String answer = command.apply(message);
                         if (!StringUtils.isEmpty(answer)) {
-                            sendMessageRequest = CommonCommands.getMessage(message, answer);
+                            sendMessageRequest = command.getMessage(message, answer);
                         }
                         break;
                     }
                 }
             } else {
-                for (CommonCommands command : CommonCommands.values()) {
+                org.nia.model.User user = org.nia.model.User.getFromMessage(message);
+                List<Commands> commandsList = new ArrayList<>();
+                if (user.inTavern()) {
+                    commandsList.addAll(Arrays.asList(TavernCommands.values()));
+                }
+                if (message.isUserMessage()) {
+                    commandsList.addAll(Arrays.asList(PersonalCommands.values()));
+                }
+                for (Commands command : commandsList) {
                     if (command.isApplicable(message)) {
                         String answer = command.apply(message);
                         if (!StringUtils.isEmpty(answer)) {
-                            sendMessageRequest = CommonCommands.getMessage(message, answer);
+                            sendMessageRequest = command.getMessage(message, answer);
                         }
                         break;
                     }
                 }
             }
             if (sendMessageRequest == null && message.isUserMessage()) {
-                String answer = CommonCommands.HELP.apply(message);
-                sendMessageRequest = CommonCommands.getMessage(message, answer);
+                String answer = PersonalCommands.MY_INFO.apply(message);
+                sendMessageRequest = PersonalCommands.MY_INFO.getMessage(message, answer);
             }
         }
         if (sendMessageRequest != null) {

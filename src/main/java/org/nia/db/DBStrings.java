@@ -10,11 +10,16 @@ class DBStrings {
             "Name VARCHAR(200) NOT NULL, \n" +
             "nick VARCHAR(200) NOT NULL, \n" +
             "lastDrinkTime DATETIME, \n" +
-            "isAdmin  bit NOT NULL, \n" +
+            "isBarmen  bit NOT NULL DEFAULT 0, \n" +
+            "isAdmin  bit NOT NULL DEFAULT 0, \n" + //TODO
             "alkoCount INTEGER NOT NULL, \n" +
             "drinkType varchar(50), \n" +
             "wanted varchar(50), \n" +
-            "drinkedToday INTEGER NOT NULL)";
+            "gold integer NOT NULL DEFAULT 0, \n" + //TODO
+            "visitTavern DATETIME, \n" + //TODO
+            "location varchar(50) NOT NULL, \n" + //TODO
+            "locationReturnTime DATETIME, \n" + //TODO
+            "drinkedTotal INTEGER NOT NULL)";
     static final String createUserPrefTable = "if not exists (select * from sysobjects where name='cwt_DrinkPrefs' and xtype='U')\n" +
             "create table cwt_DrinkPrefs (\n" +
             "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +

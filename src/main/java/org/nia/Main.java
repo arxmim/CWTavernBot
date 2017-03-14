@@ -1,5 +1,6 @@
 package org.nia;
 
+import org.nia.bots.BotTimerThread;
 import org.nia.bots.CWTavernBot;
 import org.nia.bots.OficiantThread;
 import org.nia.db.DatabaseManager;
@@ -36,6 +37,7 @@ public class Main {
                 DatabaseManager.getInstance();
                 telegramBotsApi.registerBot(CWTavernBot.INSTANCE);
                 new OficiantThread(CWTavernBot.INSTANCE).run();
+                new BotTimerThread(CWTavernBot.INSTANCE).run();
             } catch (TelegramApiException e) {
                 BotLogger.error(LOGTAG, e);
             }
