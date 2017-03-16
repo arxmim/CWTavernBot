@@ -121,6 +121,26 @@ public enum PersonalCommands implements Commands {
         @Override
         public String apply(Message message) {
             User user = User.getFromMessage(message.getFrom());
+            int knowledge = user.getDrinkedTotal() / 10;
+            DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
+            String res = "";
+            if (drinkPrefs != null) {
+                int strength = drinkPrefs.getPrefMap().entrySet().stream()
+                        .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
+                                .contains(e.getKey()))
+                        .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
+                int charism = drinkPrefs.getPrefMap().entrySet().stream()
+                        .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
+                                .contains(e.getKey()))
+                        .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
+                int agility = drinkPrefs.getPrefMap().entrySet().stream()
+                        .mapToInt(e -> e.getValue().getToThrow()).sum() / 5 + 1;
+                int constitution = drinkPrefs.getPrefMap().entrySet().stream()
+                        .mapToInt(e -> e.getValue().getToBeThrown()).sum() / 5 + 1;
+                String stats = "\nСила: " + strength + "\nЛовкость: " + agility + "\nОбаяние: " + charism + "\nСтойкость: " + constitution + "\nЗнание таверны: " + knowledge;
+
+                res =  String.format(TournamentType.FIGHT_CLUB.getStartPhrase() + "\nТвои характеристики: " + stats + "\n");
+            }
             if (user.inTavern()) {
                 String drink = "нет напитка";
                 if (user.getDrinkType() != null) {
@@ -133,13 +153,12 @@ public enum PersonalCommands implements Commands {
                         drink += " (полный)";
                     }
                 }
-                return "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
+                res+= "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
             } else if (user.onQuest()) {
                 long diff = TimeUnit.MINUTES.convert(user.getLocationReturnTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
-                return "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
-            } else {
-                return "";
+                res+= "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
             }
+            return res;
         }
     },
     SECRET_MY_INFO("/my_info") {
@@ -184,15 +203,13 @@ public enum PersonalCommands implements Commands {
     @Override
     public List<KeyboardRow> getKeyboard(Message message) {
         User user = User.getFromMessage(message.getFrom());
+        ArrayList<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow keyboardButtons = new KeyboardRow();
+        keyboardButtons.add(MY_INFO.text);
         if (user.isAdmin()) {
-            ArrayList<KeyboardRow> keyboardRows = new ArrayList<>();
-            KeyboardRow keyboardButtons = new KeyboardRow();
-            keyboardButtons.add(MY_INFO.text);
             keyboardButtons.add(QUEST.text);
-            keyboardRows.add(keyboardButtons);
-            return keyboardRows;
-        } else {
-            return null;
         }
+        keyboardRows.add(keyboardButtons);
+        return keyboardRows;
     }
 }
