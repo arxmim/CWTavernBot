@@ -137,13 +137,15 @@ public enum TavernCommands implements Commands {
             if (asker.isAdmin() && first.isPresent()) {
                 DrinkType drinkType = first.get();
                 User.getAll().forEach(user -> {
-                    long since = TimeUnit.MINUTES.convert(new Date().getTime() - user.getLastDrinkTime().getTime(), TimeUnit.MILLISECONDS);
-                    if (since < 60) {
-                        user.setDrinkType(drinkType);
-                        user.setLastDrinkTime(null);
-                        user.setAlkoCount(2);
-                        user.setWanted(null);
-                        user.save();
+                    if (user.getLastDrinkTime() != null) {
+                        long since = TimeUnit.MINUTES.convert(new Date().getTime() - user.getLastDrinkTime().getTime(), TimeUnit.MILLISECONDS);
+                        if (since < 60) {
+                            user.setDrinkType(drinkType);
+                            user.setLastDrinkTime(null);
+                            user.setAlkoCount(2);
+                            user.setWanted(null);
+                            user.save();
+                        }
                     }
                 });
                 return "Всем, кто недавно пил, обновили напитки! " + drinkType.getName() + ", для всех и каждому! Пейте, гости дорогие!";
