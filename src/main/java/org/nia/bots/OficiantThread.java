@@ -60,7 +60,7 @@ public class OficiantThread extends Thread {
         if (current.isAnnounced()) {
             tournamentPhase = gcNow.getTime().after(gcRegistration.getTime());
         } else if (current.isRegistration()) {
-            gcRegistration.add(Calendar.MINUTE, 5);
+            gcRegistration.add(Calendar.MINUTE, 3);
             tournamentPhase = gcNow.getTime().after(gcRegistration.getTime());
         }
         return tournamentPhase && gcWas.get(GregorianCalendar.MINUTE) < gcNow.get(GregorianCalendar.MINUTE);

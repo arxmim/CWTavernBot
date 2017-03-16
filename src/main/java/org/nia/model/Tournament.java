@@ -11,6 +11,7 @@ import org.telegram.telegrambots.logging.BotLogger;
 
 import java.sql.*;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * @author Иван, 11.03.2017.
@@ -168,7 +169,7 @@ public class Tournament {
         if (isAnnounced()) {
             tournamentState = TournamentState.REGISTRATION;
             save();
-            res = "Регистрация на турнир " + tournamentType + " открыта на 10 минут! Максимальное число участников - " + maxUsers + ". Торопитесь принять участие!";
+            res = "Регистрация на турнир " + tournamentType + " открыта на 3 минуты! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!";
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
             if (pair == null || pair.getRight() == null) {
@@ -178,7 +179,7 @@ public class Tournament {
             } else {
                 tournamentState = TournamentState.PROGRESS;
                 save();
-                res = Emoji.DRINKS + "Турнир " + tournamentType + " начинается!\nГлавный приз - право называть себя барменом!" + Emoji.DRINK + "\n\nПолный список участников:\n" + TournamentUsers.getAllString(this, round + 1) + "\n Первое состязание состоится через 1 минуту, всем занять свои места, МЫ НАЧИНАЕМ!";
+                res = Emoji.DRINKS + "Турнир " + tournamentType + " начинается!\nГлавный приз - огромное сочное НИЧЕГО!" + Emoji.DRINK + "\n\nПолный список участников:\n" + TournamentUsers.getAllString(this, round + 1) + "\n Первое состязание состоится через 1 минуту, всем занять свои места, МЫ НАЧИНАЕМ!";
             }
         } else if (isInProgress()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
@@ -244,12 +245,14 @@ public class Tournament {
                     } else {
                         TournamentUsers winner = null;
                         TournamentUsers loser = null;
+                        Random random = new Random();
 
-                        BotLogger.info("Tournament", left.getUser() + "=" + left.getScore() + "\t" + right.getUser() + "=" + right.getScore());
-                        if (left.getScore() < right.getScore()) {
+                        int leftScore = left.getScore() + random.nextInt(71);
+                        int rightScore = right.getScore() + random.nextInt(71);
+                        if (leftScore < rightScore) {
                             winner = right;
                             loser = left;
-                        } else if (left.getScore() > right.getScore()) {
+                        } else if (leftScore > rightScore) {
                             winner = left;
                             loser = right;
                         }

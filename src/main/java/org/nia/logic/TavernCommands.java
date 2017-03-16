@@ -1,5 +1,6 @@
 package org.nia.logic;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nia.bots.CWTavernBot;
 import org.nia.model.DrinkPrefs;
 import org.nia.model.Tournament;
@@ -65,7 +66,7 @@ public enum TavernCommands implements Commands {
             } else {
                 String res = "";
                 if (message.isReply()) {
-                    if (message.getReplyToMessage().getFrom().getUserName().equals("CWTavernBot")) {
+                    if ("CWTavernBot".equals(message.getReplyToMessage().getFrom().getUserName())) {
                         User bot = User.getByNick("CWTavernBot");
                         try {
                             DrinkPrefs.incThrow(bot, DrinkType.AVE_WHITE);
@@ -99,12 +100,33 @@ public enum TavernCommands implements Commands {
             }
         }
     },
-    //    TEST("/test123") {
-//        @Override
-//        public String apply(Message message) {
-//            return Emoji.DRINKS + "Турнир " + TournamentType.FIGHT_CLUB + " начинается!\nГлавный приз - право называть себя барменом!"+ Emoji.DRINK+"\n\nПолный список участников:\n" + "1 - вася" + "\n Первое состязание состоится через 1 минуту, всем занять свои места, МЫ НАЧИНАЕМ!";
-//        }
-//    },
+        TEST("/test123") {
+        @Override
+        public String apply(Message message) {
+            User user = User.getFromMessage(message.getFrom());
+            if (message.getText().startsWith("/test123 ")) {
+                user = User.getByNick(StringUtils.substringAfter(message.getText(), "/test123 "));
+            }
+            int knowledge = user.getDrinkedTotal() / 10;
+            DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
+            int strength = drinkPrefs.getPrefMap().entrySet().stream()
+                    .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
+                            .contains(e.getKey()))
+                    .mapToInt(e -> e.getValue().getToDrink()).sum() /5 + 1;
+            int charism = drinkPrefs.getPrefMap().entrySet().stream()
+                    .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
+                            .contains(e.getKey()))
+                    .mapToInt(e -> e.getValue().getToDrink()).sum() /5 + 1;
+            int agility = drinkPrefs.getPrefMap().entrySet().stream()
+                    .mapToInt(e -> e.getValue().getToThrow()).sum() /5 + 1;
+            int constitution = drinkPrefs.getPrefMap().entrySet().stream()
+                    .mapToInt(e -> e.getValue().getToBeThrown()).sum() /5 + 1;
+            String stats = "\nСила: " + strength +"\nЛовкость: " + agility +"\nОбаяние: " + charism +"\nСтойкость: " + constitution+ "\nЗнание таверны: " + knowledge;
+            int score = strength + charism + agility + constitution + knowledge;
+
+            return String.format(TournamentType.FIGHT_CLUB.getStartPhrase() + "\nТвои характеристики: " + stats + "\n\nОТЛАДКА:" + score, user);
+        }
+    },
     GIVE("") {
         @Override
         public boolean isApplicable(Message message) {

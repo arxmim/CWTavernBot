@@ -27,7 +27,10 @@ public interface Commands {
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboad(true);
-        replyKeyboardMarkup.setKeyboard(getKeyboard(message));
+        List<KeyboardRow> keyboard = getKeyboard(message);
+        if (keyboard != null) {
+            replyKeyboardMarkup.setKeyboard(keyboard);
+        }
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
         return sendMessage;

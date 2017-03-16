@@ -30,19 +30,21 @@ public class BotTimerThread extends Thread {
             try {
                 TimeUnit.SECONDS.sleep(5);
                 now = new Date();
-                User.getAll().stream().filter(usr -> usr.onQuest() && usr.getLocationReturnTime().before(now)).forEach(usr -> {
-                    Location location = usr.getLocation();
-                    usr.setLocation(Location.TAVERN);
-                    usr.setLocationReturnTime(null);
-                    int earn = 3 + new Random().nextInt(3);
-                    usr.setGold(usr.getGold() + earn);
-                    usr.save();
-                    try {
-                        bot.sendMessage(ServingMessage.getTimedMessage(usr.getUserID(), location.getResult() + "\n\nТы выполнил просьбу Михалыча. Ты получил " + earn + Emoji.GOLD));
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
+                for (User usr : User.getAll()) {
+                    if (usr.onQuest() && usr.getLocationReturnTime().before(now)) {
+                        Location location = usr.getLocation();
+                        usr.setLocation(Location.TAVERN);
+                        usr.setLocationReturnTime(null);
+                        int earn = 3 + new Random().nextInt(3);
+                        usr.setGold(usr.getGold() + earn);
+                        usr.save();
+                        try {
+                            bot.sendMessage(ServingMessage.getTimedMessage(usr.getUserID(), location.getResult() + "\n\nТы выполнил просьбу Михалыча и получил " + earn + Emoji.GOLD));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
                     }
-                });
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

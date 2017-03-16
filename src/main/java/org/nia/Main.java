@@ -11,6 +11,9 @@ import org.telegram.telegrambots.logging.BotLogger;
 import org.telegram.telegrambots.logging.BotsFileHandler;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 
@@ -36,8 +39,9 @@ public class Main {
                 // Register long polling bots. They work regardless type of TelegramBotsApi we are creating
                 DatabaseManager.getInstance();
                 telegramBotsApi.registerBot(CWTavernBot.INSTANCE);
-                new OficiantThread(CWTavernBot.INSTANCE).run();
-                new BotTimerThread(CWTavernBot.INSTANCE).run();
+                ExecutorService executorService = Executors.newFixedThreadPool(5);
+                executorService.submit(new OficiantThread(CWTavernBot.INSTANCE));
+                executorService.submit(new BotTimerThread(CWTavernBot.INSTANCE));
             } catch (TelegramApiException e) {
                 BotLogger.error(LOGTAG, e);
             }

@@ -10,6 +10,7 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -134,13 +135,14 @@ public enum PersonalCommands implements Commands {
                 }
                 return "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
             } else if (user.onQuest()) {
-                return "Ты выполняешь поручение Михалыча. В кармане у тебя " + user.getGold() + Emoji.GOLD;
+                long diff = TimeUnit.MINUTES.convert(user.getLocationReturnTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
+                return "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
             } else {
                 return "";
             }
         }
     },
-    SECRET_MY_INFO("/secret_my_info") {
+    SECRET_MY_INFO("/my_info") {
         @Override
         public String apply(Message message) {
             User user = User.getFromMessage(message.getFrom());
@@ -178,6 +180,7 @@ public enum PersonalCommands implements Commands {
     public boolean isApplicable(Message message) {
         return message.getText().contains(this.text);
     }
+
     @Override
     public List<KeyboardRow> getKeyboard(Message message) {
         User user = User.getFromMessage(message.getFrom());
