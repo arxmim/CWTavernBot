@@ -148,7 +148,7 @@ public enum TavernCommands implements Commands {
                         }
                     }
                 });
-                return "Всем, кто недавно пил, обновили напитки! " + drinkType.getName() + ", для всех и каждому! Пейте, гости дорогие!";
+                return "Всем кто недавно пил обновили напитки, " + drinkType.getName() + " для всех и каждому! Пейте, гости дорогие!";
             }
             if (message.isReply() && asker.isBarmen()) {
                 if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
