@@ -11,10 +11,7 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -100,7 +97,7 @@ public enum TavernCommands implements Commands {
             }
         }
     },
-        TEST("/test123") {
+    TEST("/test123") {
         @Override
         public String apply(Message message) {
             User user = User.getFromMessage(message.getFrom());
@@ -112,16 +109,16 @@ public enum TavernCommands implements Commands {
             int strength = drinkPrefs.getPrefMap().entrySet().stream()
                     .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
                             .contains(e.getKey()))
-                    .mapToInt(e -> e.getValue().getToDrink()).sum() /5 + 1;
+                    .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
             int charism = drinkPrefs.getPrefMap().entrySet().stream()
                     .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
                             .contains(e.getKey()))
-                    .mapToInt(e -> e.getValue().getToDrink()).sum() /5 + 1;
+                    .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
             int agility = drinkPrefs.getPrefMap().entrySet().stream()
-                    .mapToInt(e -> e.getValue().getToThrow()).sum() /5 + 1;
+                    .mapToInt(e -> e.getValue().getToThrow()).sum() / 5 + 1;
             int constitution = drinkPrefs.getPrefMap().entrySet().stream()
-                    .mapToInt(e -> e.getValue().getToBeThrown()).sum() /5 + 1;
-            String stats = "\nСила: " + strength +"\nЛовкость: " + agility +"\nОбаяние: " + charism +"\nСтойкость: " + constitution+ "\nЗнание таверны: " + knowledge;
+                    .mapToInt(e -> e.getValue().getToBeThrown()).sum() / 5 + 1;
+            String stats = "\nСила: " + strength + "\nЛовкость: " + agility + "\nОбаяние: " + charism + "\nСтойкость: " + constitution + "\nЗнание таверны: " + knowledge;
             int score = strength + charism + agility + constitution + knowledge;
 
             return String.format(TournamentType.FIGHT_CLUB.getStartPhrase() + "\nТвои характеристики: " + stats + "\n\nОТЛАДКА:" + score, user);
@@ -136,6 +133,21 @@ public enum TavernCommands implements Commands {
         @Override
         public String apply(Message message) {
             User asker = User.getFromMessage(message);
+            Optional<DrinkType> first = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand() + "_all")).findFirst();
+            if (asker.isAdmin() && first.isPresent()) {
+                DrinkType drinkType = first.get();
+                User.getAll().forEach(user -> {
+                    long since = TimeUnit.MINUTES.convert(new Date().getTime() - user.getLastDrinkTime().getTime(), TimeUnit.MILLISECONDS);
+                    if (since < 60) {
+                        user.setDrinkType(drinkType);
+                        user.setLastDrinkTime(null);
+                        user.setAlkoCount(2);
+                        user.setWanted(null);
+                        user.save();
+                    }
+                });
+                return "Всем, кто недавно пил, обновили напитки! " + drinkType.getName() + ", для всех и каждому! Пейте, гости дорогие!";
+            }
             if (message.isReply() && asker.isBarmen()) {
                 if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
                     return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
