@@ -24,9 +24,9 @@ public class TournamentUsers {
 
     public static String register(Tournament tournament, User user) {
         try {
-            if (user.getDrinkedTotal() > 30) {
-                return user + ", прости, ты слишком пьян, дай мандаринам подраться на их свадьбе";
-            }
+//            if (user.getDrinkedTotal() > 30) {
+//                return user + ", прости, ты слишком пьян, дай мандаринам подраться на их свадьбе";
+//            }
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select 1 from cwt_TournamentUsers where userID = ? and TournamentID = ?");
             preparedStatement.setInt(1, user.getUserID());
