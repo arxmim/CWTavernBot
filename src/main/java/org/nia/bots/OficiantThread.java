@@ -85,7 +85,8 @@ public class OficiantThread extends Thread {
                 usr.setWanted(null);
                 usr.save();
                 servedDrink.add(usr);
-            } else if (usr.getWantedFood() != null) {
+            }
+            if (usr.getWantedFood() != null) {
                 usr.setFood(usr.getWantedFood());
                 usr.setFoodCount(1);
                 usr.setWantedFood(null);

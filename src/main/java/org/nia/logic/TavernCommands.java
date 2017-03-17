@@ -107,24 +107,7 @@ public enum TavernCommands implements Commands {
             if (message.getText().startsWith("/test123 ")) {
                 user = User.getByNick(StringUtils.substringAfter(message.getText(), "/test123 "));
             }
-            int knowledge = user.getDrinkedTotal() / 10;
-            DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
-            int strength = drinkPrefs.getPrefMap().entrySet().stream()
-                    .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
-                            .contains(e.getKey()))
-                    .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
-            int charism = drinkPrefs.getPrefMap().entrySet().stream()
-                    .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
-                            .contains(e.getKey()))
-                    .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
-            int agility = drinkPrefs.getPrefMap().entrySet().stream()
-                    .mapToInt(e -> e.getValue().getToThrow()).sum() / 5 + 1;
-            int constitution = drinkPrefs.getPrefMap().entrySet().stream()
-                    .mapToInt(e -> e.getValue().getToBeThrown()).sum() / 5 + 1;
-            String stats = "\nСила: " + strength + "\nЛовкость: " + agility + "\nОбаяние: " + charism + "\nСтойкость: " + constitution + "\nЗнание таверны: " + knowledge;
-            int score = strength + charism + agility + constitution + knowledge;
-
-            return String.format(TournamentType.FIGHT_CLUB.getStartPhrase() + "\nТвои характеристики: " + stats + "\n\nОТЛАДКА:" + score, user);
+            return String.format(TournamentType.FIGHT_CLUB.getStartPhrase() + "\n" + user.getFightClubStats() + "\n\nОТЛАДКА:" + user.getFightClubStatsSum(), user);
         }
     },
     GIVE("") {

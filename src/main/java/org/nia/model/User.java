@@ -11,6 +11,7 @@ import org.telegram.telegrambots.api.objects.Message;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -429,6 +430,63 @@ public class User {
         return res;
     }
 
+    public int getFightClubStatsSum() {
+        DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
+        return getStr(drinkPrefs) + getAgi(drinkPrefs) + getCon(drinkPrefs) + getCha(drinkPrefs) + getKno();
+
+    }
+
+    public String getFightClubStats() {
+        DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
+        return "Твои характеристики:\nСила: " + getStr(drinkPrefs)
+                + "\nЛовкость: " + getAgi(drinkPrefs) + "\nОбаяние: " + getCha(drinkPrefs)
+                + "\nСтойкость: " + getCon(drinkPrefs) + "\nЗнание таверны: " + getKno();
+    }
+
+    private int getStr(DrinkPrefs drinkPrefs) {
+        int strength = 1;
+        if (drinkPrefs != null) {
+            strength += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
+                    .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
+                            .contains(e.getKey()))
+                    .mapToInt(e -> e.getValue().getToDrink()).sum());
+        }
+        return strength;
+    }
+
+    private int getAgi(DrinkPrefs drinkPrefs) {
+        int agility = 1;
+        if (drinkPrefs != null) {
+            agility += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
+                    .mapToInt(e -> e.getValue().getToThrow()).sum());
+        }
+        return agility;
+    }
+
+    private int getCha(DrinkPrefs drinkPrefs) {
+        int charism = 1;
+        if (drinkPrefs != null) {
+            charism += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
+                    .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
+                            .contains(e.getKey()))
+                    .mapToInt(e -> e.getValue().getToDrink()).sum());
+        }
+        return charism;
+    }
+
+    private int getCon(DrinkPrefs drinkPrefs) {
+        int constitution = 1;
+        if (drinkPrefs != null) {
+            constitution += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
+                    .mapToInt(e -> e.getValue().getToBeThrown()).sum());
+        }
+        return constitution;
+    }
+
+    private int getKno() {
+        return (int) Math.sqrt(this.getDrinkedTotal());
+    }
+
     public DrinkType getWanted() {
         return wanted;
     }
@@ -460,6 +518,7 @@ public class User {
     public boolean inTavern() {
         return location == Location.TAVERN;
     }
+
     public boolean onQuest() {
         return location.isQuest();
     }

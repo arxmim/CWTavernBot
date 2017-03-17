@@ -22,7 +22,7 @@ public enum Food {
         this.givePhrases = new ArrayList<>();
         this.eatPhrases = new ArrayList<>();
         givePhrases.add("%s, ваш " + onGive + ", приступай к /eat!");
-        givePhrases.add("%s, было сложно, но мы достали для тебя  " + onEat + "! Советую тебе быстрее его /eat, смотри как соседи жадно на тебя смотрят!");
+        givePhrases.add("%s, было сложно, но мы достали для тебя  " + onEat + "! Советую тебе быстрее /eat, смотри как соседи жадно на тебя смотрят!");
         givePhrases.add("Эй, %s, когда ты съешь " + thisPrefix + onEat + ", то станешь похож на толстую панду. Обожаю панд!");
         givePhrases.add("%s, у нас сегодня был завоз, так что ты не найдешь " + onEat + " свежее чем у нас!");
         eatPhrases.add("%s съел " + onEat +". Рррр, вот это аппетит!");

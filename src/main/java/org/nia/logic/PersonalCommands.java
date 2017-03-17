@@ -121,8 +121,6 @@ public enum PersonalCommands implements Commands {
         @Override
         public String apply(Message message) {
             User user = User.getFromMessage(message.getFrom());
-            int knowledge = user.getDrinkedTotal() / 10;
-            DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
             String res = "";
             if (user.inTavern()) {
                 String drink = "нет напитка";
@@ -141,24 +139,7 @@ public enum PersonalCommands implements Commands {
                 long diff = TimeUnit.MINUTES.convert(user.getLocationReturnTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
                 res= "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
             }
-
-            if (drinkPrefs != null) {
-                int strength = drinkPrefs.getPrefMap().entrySet().stream()
-                        .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
-                                .contains(e.getKey()))
-                        .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
-                int charism = drinkPrefs.getPrefMap().entrySet().stream()
-                        .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
-                                .contains(e.getKey()))
-                        .mapToInt(e -> e.getValue().getToDrink()).sum() / 5 + 1;
-                int agility = drinkPrefs.getPrefMap().entrySet().stream()
-                        .mapToInt(e -> e.getValue().getToThrow()).sum() / 5 + 1;
-                int constitution = drinkPrefs.getPrefMap().entrySet().stream()
-                        .mapToInt(e -> e.getValue().getToBeThrown()).sum() / 5 + 1;
-                String stats = "\nСила: " + strength + "\nЛовкость: " + agility + "\nОбаяние: " + charism + "\nСтойкость: " + constitution + "\nЗнание таверны: " + knowledge;
-
-                res +=  "\n\nТвои характеристики: " + stats;
-            }
+            res +=  "\n\n" + user.getFightClubStats();
             return res;
         }
     },
