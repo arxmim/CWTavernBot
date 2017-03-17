@@ -124,6 +124,24 @@ public enum PersonalCommands implements Commands {
             int knowledge = user.getDrinkedTotal() / 10;
             DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
             String res = "";
+            if (user.inTavern()) {
+                String drink = "нет напитка";
+                if (user.getDrinkType() != null) {
+                    drink = user.getDrinkType().getName();
+                    if (user.getAlkoCount() == 0) {
+                        drink += " (внутри пусто)";
+                    } else if (user.getAlkoCount() == 1) {
+                        drink += " (примерно половина)";
+                    } else {
+                        drink += " (полный)";
+                    }
+                }
+                res= "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
+            } else if (user.onQuest()) {
+                long diff = TimeUnit.MINUTES.convert(user.getLocationReturnTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
+                res= "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
+            }
+
             if (drinkPrefs != null) {
                 int strength = drinkPrefs.getPrefMap().entrySet().stream()
                         .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
@@ -139,24 +157,7 @@ public enum PersonalCommands implements Commands {
                         .mapToInt(e -> e.getValue().getToBeThrown()).sum() / 5 + 1;
                 String stats = "\nСила: " + strength + "\nЛовкость: " + agility + "\nОбаяние: " + charism + "\nСтойкость: " + constitution + "\nЗнание таверны: " + knowledge;
 
-                res =  String.format(TournamentType.FIGHT_CLUB.getStartPhrase() + "\nТвои характеристики: " + stats + "\n");
-            }
-            if (user.inTavern()) {
-                String drink = "нет напитка";
-                if (user.getDrinkType() != null) {
-                    drink = user.getDrinkType().getName();
-                    if (user.getAlkoCount() == 0) {
-                        drink += " (внутри пусто)";
-                    } else if (user.getAlkoCount() == 1) {
-                        drink += " (примерно половина)";
-                    } else {
-                        drink += " (полный)";
-                    }
-                }
-                res+= "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
-            } else if (user.onQuest()) {
-                long diff = TimeUnit.MINUTES.convert(user.getLocationReturnTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
-                res+= "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
+                res +=  "\n\nТвои характеристики: " + stats;
             }
             return res;
         }

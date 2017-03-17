@@ -76,17 +76,26 @@ public class OficiantThread extends Thread {
 
     private void serve() {
         List<User> users = User.getAll();
-        List<User> served = new ArrayList<>();
-        users.stream().filter(usr -> usr.getWanted() != null).forEach(usr -> {
-            served.add(usr);
-            usr.setDrinkType(usr.getWanted());
-            usr.setAlkoCount(2);
-            usr.setWanted(null);
-            usr.save();
+        List<User> servedDrink = new ArrayList<>();
+        List<User> servedFood = new ArrayList<>();
+        users.stream().filter(usr -> usr.getWanted() != null || usr.getWantedFood() != null).forEach(usr -> {
+            if (usr.getWanted() != null) {
+                usr.setDrinkType(usr.getWanted());
+                usr.setAlkoCount(2);
+                usr.setWanted(null);
+                usr.save();
+                servedDrink.add(usr);
+            } else if (usr.getWantedFood() != null) {
+                usr.setFood(usr.getWantedFood());
+                usr.setFoodCount(1);
+                usr.setWantedFood(null);
+                usr.save();
+                servedFood.add(usr);
+            }
         });
         try {
-            if (!served.isEmpty()) {
-                bot.sendMessage(ServingMessage.getMessage(served));
+            if (!servedDrink.isEmpty() || !servedFood.isEmpty()) {
+                bot.sendMessage(ServingMessage.getMessage(servedDrink, servedFood));
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();

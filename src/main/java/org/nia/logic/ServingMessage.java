@@ -13,14 +13,16 @@ public class ServingMessage {
     private static long chatID = -1001104513622L;
     private static long chatID_test = -213390213;
     private static long chatID_test_with_alex = -1001113989941L;
-    public static SendMessage getMessage(List<User> served) {
+    public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatID);
         sendMessage.enableHtml(true);
         StringBuilder sb = new StringBuilder();
         sb.append("А вот и я! Принесла напитки для посетителей:\n");
         served.forEach(usr -> sb.append(usr).append(" - ").append(usr.getDrinkType().getName()).append("\n"));
-        sb.append("Можете приступать к /drink! (и попробуйте мне только /throw сделать!)");
+        sb.append("\nА еще вот еда:\n");
+        servedFood.forEach(usr -> sb.append(usr).append(" - ").append(usr.getFood().getName()).append("\n"));
+        sb.append("Можете приступать к /drink и /eat!");
         sendMessage.setText(sb.toString());
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();

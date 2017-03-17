@@ -50,6 +50,9 @@ public enum TavernCommands implements Commands {
         @Override
         public String apply(Message message) {
             StringBuilder sb = new StringBuilder();
+            sb.append("Закуски:\n");
+            Arrays.stream(Food.values()).forEach(dt -> sb.append(dt.getCommand()).append(" - ").append(dt.getName()).append("\n"));
+            sb.append("\nВыпивка:\n");
             Arrays.stream(DrinkType.values()).forEach(dt -> sb.append(dt.getCommand()).append(" - ").append(dt.getName()).append("\n"));
             return sb.toString();
         }
@@ -127,7 +130,8 @@ public enum TavernCommands implements Commands {
     GIVE("") {
         @Override
         public boolean isApplicable(Message message) {
-            return Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent();
+            return Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent() ||
+                    Arrays.stream(Food.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent();
         }
 
         @Override
@@ -150,28 +154,78 @@ public enum TavernCommands implements Commands {
                 });
                 return "Всем кто недавно пил обновили напитки, " + drinkType.getName() + " для всех и каждому! Пейте, гости дорогие!";
             }
-            if (message.isReply() && asker.isBarmen()) {
-                if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
-                    return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
-                }
-                User fromMessage = User.getFromMessage(message.getReplyToMessage());
-                fromMessage.setAlkoCount(2);
-                DrinkType drinkType = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().get();
-                fromMessage.setDrinkType(drinkType);
-                fromMessage.setWanted(null);
-                fromMessage.save();
+            Optional<DrinkType> drink = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst();
+            if (drink.isPresent()) {
+                if (message.isReply() && asker.isBarmen()) {
+                    if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
+                        return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
+                    }
+                    User fromMessage = User.getFromMessage(message.getReplyToMessage());
+                    fromMessage.setAlkoCount(2);
+                    DrinkType drinkType = drink.get();
+                    fromMessage.setDrinkType(drinkType);
+                    fromMessage.setWanted(null);
+                    fromMessage.save();
 //                if (!fromMessage.IsVisitTavernToday()) {
 //                    fromMessage.setGold(fromMessage.getGold()-30);
 //                }
-                return String.format(drinkType.getGivePhrase(), fromMessage);
-            }
+                    return String.format(drinkType.getGivePhrase(), fromMessage);
+                }
 //            if (!asker.IsVisitTavernToday()) {
 //                asker.setGold(asker.getGold()-30);
 //            }
-            DrinkType drinkType = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().get();
-            asker.setWanted(drinkType);
-            asker.save();
+                DrinkType drinkType = drink.get();
+                asker.setWanted(drinkType);
+                asker.save();
+                return "";
+            } else {
+                Optional<Food> eat = Arrays.stream(Food.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst();
+                if (eat.isPresent()) {
+                    Food food = eat.get();
+                    if (message.isReply() && asker.isBarmen()) {
+                        if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
+                            return "Сам у себя заказываешь поесть? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
+                        }
+                        User fromMessage = User.getFromMessage(message.getReplyToMessage());
+                        fromMessage.setFoodCount(1);
+                        fromMessage.setFood(food);
+                        fromMessage.setWantedFood(null);
+                        fromMessage.save();
+//                if (!fromMessage.IsVisitTavernToday()) {
+//                    fromMessage.setGold(fromMessage.getGold()-30);
+//                }
+                        return String.format(food.getGivePhrase(), fromMessage);
+                    }
+//            if (!asker.IsVisitTavernToday()) {
+//                asker.setGold(asker.getGold()-30);
+//            }
+                    asker.setWantedFood(food);
+                    asker.save();
+                }
+            }
             return "";
+        }
+    },
+    EAT("/eat") {
+        @Override
+        public String apply(Message message) {
+            User drinker = User.getFromMessage(message);
+            if (drinker.getFoodCount() <= 0) {
+                return "";
+            }
+//            if (drinker.getLastDrinkTime() != null) {
+//                long since = TimeUnit.MINUTES.convert(new Date().getTime() - drinker.getLastDrinkTime().getTime(), TimeUnit.MILLISECONDS);
+//                long wait = 5 - since;
+//                if (wait > 0) {
+//                    return drinker + " ты недавно уже пил. Подожди еще " + wait + " минут";
+//                }
+//            }
+            drinker.setFoodCount(0);
+            drinker.setEatTotal(drinker.getEatTotal() + 1);
+            String res = String.format(drinker.getFood().getEatPhrase(), drinker);
+            drinker.setFood(null);
+            drinker.save();
+            return res;
         }
     },
     DRINK("/drink") {
