@@ -1,6 +1,7 @@
 package org.nia.bots;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.nia.logic.ServingMessage;
 import org.nia.model.Tournament;
 import org.nia.model.User;
@@ -45,6 +46,14 @@ public class OficiantThread extends Thread {
                         bot.sendMessage(ServingMessage.getTournamentMessage(answer));
                     }
                 }
+                GregorianCalendar gcNow = new GregorianCalendar();
+                gcNow.setTime(now);
+                if (!DateUtils.isSameDay(gcWas, gcNow) && gcNow.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+                    User.getAll().forEach(user->{
+                        user.setDrinkedWeek(0);
+                        user.save();
+                    });
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -60,7 +69,7 @@ public class OficiantThread extends Thread {
         if (current.isAnnounced()) {
             tournamentPhase = gcNow.getTime().after(gcRegistration.getTime());
         } else if (current.isRegistration()) {
-            gcRegistration.add(Calendar.MINUTE, 5);
+            gcRegistration.add(Calendar.MINUTE, 10);
             tournamentPhase = gcNow.getTime().after(gcRegistration.getTime());
         }
         return tournamentPhase && gcWas.get(GregorianCalendar.MINUTE) < gcNow.get(GregorianCalendar.MINUTE);

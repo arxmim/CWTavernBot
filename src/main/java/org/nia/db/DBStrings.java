@@ -10,15 +10,18 @@ class DBStrings {
             "Name VARCHAR(200) NOT NULL, \n" +
             "nick VARCHAR(200) NOT NULL, \n" +
             "lastDrinkTime DATETIME, \n" +
+            "lastEatTime DATETIME, \n" +
             "isBarmen  bit NOT NULL DEFAULT 0, \n" +
             "isAdmin  bit NOT NULL DEFAULT 0, \n" +
             "alkoCount INTEGER NOT NULL, \n" +
             "drinkType varchar(50), \n" +
             "wanted varchar(50), \n" +
-            "food varchar(50), \n" +//TODO
-            "foodCount INTEGER NOT NULL, \n" +//TODO
-            "eatTotal INTEGER NOT NULL, \n" +//TODO
-            "wantedFood varchar(50), \n" +//TODO
+            "food varchar(50), \n" +
+            "foodCount INTEGER NOT NULL, \n" +
+            "eatTotal INTEGER NOT NULL, \n" +
+            "fightClubWins INTEGER, \n" +
+            "brewCount INTEGER, \n" +
+            "wantedFood varchar(50), \n" +
             "gold integer NOT NULL DEFAULT 0, \n" +
             "visitTavern DATETIME, \n" +
             "location varchar(50) NOT NULL, \n" +
@@ -41,6 +44,13 @@ class DBStrings {
             "MaxUsers INTEGER NOT NULL, \n" +
             "Winner INTEGER, \n" +
             "Round INTEGER DEFAULT 0)";
+    static final String createTournamentBetTable = "if not exists (select * from sysobjects where name='cwt_TournamentBet' and xtype='U')\n" +
+            "create table cwt_TournamentBet (\n" +
+            "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
+            "TournamentID INTEGER NOT NULL, \n" +
+            "fromID INTEGER NOT NULL, \n" +
+            "toID INTEGER NOT NULL, \n" +
+            "sum INTEGER)";
     static final String createTournamentUsersTable = "if not exists (select * from sysobjects where name='cwt_TournamentUsers' and xtype='U')\n" +
             "create table cwt_TournamentUsers (\n" +
             "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +

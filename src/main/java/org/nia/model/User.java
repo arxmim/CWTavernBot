@@ -7,6 +7,7 @@ import org.nia.db.DatabaseManager;
 import org.nia.logic.DrinkType;
 import org.nia.logic.Food;
 import org.nia.logic.Location;
+import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 
 import java.sql.*;
@@ -23,6 +24,7 @@ public class User {
     private String nick;
     private String name;
     private Date lastDrinkTime;
+    private Date lastEatTime;
     private DrinkType drinkType;
     private DrinkType wanted;
     private boolean isBarmen;
@@ -34,6 +36,9 @@ public class User {
     private int eatTotal;
     private int alkoCount;
     private int drinkedTotal;
+    private int drinkedWeek;
+    private int fightClubWins;
+    private int brewCount;
     private Date visitTavern;
     private Location location;
     private Date locationReturnTime;
@@ -45,7 +50,8 @@ public class User {
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, isBarmen, alkoCount, lastDrinkTime" +
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
                     ", visitTavern, location, locationReturnTime, food, wantedFood" +
-                    ", foodCount, eatTotal from cwt_User where UserID = ?");
+                    ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
+                    ", drinkedWeek from cwt_User where UserID = ?");
             preparedStatement.setInt(1, userID);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -80,6 +86,10 @@ public class User {
                 }
                 res.foodCount = resultSet.getInt(16);
                 res.eatTotal = resultSet.getInt(17);
+                res.fightClubWins = resultSet.getInt(18);
+                res.brewCount = resultSet.getInt(19);
+                res.lastEatTime = resultSet.getTimestamp(20);
+                res.drinkedWeek = resultSet.getInt(21);
 
             }
         } catch (SQLException e) {
@@ -110,6 +120,13 @@ public class User {
             res.locationReturnTime = null;
             res.foodCount = 0;
             res.eatTotal = 0;
+            res.fightClubWins = 0;
+            res.brewCount = 0;
+            res.drinkedWeek = 0;
+            res.save();
+        } else /*if (res.lastDrinkTime == null || !DateUtils.isSameDay(new Date(), res.lastDrinkTime))*/ {
+            res.nick = user.getUserName();
+            res.name = user.getFirstName();
             res.save();
         }
         return res;
@@ -123,7 +140,8 @@ public class User {
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select userID, name, isBarmen, alkoCount, lastDrinkTime" +
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
                     ", visitTavern, location, locationReturnTime, food, wantedFood" +
-                    ", foodCount, eatTotal from cwt_User where nick = ?");
+                    ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
+                    ", drinkedWeek from cwt_User where nick = ?");
             preparedStatement.setString(1, nick);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -158,6 +176,10 @@ public class User {
                 }
                 res.foodCount = resultSet.getInt(16);
                 res.eatTotal = resultSet.getInt(17);
+                res.fightClubWins = resultSet.getInt(18);
+                res.brewCount = resultSet.getInt(19);
+                res.lastEatTime = resultSet.getTimestamp(20);
+                res.drinkedWeek = resultSet.getInt(21);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -173,7 +195,8 @@ public class User {
                     "Select userID, nick, name, isBarmen, alkoCount" +
                             ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
                             ", gold, visitTavern, location, locationReturnTime, food" +
-                            ", wantedFood, foodCount, eatTotal from cwt_User");
+                            ", wantedFood, foodCount, eatTotal, fightClubWins, brewCount" +
+                            ", lastEatTime, drinkedWeek from cwt_User");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -207,6 +230,10 @@ public class User {
                 }
                 user.foodCount = resultSet.getInt(17);
                 user.eatTotal = resultSet.getInt(18);
+                user.fightClubWins = resultSet.getInt(19);
+                user.brewCount = resultSet.getInt(20);
+                user.lastEatTime = resultSet.getTimestamp(21);
+                user.drinkedWeek = resultSet.getInt(22);
                 res.add(user);
 
             }
@@ -242,6 +269,10 @@ public class User {
                         ", wantedFood = ?" +
                         ", foodCount = ?" +
                         ", eatTotal = ?" +
+                        ", fightClubWins = ?" +
+                        ", brewCount = ?" +
+                        ", lastEatTime = ?" +
+                        ", drinkedWeek = ?" +
                         " where UserID = ?");
                 preparedStatement.setString(1, nick);
                 preparedStatement.setString(2, name);
@@ -288,18 +319,28 @@ public class User {
                 }
                 preparedStatement.setInt(16, foodCount);
                 preparedStatement.setInt(17, eatTotal);
-                preparedStatement.setInt(18, userID);
+                preparedStatement.setInt(18, fightClubWins);
+                preparedStatement.setInt(19, brewCount);
+                if (lastEatTime != null) {
+                    preparedStatement.setTimestamp(20, new Timestamp(lastEatTime.getTime()));
+                } else {
+                    preparedStatement.setNull(20, Types.TIMESTAMP);
+                }
+                preparedStatement.setInt(21, drinkedWeek);
+                preparedStatement.setInt(22, userID);
                 preparedStatement.execute();
             } else {
                 preparedStatement = connectionDB.getPreparedStatement(
                         "INSERT INTO cwt_User (UserID, nick, name, isBarmen, alkoCount" +
                                 ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
                                 ", gold, visitTavern, location, locationReturnTime, food" +
-                                ", wantedFood, foodCount, eatTotal) VALUES" +
+                                ", wantedFood, foodCount, eatTotal, fightClubWins, brewCount" +
+                                ", lastEatTime, drinkedWeek) VALUES" +
                                 " (?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
-                                ", ?, ?, ?)");
+                                ", ?, ?, ?, ?, ?" +
+                                ", ?, ?)");
                 preparedStatement.setInt(1, userID);
                 preparedStatement.setString(2, nick);
                 preparedStatement.setString(3, name);
@@ -346,6 +387,14 @@ public class User {
                 }
                 preparedStatement.setInt(17, foodCount);
                 preparedStatement.setInt(18, eatTotal);
+                preparedStatement.setInt(19, fightClubWins);
+                preparedStatement.setInt(20, brewCount);
+                if (lastEatTime != null) {
+                    preparedStatement.setTimestamp(21, new Timestamp(lastEatTime.getTime()));
+                } else {
+                    preparedStatement.setNull(21, Types.TIMESTAMP);
+                }
+                preparedStatement.setInt(22, drinkedWeek);
                 preparedStatement.execute();
             }
             res = true;
@@ -416,12 +465,51 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, drinkedTotal from cwt_User order by drinkedTotal desc");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, drinkedTotal from cwt_User order by drinkedTotal desc");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
                 user.nick = resultSet.getString(1);
-                user.drinkedTotal = resultSet.getInt(2) / 2;
+                user.name = resultSet.getString(2);
+                user.drinkedTotal = resultSet.getInt(3) / 2;
+                res.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static List<User> getWeekTop() {
+        List<User> res = new ArrayList<>();
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, drinkedWeek from cwt_User order by drinkedWeek desc");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.nick = resultSet.getString(1);
+                user.name = resultSet.getString(2);
+                user.drinkedWeek = resultSet.getInt(3) / 2;
+                res.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static List<User> getBkTop() {
+        List<User> res = new ArrayList<>();
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, fightClubWins from cwt_User order by fightClubWins desc");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.nick = resultSet.getString(1);
+                user.name = resultSet.getString(2);
+                user.fightClubWins = resultSet.getInt(3);
                 res.add(user);
             }
         } catch (SQLException e) {
@@ -438,9 +526,9 @@ public class User {
 
     public String getFightClubStats() {
         DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
-        return "Твои характеристики:\nСила: " + getStr(drinkPrefs)
-                + "\nЛовкость: " + getAgi(drinkPrefs) + "\nОбаяние: " + getCha(drinkPrefs)
-                + "\nСтойкость: " + getCon(drinkPrefs) + "\nЗнание таверны: " + getKno();
+        return "Твои характеристики:\n" + Emoji.STR + "Сила: " + getStr(drinkPrefs)
+                + "\n" + Emoji.AGI + "Ловкость: " + getAgi(drinkPrefs) + "\n" + Emoji.CHA + "Обаяние: " + getCha(drinkPrefs)
+                + "\n" + Emoji.CON + "Стойкость: " + getCon(drinkPrefs) + "\n" + Emoji.KNO + "Знание таверны: " + getKno();
     }
 
     private int getStr(DrinkPrefs drinkPrefs) {
@@ -565,5 +653,41 @@ public class User {
 
     public Food getWantedFood() {
         return wantedFood;
+    }
+
+    public void incFightClubWins() {
+        fightClubWins++;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getFightClubWins() {
+        return fightClubWins;
+    }
+
+    public void incBrewCount() {
+        brewCount++;
+    }
+
+    public void incGold() {
+        gold++;
+    }
+
+    public Date getLastEatTime() {
+        return lastEatTime;
+    }
+
+    public void setLastEatTime(Date lastEatTime) {
+        this.lastEatTime = lastEatTime;
+    }
+
+    public int getDrinkedWeek() {
+        return drinkedWeek;
+    }
+
+    public void setDrinkedWeek(int drinkedWeek) {
+        this.drinkedWeek = drinkedWeek;
     }
 }

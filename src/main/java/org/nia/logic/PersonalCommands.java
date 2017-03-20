@@ -134,12 +134,14 @@ public enum PersonalCommands implements Commands {
                         drink += " (полный)";
                     }
                 }
-                res= "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
+                res = "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
             } else if (user.onQuest()) {
                 long diff = TimeUnit.MINUTES.convert(user.getLocationReturnTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
-                res= "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
+                res = "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
             }
-            res +=  "\n\n" + user.getFightClubStats();
+            res += "\n\n" + user.getFightClubStats()
+                    + "\n\n " + Emoji.DRINK + "Выпито напитков в таверне за эту неделю/всего: " + user.getDrinkedWeek() / 2 + "/" + user.getDrinkedTotal() / 2
+                    + "\n" + Emoji.MEDAL + "Побед в боях бойцовского клуба: " + user.getFightClubWins();
             return res;
         }
     },

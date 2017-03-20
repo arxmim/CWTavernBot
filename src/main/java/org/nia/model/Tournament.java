@@ -1,12 +1,16 @@
 package org.nia.model;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.nia.bots.CWTavernBot;
 import org.nia.bots.OficiantThread;
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
+import org.nia.logic.FightClubCommands;
+import org.nia.logic.ServingMessage;
 import org.nia.logic.TournamentState;
 import org.nia.logic.TournamentType;
 import org.nia.strings.Emoji;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.sql.*;
 import java.util.Date;
@@ -142,6 +146,7 @@ public class Tournament {
                 ", round=" + round +
                 '}';
     }
+
     public boolean isAnnounced() {
         return tournamentState == TournamentState.ANOUNCE;
     }
@@ -163,7 +168,8 @@ public class Tournament {
         if (isAnnounced()) {
             tournamentState = TournamentState.REGISTRATION;
             save();
-            res = "Регистрация на турнир " + tournamentType + " открыта на 5 минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!";
+            res = "Регистрация на турнир " + tournamentType + " открыта на 10 минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
+                    "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet";
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
             if (pair == null || pair.getRight() == null) {
@@ -188,9 +194,16 @@ public class Tournament {
                     winner = left.getUser();
                     tournamentState = TournamentState.FINISHED;
                     save();
-                    res = "Итак, сегодняший турнир окончен, победитель определен! Им стал " + left.getUser() + ". Дружище, ты лучше всех!";
+                    try {
+                        CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage( "Итак, сегодняший турнир окончен, победитель определен! Им стал " + left.getUser() + ". Дружище, ты лучше всех!"));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    res = TournamentBet.evalTournamentResults(left);
                 } else if (left.getRound() < right.getRound()) {
                     left.incRound();
+                    left.getUser().incFightClubWins();
+                    left.getUser().save();
                     left.save();
                     res = left.getUser() + ", тебе повезло, соперника не нашлось, и ты автоматически проходишь в следующий этап.";
                 } else {
@@ -224,6 +237,8 @@ public class Tournament {
                         if (left.getScore() == 0 && right.getScore() == 0) {
                             left.setLose(true);
                             right.setLose(true);
+                            left.setInFight(false);
+                            right.setInFight(false);
                             left.save();
                             right.save();
                             res = "Оба участника пропустили состязание и были дисквалифицированы! " + left.getUser() + ", " + right.getUser() + " в следующий раз будете смелее!\n";
@@ -235,8 +250,11 @@ public class Tournament {
                                 loser = left;
                             }
                             loser.setLose(true);
+                            loser.setInFight(false);
                             loser.save();
                             winner.incRound();
+                            winner.getUser().incFightClubWins();
+                            winner.getUser().save();
                             winner.setInFight(false);
                             winner.setScore(0);
                             winner.save();
@@ -246,8 +264,8 @@ public class Tournament {
                             TournamentUsers loser = null;
                             Random random = new Random();
 
-                            int leftScore = left.getScore() + random.nextInt(71);
-                            int rightScore = right.getScore() + random.nextInt(71);
+                            int leftScore = left.getScore() + random.nextInt(51);
+                            int rightScore = right.getScore() + random.nextInt(51);
                             if (leftScore < rightScore) {
                                 winner = right;
                                 loser = left;
@@ -256,9 +274,12 @@ public class Tournament {
                                 loser = right;
                             }
                             if (winner != null) {
+                                loser.setInFight(false);
                                 loser.setLose(true);
                                 loser.save();
                                 winner.incRound();
+                                winner.getUser().incFightClubWins();
+                                winner.getUser().save();
                                 winner.setInFight(false);
                                 winner.setScore(0);
                                 winner.save();
@@ -294,5 +315,33 @@ public class Tournament {
 
     public TournamentType getType() {
         return tournamentType;
+    }
+
+    public static Tournament getByID(int publicID) {
+        Tournament res = null;
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
+                    "select registrationDateTime, tournamentType, tournamentState, maxUsers, winner, round from cwt_Tournament where PublicID = ?");
+            preparedStatement.setInt(1, publicID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                res = new Tournament();
+                res.publicID = publicID;
+                res.registrationDateTime = resultSet.getTimestamp(1);
+                res.tournamentType = TournamentType.valueOf(resultSet.getString(2));
+                res.tournamentState = TournamentState.valueOf(resultSet.getString(3));
+                res.maxUsers = resultSet.getInt(4);
+                res.winner = User.getByID(resultSet.getInt(5));
+                res.round = resultSet.getInt(6);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public User getWinner() {
+        return winner;
     }
 }

@@ -1,7 +1,8 @@
 package org.nia.logic;
 
+import org.nia.strings.Emoji;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 

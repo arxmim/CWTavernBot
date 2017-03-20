@@ -1,20 +1,17 @@
 package org.nia.logic;
 
-import org.nia.model.DrinkPrefs;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 
 /**
  * @author Иван, 11.03.2017.
  */
-enum FightClubCommands implements Commands {
+public enum FightClubCommands implements Commands {
     DRAKA("/DRAKA") {
         @Override
         public boolean isApplicable(Message message) {
@@ -32,7 +29,7 @@ enum FightClubCommands implements Commands {
             currentByUserID.setScore(user.getFightClubStatsSum());
             currentByUserID.save();
 
-            return String.format(currentByUserID.getTournament().getType().getStartPhrase() + "\n" + user.getFightClubStats(), user);
+            return String.format(currentByUserID.getTournament().getType().getStartPhrase(), user);
         }
     };
     protected String text;

@@ -41,7 +41,7 @@ public class TournamentUsers {
                 resultSet.next();
                 int count = resultSet.getInt(1) + 1;
                 if (count > tournament.getMaxUsers()) {
-                    return "Извини, "+user+", но места для участников уже все заняты. В следующий раз соображай быстрее!";
+                    return "Извини, " + user + ", но места для участников уже все заняты. В следующий раз соображай быстрее!";
                 }
                 preparedStatement = connectionDB.getPreparedStatement("INSERT INTO cwt_TournamentUsers (userID, TournamentID, position) " +
                         "VALUES (?, ?, ?)");
@@ -196,7 +196,35 @@ public class TournamentUsers {
         return res;
     }
 
+    public static TournamentUsers getByID(int publicID) {
+        TournamentUsers res = null;
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select TournamentID, userID, round, position, score, inFight, lose from cwt_TournamentUsers where publicID = ?");
+            preparedStatement.setInt(1, publicID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                res = new TournamentUsers();
+                res.publicID = publicID;
+                res.tournament = Tournament.getByID(resultSet.getInt(1));
+                res.user = User.getByID(resultSet.getInt(2));
+                res.round = resultSet.getInt(3);
+                res.position = resultSet.getInt(4);
+                res.score = resultSet.getInt(5);
+                res.inFight = resultSet.getBoolean(6);
+                res.lose = resultSet.getBoolean(7);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
     public Tournament getTournament() {
         return tournament;
+    }
+
+    public int getPublicID() {
+        return publicID;
     }
 }

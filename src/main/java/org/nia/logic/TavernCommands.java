@@ -2,10 +2,8 @@ package org.nia.logic;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nia.bots.CWTavernBot;
-import org.nia.model.DrinkPrefs;
-import org.nia.model.Tournament;
-import org.nia.model.TournamentUsers;
-import org.nia.model.User;
+import org.nia.model.*;
+import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -13,16 +11,86 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author IANazarov
  */
 
 public enum TavernCommands implements Commands {
+    BET("/bet ") {
+        @Override
+        public boolean isApplicable(Message message) {
+            if (Pattern.compile(text + "(\\d+)").matcher(message.getText()).find()) {
+                Tournament current = Tournament.getCurrent();
+                return current != null && current.isRegistration();
+            }
+            return false;
+        }
+
+        @Override
+        public String apply(Message message) {
+            Matcher matcher = Pattern.compile(text + "(\\d+)").matcher(message.getText());
+            if (matcher.find()) {
+                int betCount;
+                try {
+                    betCount = Integer.valueOf(matcher.group(1));
+                } catch (Exception ex) {
+                    return "";
+                }
+                User user = User.getFromMessage(message.getFrom());
+//                if (betCount > 30) {
+//                    return user + ", мы тут не магнаты, такие большие ставки не принимаем. Попробуй поставить меньше 30 " + Emoji.GOLD;
+//                }
+                if (betCount > user.getGold()) {
+                    return user + ", у тебя нет столько золота, чтобы делать такие ставки";
+                }
+                if (message.getReplyToMessage() == null) {
+                    return "";
+                }
+                Integer toBetUserID = message.getReplyToMessage().getFrom().getId();
+                List<TournamentBet> betsByUserID = TournamentBet.getCurrentBetsByUserID(user);
+                Optional<TournamentBet> betOptional = betsByUserID.stream().filter(bet -> bet.getTo().getUser().getUserID() == toBetUserID).findFirst();
+                if (betOptional.isPresent()) {
+                    TournamentBet tournamentBet = betOptional.get();
+                    int sum = tournamentBet.getSum();
+//                    if (sum + betCount > 30) {
+//                        return user + ", мы тут не магнаты, такие большие ставки не принимаем. Попробуй поставить меньше 30 " + Emoji.GOLD;
+//                    }
+                    tournamentBet.setSum(sum + betCount);
+                    tournamentBet.save();
+                    user.setGold(user.getGold() - betCount);
+                    user.save();
+                    return user + ", твоя ставка увеличена!";
+                } else {
+                    TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(toBetUserID);
+                    if (currentByUserID == null) {
+                        return user + ", извини, но твой друг еще не зарегистрировался на турнир!";
+                    } else {
+                        TournamentBet tb = new TournamentBet();
+                        tb.setFrom(user);
+                        tb.setSum(betCount);
+                        tb.setTo(currentByUserID);
+                        tb.setTournament(currentByUserID.getTournament());
+                        tb.save();
+                        user.setGold(user.getGold() - betCount);
+                        user.save();
+                        return user + ", твоя ставка принята!";
+                    }
+                }
+            }
+            return "";
+        }
+    },
     REGISTER("/register") {
         @Override
         public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && Tournament.getCurrent().isRegistration();
+            if (super.isApplicable(message)) {
+                Tournament current = Tournament.getCurrent();
+                return current != null && current.isRegistration();
+            }
+            return false;
         }
 
         @Override
@@ -34,15 +102,37 @@ public enum TavernCommands implements Commands {
     TOP("/top") {
         @Override
         public boolean isApplicable(Message message) {
-            boolean topMessage = message.getText().startsWith(text);
-            return topMessage && User.getFromMessage(message).isBarmen();
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
         }
 
         @Override
         public String apply(Message message) {
             StringBuilder sb = new StringBuilder();
             sb.append("Главные выпивохи таверны за всё время:\n");
-            User.getTop().forEach(dt -> sb.append(dt.getNick()).append(" - ").append(dt.getDrinkedTotal()).append("\n"));
+            User.getTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedTotal()).append("\n"));
+            return sb.toString();
+        }
+    },
+    WEEK_TOP("/week_top") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+        }
+
+        @Override
+        public String apply(Message message) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Главные выпивохи таверны за эту неделю:\n");
+            User.getWeekTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedWeek()).append("\n"));
+            return sb.toString();
+        }
+    },
+    BK_TOP("/bk_top") {
+        @Override
+        public String apply(Message message) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Количество побед в бойцовском клубе за всё время:\n");
+            User.getBkTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getFightClubWins()).append("\n"));
             return sb.toString();
         }
     },
@@ -103,11 +193,9 @@ public enum TavernCommands implements Commands {
     TEST("/test123") {
         @Override
         public String apply(Message message) {
-            User user = User.getFromMessage(message.getFrom());
-            if (message.getText().startsWith("/test123 ")) {
-                user = User.getByNick(StringUtils.substringAfter(message.getText(), "/test123 "));
-            }
-            return String.format(TournamentType.FIGHT_CLUB.getStartPhrase() + "\n" + user.getFightClubStats() + "\n\nОТЛАДКА:" + user.getFightClubStatsSum(), user);
+            return Emoji.CON.toString();
+//            TournamentUsers winner = TournamentUsers.getByID(107);
+//            return TournamentBet.evalTournamentResults(winner);
         }
     },
     GIVE("") {
@@ -144,8 +232,16 @@ public enum TavernCommands implements Commands {
                         return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
                     }
                     User fromMessage = User.getFromMessage(message.getReplyToMessage());
-                    fromMessage.setAlkoCount(2);
+                    if (fromMessage.getAlkoCount() == 2) {
+                        return "У гостя и так налито, зачем ему еще наливать?";
+                    }
                     DrinkType drinkType = drink.get();
+//                    if (fromMessage.getWanted() == drinkType) {
+                    asker.incBrewCount();
+                    asker.incGold();
+                    asker.save();
+//                    }
+                    fromMessage.setAlkoCount(2);
                     fromMessage.setDrinkType(drinkType);
                     fromMessage.setWanted(null);
                     fromMessage.save();
@@ -170,6 +266,14 @@ public enum TavernCommands implements Commands {
                             return "Сам у себя заказываешь поесть? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
                         }
                         User fromMessage = User.getFromMessage(message.getReplyToMessage());
+                        if (fromMessage.getFoodCount() == 1) {
+                            return "У гостя и так есть закуска, зачем ему еще?";
+                        }
+//                        if (fromMessage.getWantedFood() == food) {
+                        asker.incBrewCount();
+                        asker.incGold();
+                        asker.save();
+//                        }
                         fromMessage.setFoodCount(1);
                         fromMessage.setFood(food);
                         fromMessage.setWantedFood(null);
@@ -196,14 +300,15 @@ public enum TavernCommands implements Commands {
             if (drinker.getFoodCount() <= 0) {
                 return "";
             }
-//            if (drinker.getLastDrinkTime() != null) {
-//                long since = TimeUnit.MINUTES.convert(new Date().getTime() - drinker.getLastDrinkTime().getTime(), TimeUnit.MILLISECONDS);
-//                long wait = 5 - since;
-//                if (wait > 0) {
-//                    return drinker + " ты недавно уже пил. Подожди еще " + wait + " минут";
-//                }
-//            }
+            if (drinker.getLastEatTime() != null) {
+                long since = TimeUnit.MINUTES.convert(new Date().getTime() - drinker.getLastEatTime().getTime(), TimeUnit.MILLISECONDS);
+                long wait = 30 - since;
+                if (wait > 0) {
+                    return drinker + " ты недавно уже поел, нельзя много кушать, лопнешь. Подожди еще " + wait + " минут";
+                }
+            }
             drinker.setFoodCount(0);
+            drinker.setLastEatTime(new Date());
             drinker.setEatTotal(drinker.getEatTotal() + 1);
             String res = String.format(drinker.getFood().getEatPhrase(), drinker);
             drinker.setFood(null);
@@ -228,6 +333,7 @@ public enum TavernCommands implements Commands {
             int drinked = new Random().nextInt(drinker.getAlkoCount()) + 1;
             DrinkPrefs.incDrink(drinker, drinker.getDrinkType(), drinked);
             drinker.setDrinkedTotal(drinker.getDrinkedTotal() + drinked);
+            drinker.setDrinkedWeek(drinker.getDrinkedWeek() + drinked);
             drinker.setLastDrinkTime(new Date());
             drinker.setAlkoCount(drinker.getAlkoCount() - drinked);
             String res;

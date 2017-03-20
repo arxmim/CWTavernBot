@@ -1,8 +1,6 @@
 package org.nia.strings;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author IANazarov
@@ -22,9 +20,25 @@ public enum Emoji {
     MOUNTAIN('\u26F0'),
     CUP('\uD83C', '\uDFC6'),
     FLAG('\uD83D', '\uDEA9'),
-    MEDAL('\uD83C', '\uDF96'),
+    ORDEN('\uD83C', '\uDF96'),
     DRINK('\uD83C', '\uDF7A'),
     DRINKS('\uD83C', '\uDF7B'),
+    STR('\uD83D', '\uDCAA'),
+    AGI('\uD83C', '\uDFF9'),
+    CHA('\uD83C', '\uDF39'),
+    CON('⛑'),
+    KNO('\uD83D', '\uDCDC'),
+    MEDAL('\uD83C', '\uDFC5'),
+    BLUE_CURO('\uD83D', '\uDC8E'),
+    MANDARINE('\uD83C', '\uDF79'),
+    RED_POWER('\uD83C', '\uDF77'),
+    MORDOR('\uD83C', '\uDF0B'),
+    GHOST('☠'),
+    AVE_WHITE('\uD83C', '\uDFD4'),
+    CHEESE('\uD83E', '\uDDC0'),
+    FRI('\uD83C', '\uDF5F'),
+    GUS('\uD83C', '\uDF57'),
+    SHAURMA('\uD83C', '\uDF2F'),
     GRINNING_FACE_WITH_SMILING_EYES('\uD83D', '\uDE01'),
     FACE_WITH_TEARS_OF_JOY('\uD83D', '\uDE02'),
     SMILING_FACE_WITH_OPEN_MOUTH('\uD83D', '\uDE03'),
