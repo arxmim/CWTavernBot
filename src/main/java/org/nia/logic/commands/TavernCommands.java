@@ -1,12 +1,12 @@
-package org.nia.logic;
+package org.nia.logic.commands;
 
-import org.apache.commons.lang3.StringUtils;
 import org.nia.bots.CWTavernBot;
+import org.nia.logic.DrinkType;
+import org.nia.logic.Food;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.util.*;
@@ -357,11 +357,6 @@ public enum TavernCommands implements Commands {
     @Override
     public boolean isApplicable(Message message) {
         return message.getText().contains(this.text);
-    }
-
-    @Override
-    public List<KeyboardRow> getKeyboard(Message message) {
-        return null;
     }
 
     @Override

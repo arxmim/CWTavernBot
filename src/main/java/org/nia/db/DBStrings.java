@@ -25,7 +25,7 @@ class DBStrings {
             "gold integer NOT NULL DEFAULT 0, \n" +
             "visitTavern DATETIME, \n" +
             "location varchar(50) NOT NULL, \n" +
-            "locationReturnTime DATETIME, \n" +
+            //"locationNextEventTime DATETIME, \n" + // TODO
             "drinkedTotal INTEGER NOT NULL)";
     static final String createUserPrefTable = "if not exists (select * from sysobjects where name='cwt_DrinkPrefs' and xtype='U')\n" +
             "create table cwt_DrinkPrefs (\n" +
@@ -61,4 +61,19 @@ class DBStrings {
             "Score INTEGER DEFAULT 0, \n" +
             "InFight bit DEFAULT 0, \n" +
             "lose bit DEFAULT 0)";
+    static final String createQuestTable = "if not exists (select * from sysobjects where name='cwt_Quest' and xtype='U')\n" +
+            "create table cwt_Quest (\n" +
+            "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
+            "UserID INTEGER NOT NULL, \n" +
+            "QuestName varchar(50), \n" +
+            "StartTime DATETIME NOT NULL, \n" +
+            "EventTime DATETIME, \n" +
+            "ReturnTime DATETIME, \n" +
+            "goldEarned INTEGER DEFAULT 0)";
+    static final String createQuestEventTable = "if not exists (select * from sysobjects where name='cwt_QuestEvent' and xtype='U')\n" +
+            "create table cwt_QuestEvent (\n" +
+            "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
+            "QuestID INTEGER NOT NULL, \n" +
+            "SceneName varchar(50), \n" +
+            "result bit)";
 }

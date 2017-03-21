@@ -1,10 +1,12 @@
-package org.nia.logic;
+package org.nia.logic.commands;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.nia.model.DrinkPrefs;
-import org.nia.model.Tournament;
-import org.nia.model.User;
+import org.nia.logic.Location;
+import org.nia.logic.TournamentState;
+import org.nia.logic.TournamentType;
+import org.nia.logic.commands.Commands;
+import org.nia.logic.quests.QuestsEnum;
+import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -100,18 +102,64 @@ public enum PersonalCommands implements Commands {
             }
         }
     },
-    QUEST("Взять задание у Михалыча") {
+    QUEST("Взять задание у Остапа") {
         @Override
         public String apply(Message message) {
             User user = User.getFromMessage(message.getFrom());
             if (user.inTavern()) {
-                Location randomQuest = Location.getRandomQuest();
-                user.setLocation(randomQuest);
-                user.setLocationReturnTime(DateUtils.addMinutes(new Date(), 30));
+                QuestsEnum randomQuest = Location.getRandomQuest();
+                user.setLocation(Location.QUEST);
+                Quest quest = new Quest();
+                quest.setStartTime(new Date());
+                quest.setUser(user);
+                quest.setEventTime(randomQuest.getFirstEventTime());
+                quest.setQuest(randomQuest);
+                quest.setGoldEarned(0);
+                quest.setReturnTime(null);
+                quest.save();
                 user.save();
-                return randomQuest.getText() + "\n\nВернешься через полчаса";
-            } else if (user.onQuest()) {
-                return "Ты уже выполняешь поручение Михалыча.";
+                return randomQuest.getIQuest().getStart() + "\n\nТы можешь вернуться в любой момент, но чем дольше ты проведешь на задании, тем более получишь в награду";
+            } else {
+                return "";
+            }
+        }
+    },
+    QUEST_RETURN("Вернуться с задания") {
+        @Override
+        public String apply(Message message) {
+            User user = User.getFromMessage(message.getFrom());
+            if (user.onQuest()) {
+                Quest quest = Quest.getCurrent(user);
+                QuestEvent event = QuestEvent.getCurrent(quest);
+                if (event != null) {
+                    event.setWin(false);
+                    event.save();
+                }
+                List<QuestEvent> all = QuestEvent.getAll(quest);
+                int sum = all.stream().mapToInt(e -> {
+                    if (e.getWin()) {
+                        return e.getIQuestEvent().getReward();
+                    } else {
+                        return -e.getIQuestEvent().getReward();
+                    }
+                }).sum();
+                quest.setReturnTime(new Date());
+                Date returnTime = quest.getReturnTime();
+                Date startTime = quest.getStartTime();
+                long duration = TimeUnit.MINUTES.convert(returnTime.getTime() - startTime.getTime(), TimeUnit.MILLISECONDS);
+                if (duration > 30) {
+                    sum += duration / 10;
+                }
+                if (sum < 0) {
+                    sum = 0;
+                }
+                quest.setGoldEarned(sum);
+                quest.save();
+                user.setLocation(Location.TAVERN);
+                user.save();
+                return "Ты вернулся с задания, заработав " + sum + Emoji.GOLD;
+            } else if (user.inTavern()) {
+                return "Ты уже вернулся с задания.";
             } else {
                 return "";
             }
@@ -136,8 +184,7 @@ public enum PersonalCommands implements Commands {
                 }
                 res = "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
             } else if (user.onQuest()) {
-                long diff = TimeUnit.MINUTES.convert(user.getLocationReturnTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
-                res = "Ты выполняешь поручение Михалыча. Вернешься через " + diff + " минут. В кармане у тебя " + user.getGold() + Emoji.GOLD;
+                res = "Ты выполняешь поручение Остапа.\nВ кармане у тебя " + user.getGold() + Emoji.GOLD;
             }
             res += "\n\n" + user.getFightClubStats()
                     + "\n\n " + Emoji.DRINK + "Выпито напитков в таверне за эту неделю/всего: " + user.getDrinkedWeek() / 2 + "/" + user.getDrinkedTotal() / 2
@@ -184,16 +231,7 @@ public enum PersonalCommands implements Commands {
         return message.getText().contains(this.text);
     }
 
-    @Override
-    public List<KeyboardRow> getKeyboard(Message message) {
-        User user = User.getFromMessage(message.getFrom());
-        ArrayList<KeyboardRow> keyboardRows = new ArrayList<>();
-        KeyboardRow keyboardButtons = new KeyboardRow();
-        keyboardButtons.add(MY_INFO.text);
-        if (user.isAdmin()) {
-            keyboardButtons.add(QUEST.text);
-        }
-        keyboardRows.add(keyboardButtons);
-        return keyboardRows;
+    public String getText() {
+        return text;
     }
 }

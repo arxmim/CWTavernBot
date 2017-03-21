@@ -11,7 +11,6 @@ import org.telegram.telegrambots.logging.BotLogger;
 import org.telegram.telegrambots.logging.BotsFileHandler;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.ConsoleHandler;
@@ -29,7 +28,7 @@ public class Main {
         try {
             BotLogger.registerLogger(new BotsFileHandler());
         } catch (IOException e) {
-            BotLogger.severe(LOGTAG, e) ;
+            BotLogger.severe(LOGTAG, e);
         }
 
         try {
@@ -50,12 +49,14 @@ public class Main {
         }
         BotLogger.info(LOGTAG, "done");
     }
+
     private static TelegramBotsApi createTelegramBotsApi() throws TelegramApiException {
         return createLongPollingTelegramBotsApi();
     }
+
     /**
-     * @brief Creates a Telegram Bots Api to use Long Polling (getUpdates) bots.
      * @return TelegramBotsApi to register the bots.
+     * @brief Creates a Telegram Bots Api to use Long Polling (getUpdates) bots.
      */
     private static TelegramBotsApi createLongPollingTelegramBotsApi() {
         return new TelegramBotsApi();

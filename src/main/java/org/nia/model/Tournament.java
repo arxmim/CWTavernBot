@@ -5,7 +5,6 @@ import org.nia.bots.CWTavernBot;
 import org.nia.bots.OficiantThread;
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
-import org.nia.logic.FightClubCommands;
 import org.nia.logic.ServingMessage;
 import org.nia.logic.TournamentState;
 import org.nia.logic.TournamentType;

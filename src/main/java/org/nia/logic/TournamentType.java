@@ -1,5 +1,8 @@
 package org.nia.logic;
 
+import org.nia.logic.commands.Commands;
+import org.nia.logic.commands.FightClubCommands;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -1,8 +1,10 @@
 package org.nia.logic;
 
+import org.nia.bots.CWTavernBot;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.List;
 
@@ -49,16 +51,19 @@ public class ServingMessage {
         return sendMessage;
     }
 
-    public static SendMessage getTimedMessage(Integer userID, String answer) {
+    public static SendMessage getTimedMessage(User user, String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(userID.longValue());
+        sendMessage.setChatId(Long.valueOf(user.getUserID()));
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = CWTavernBot.getKeyboard(user);
+        if (keyboard != null && !keyboard.isEmpty()) {
+            replyKeyboardMarkup.setKeyboard(keyboard);
+        }
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboad(true);
-//        replyKeyboardMarkup.setKeyboard(getKeyboard(message));
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
         return sendMessage;
     }

@@ -1,5 +1,7 @@
-package org.nia.logic;
+package org.nia.logic.commands;
 
+import org.nia.bots.CWTavernBot;
+import org.nia.model.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -27,14 +29,12 @@ public interface Commands {
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboad(true);
-        List<KeyboardRow> keyboard = getKeyboard(message);
-        if (keyboard != null) {
+        List<KeyboardRow> keyboard = CWTavernBot.getKeyboard(User.getFromMessage(message.getFrom()));
+        if (keyboard != null && !keyboard.isEmpty()) {
             replyKeyboardMarkup.setKeyboard(keyboard);
         }
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
         return sendMessage;
     }
-
-    List<KeyboardRow> getKeyboard(Message message);
 }

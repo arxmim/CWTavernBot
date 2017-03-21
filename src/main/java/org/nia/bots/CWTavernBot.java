@@ -3,11 +3,18 @@ package org.nia.bots;
 import org.apache.commons.lang.StringUtils;
 import org.nia.PropertiesLoader;
 import org.nia.logic.*;
+import org.nia.logic.commands.Commands;
+import org.nia.logic.commands.PersonalCommands;
+import org.nia.logic.commands.QuestCommands;
+import org.nia.logic.commands.TavernCommands;
+import org.nia.model.Quest;
+import org.nia.model.QuestEvent;
 import org.nia.model.Tournament;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
@@ -104,6 +111,11 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 }
                 if (message.isUserMessage()) {
                     commandsList.addAll(Arrays.asList(PersonalCommands.values()));
+                    if (user.onQuest()) {
+                        Quest quest = Quest.getCurrent(user);
+                        QuestEvent event = QuestEvent.getCurrent(quest);
+                        commandsList.add(new QuestCommands(user, quest, event));
+                    }
                 }
                 for (Commands command : commandsList) {
                     if (command.isApplicable(message)) {
@@ -135,5 +147,35 @@ public class CWTavernBot extends TelegramLongPollingBot {
      */
     private static boolean isCommand(String text) {
         return text.contains("/");
+    }
+
+    public static List<KeyboardRow> getKeyboard(org.nia.model.User user) {
+        ArrayList<KeyboardRow> keyboardRows = new ArrayList<>();
+        if (user == null) {
+            return keyboardRows;
+        } else if (user.onQuest()) {
+            Quest quest = Quest.getCurrent(user);
+            QuestEvent event = QuestEvent.getCurrent(quest);
+            if (event == null) {
+                KeyboardRow keyboardButtons = new KeyboardRow();
+                keyboardButtons.add(PersonalCommands.MY_INFO.getText());
+                keyboardButtons.add(PersonalCommands.QUEST_RETURN.getText());
+                keyboardRows.add(keyboardButtons);
+            } else {
+                event.getStep().getNext().forEach(iQuestStep -> {
+                    KeyboardRow keyboardButtons = new KeyboardRow();
+                    keyboardButtons.add(iQuestStep.getCommand());
+                    keyboardRows.add(keyboardButtons);
+                });
+            }
+        } else if (user.inTavern()) {
+            KeyboardRow keyboardButtons = new KeyboardRow();
+            keyboardButtons.add(PersonalCommands.MY_INFO.getText());
+            if (user.isAdmin()) {
+                keyboardButtons.add(PersonalCommands.QUEST.getText());
+            }
+            keyboardRows.add(keyboardButtons);
+        }
+        return keyboardRows;
     }
 }

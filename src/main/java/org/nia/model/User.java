@@ -1,7 +1,6 @@
 package org.nia.model;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
 import org.nia.logic.DrinkType;
@@ -41,7 +40,6 @@ public class User {
     private int brewCount;
     private Date visitTavern;
     private Location location;
-    private Date locationReturnTime;
 
     static User getByID(int userID) {
         User res = null;
@@ -49,9 +47,9 @@ public class User {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, isBarmen, alkoCount, lastDrinkTime" +
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
-                    ", visitTavern, location, locationReturnTime, food, wantedFood" +
-                    ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
-                    ", drinkedWeek from cwt_User where UserID = ?");
+                    ", visitTavern, location, food, wantedFood, foodCount" +
+                    ", eatTotal, fightClubWins, brewCount, lastEatTime, drinkedWeek" +
+                    " from cwt_User where UserID = ?");
             preparedStatement.setInt(1, userID);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -75,21 +73,20 @@ public class User {
                 res.gold = resultSet.getInt(10);
                 res.visitTavern = resultSet.getTimestamp(11);
                 res.location = Location.valueOf(resultSet.getString(12));
-                res.locationReturnTime = resultSet.getTimestamp(13);
                 try {
-                    res.food = Food.valueOf(resultSet.getString(14));
+                    res.food = Food.valueOf(resultSet.getString(13));
                 } catch (Exception ignored) {
                 }
                 try {
-                    res.wantedFood = Food.valueOf(resultSet.getString(15));
+                    res.wantedFood = Food.valueOf(resultSet.getString(14));
                 } catch (Exception ignored) {
                 }
-                res.foodCount = resultSet.getInt(16);
-                res.eatTotal = resultSet.getInt(17);
-                res.fightClubWins = resultSet.getInt(18);
-                res.brewCount = resultSet.getInt(19);
-                res.lastEatTime = resultSet.getTimestamp(20);
-                res.drinkedWeek = resultSet.getInt(21);
+                res.foodCount = resultSet.getInt(15);
+                res.eatTotal = resultSet.getInt(16);
+                res.fightClubWins = resultSet.getInt(17);
+                res.brewCount = resultSet.getInt(18);
+                res.lastEatTime = resultSet.getTimestamp(19);
+                res.drinkedWeek = resultSet.getInt(20);
 
             }
         } catch (SQLException e) {
@@ -117,14 +114,13 @@ public class User {
             res.gold = 30;
             res.visitTavern = null;
             res.location = Location.TAVERN;
-            res.locationReturnTime = null;
             res.foodCount = 0;
             res.eatTotal = 0;
             res.fightClubWins = 0;
             res.brewCount = 0;
             res.drinkedWeek = 0;
             res.save();
-        } else /*if (res.lastDrinkTime == null || !DateUtils.isSameDay(new Date(), res.lastDrinkTime))*/ {
+        } else {
             res.nick = user.getUserName();
             res.name = user.getFirstName();
             res.save();
@@ -139,9 +135,9 @@ public class User {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select userID, name, isBarmen, alkoCount, lastDrinkTime" +
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
-                    ", visitTavern, location, locationReturnTime, food, wantedFood" +
-                    ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
-                    ", drinkedWeek from cwt_User where nick = ?");
+                    ", visitTavern, location, food, wantedFood, foodCount" +
+                    ", eatTotal, fightClubWins, brewCount, lastEatTime, drinkedWeek" +
+                    " from cwt_User where nick = ?");
             preparedStatement.setString(1, nick);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -165,21 +161,20 @@ public class User {
                 res.gold = resultSet.getInt(10);
                 res.visitTavern = resultSet.getTimestamp(11);
                 res.location = Location.valueOf(resultSet.getString(12));
-                res.locationReturnTime = resultSet.getTimestamp(13);
                 try {
-                    res.food = Food.valueOf(resultSet.getString(14));
+                    res.food = Food.valueOf(resultSet.getString(13));
                 } catch (Exception ignored) {
                 }
                 try {
-                    res.wantedFood = Food.valueOf(resultSet.getString(15));
+                    res.wantedFood = Food.valueOf(resultSet.getString(14));
                 } catch (Exception ignored) {
                 }
-                res.foodCount = resultSet.getInt(16);
-                res.eatTotal = resultSet.getInt(17);
-                res.fightClubWins = resultSet.getInt(18);
-                res.brewCount = resultSet.getInt(19);
-                res.lastEatTime = resultSet.getTimestamp(20);
-                res.drinkedWeek = resultSet.getInt(21);
+                res.foodCount = resultSet.getInt(15);
+                res.eatTotal = resultSet.getInt(16);
+                res.fightClubWins = resultSet.getInt(17);
+                res.brewCount = resultSet.getInt(18);
+                res.lastEatTime = resultSet.getTimestamp(19);
+                res.drinkedWeek = resultSet.getInt(20);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -194,9 +189,9 @@ public class User {
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
                     "Select userID, nick, name, isBarmen, alkoCount" +
                             ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
-                            ", gold, visitTavern, location, locationReturnTime, food" +
-                            ", wantedFood, foodCount, eatTotal, fightClubWins, brewCount" +
-                            ", lastEatTime, drinkedWeek from cwt_User");
+                            ", gold, visitTavern, location, food, wantedFood" +
+                            ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
+                            ", drinkedWeek from cwt_User");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -219,21 +214,20 @@ public class User {
                 user.gold = resultSet.getInt(11);
                 user.visitTavern = resultSet.getTimestamp(12);
                 user.location = Location.valueOf(resultSet.getString(13));
-                user.locationReturnTime = resultSet.getTimestamp(14);
                 try {
-                    user.food = Food.valueOf(resultSet.getString(15));
+                    user.food = Food.valueOf(resultSet.getString(14));
                 } catch (Exception ignored) {
                 }
                 try {
-                    user.wantedFood = Food.valueOf(resultSet.getString(16));
+                    user.wantedFood = Food.valueOf(resultSet.getString(15));
                 } catch (Exception ignored) {
                 }
-                user.foodCount = resultSet.getInt(17);
-                user.eatTotal = resultSet.getInt(18);
-                user.fightClubWins = resultSet.getInt(19);
-                user.brewCount = resultSet.getInt(20);
-                user.lastEatTime = resultSet.getTimestamp(21);
-                user.drinkedWeek = resultSet.getInt(22);
+                user.foodCount = resultSet.getInt(16);
+                user.eatTotal = resultSet.getInt(17);
+                user.fightClubWins = resultSet.getInt(18);
+                user.brewCount = resultSet.getInt(19);
+                user.lastEatTime = resultSet.getTimestamp(20);
+                user.drinkedWeek = resultSet.getInt(21);
                 res.add(user);
 
             }
@@ -252,27 +246,11 @@ public class User {
             ResultSet resultSet = preparedStatement.executeQuery();
             boolean exists = resultSet.next();
             if (exists) {
-                preparedStatement = connectionDB.getPreparedStatement("update cwt_User set nick = ?" +
-                        ", name = ?" +
-                        ", isBarmen = ?" +
-                        ", alkoCount = ?" +
-                        ", lastDrinkTime = ?" +
-                        ", drinkedTotal = ?" +
-                        ", drinkType = ?" +
-                        ", wanted = ?" +
-                        ", isAdmin = ?" +
-                        ", gold = ?" +
-                        ", visitTavern = ?" +
-                        ", location = ?" +
-                        ", locationReturnTime = ?" +
-                        ", food = ?" +
-                        ", wantedFood = ?" +
-                        ", foodCount = ?" +
-                        ", eatTotal = ?" +
-                        ", fightClubWins = ?" +
-                        ", brewCount = ?" +
-                        ", lastEatTime = ?" +
-                        ", drinkedWeek = ?" +
+                preparedStatement = connectionDB.getPreparedStatement(
+                        "update cwt_User set nick = ?, name = ?, isBarmen = ?, alkoCount = ?, lastDrinkTime = ?" +
+                        ", drinkedTotal = ?, drinkType = ?, wanted = ?, isAdmin = ?, gold = ?" +
+                        ", visitTavern = ?, location = ?, food = ?, wantedFood = ?, foodCount = ?" +
+                        ", eatTotal = ?, fightClubWins = ?, brewCount = ?, lastEatTime = ?, drinkedWeek = ?" +
                         " where UserID = ?");
                 preparedStatement.setString(1, nick);
                 preparedStatement.setString(2, name);
@@ -302,45 +280,40 @@ public class User {
                     preparedStatement.setNull(11, Types.TIMESTAMP);
                 }
                 preparedStatement.setString(12, location.name());
-                if (locationReturnTime != null) {
-                    preparedStatement.setTimestamp(13, new Timestamp(locationReturnTime.getTime()));
-                } else {
-                    preparedStatement.setNull(13, Types.TIMESTAMP);
-                }
                 if (food != null) {
-                    preparedStatement.setString(14, food.name());
+                    preparedStatement.setString(13, food.name());
+                } else {
+                    preparedStatement.setNull(13, Types.VARCHAR);
+                }
+                if (wantedFood != null) {
+                    preparedStatement.setString(14, wantedFood.name());
                 } else {
                     preparedStatement.setNull(14, Types.VARCHAR);
                 }
-                if (wantedFood != null) {
-                    preparedStatement.setString(15, wantedFood.name());
-                } else {
-                    preparedStatement.setNull(15, Types.VARCHAR);
-                }
-                preparedStatement.setInt(16, foodCount);
-                preparedStatement.setInt(17, eatTotal);
-                preparedStatement.setInt(18, fightClubWins);
-                preparedStatement.setInt(19, brewCount);
+                preparedStatement.setInt(15, foodCount);
+                preparedStatement.setInt(16, eatTotal);
+                preparedStatement.setInt(17, fightClubWins);
+                preparedStatement.setInt(18, brewCount);
                 if (lastEatTime != null) {
-                    preparedStatement.setTimestamp(20, new Timestamp(lastEatTime.getTime()));
+                    preparedStatement.setTimestamp(19, new Timestamp(lastEatTime.getTime()));
                 } else {
-                    preparedStatement.setNull(20, Types.TIMESTAMP);
+                    preparedStatement.setNull(19, Types.TIMESTAMP);
                 }
-                preparedStatement.setInt(21, drinkedWeek);
-                preparedStatement.setInt(22, userID);
+                preparedStatement.setInt(20, drinkedWeek);
+                preparedStatement.setInt(21, userID);
                 preparedStatement.execute();
             } else {
                 preparedStatement = connectionDB.getPreparedStatement(
                         "INSERT INTO cwt_User (UserID, nick, name, isBarmen, alkoCount" +
                                 ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
-                                ", gold, visitTavern, location, locationReturnTime, food" +
-                                ", wantedFood, foodCount, eatTotal, fightClubWins, brewCount" +
-                                ", lastEatTime, drinkedWeek) VALUES" +
+                                ", gold, visitTavern, location, food, wantedFood" +
+                                ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
+                                ", drinkedWeek) VALUES" +
                                 " (?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
-                                ", ?, ?)");
+                                ", ?)");
                 preparedStatement.setInt(1, userID);
                 preparedStatement.setString(2, nick);
                 preparedStatement.setString(3, name);
@@ -370,31 +343,26 @@ public class User {
                     preparedStatement.setNull(12, Types.TIMESTAMP);
                 }
                 preparedStatement.setString(13, location.name());
-                if (locationReturnTime != null) {
-                    preparedStatement.setTimestamp(14, new Timestamp(locationReturnTime.getTime()));
-                } else {
-                    preparedStatement.setNull(14, Types.TIMESTAMP);
-                }
                 if (food != null) {
-                    preparedStatement.setString(15, food.name());
+                    preparedStatement.setString(14, food.name());
+                } else {
+                    preparedStatement.setNull(14, Types.VARCHAR);
+                }
+                if (wantedFood != null) {
+                    preparedStatement.setString(15, wantedFood.name());
                 } else {
                     preparedStatement.setNull(15, Types.VARCHAR);
                 }
-                if (wantedFood != null) {
-                    preparedStatement.setString(16, wantedFood.name());
-                } else {
-                    preparedStatement.setNull(16, Types.VARCHAR);
-                }
-                preparedStatement.setInt(17, foodCount);
-                preparedStatement.setInt(18, eatTotal);
-                preparedStatement.setInt(19, fightClubWins);
-                preparedStatement.setInt(20, brewCount);
+                preparedStatement.setInt(16, foodCount);
+                preparedStatement.setInt(17, eatTotal);
+                preparedStatement.setInt(18, fightClubWins);
+                preparedStatement.setInt(19, brewCount);
                 if (lastEatTime != null) {
-                    preparedStatement.setTimestamp(21, new Timestamp(lastEatTime.getTime()));
+                    preparedStatement.setTimestamp(20, new Timestamp(lastEatTime.getTime()));
                 } else {
-                    preparedStatement.setNull(21, Types.TIMESTAMP);
+                    preparedStatement.setNull(20, Types.TIMESTAMP);
                 }
-                preparedStatement.setInt(22, drinkedWeek);
+                preparedStatement.setInt(21, drinkedWeek);
                 preparedStatement.execute();
             }
             res = true;
@@ -595,10 +563,6 @@ public class User {
         this.gold = gold;
     }
 
-    public boolean IsVisitTavernToday() {
-        return DateUtils.isSameDay(visitTavern, new Date());
-    }
-
     public Location getLocation() {
         return location;
     }
@@ -608,21 +572,12 @@ public class User {
     }
 
     public boolean onQuest() {
-        return location.isQuest();
+        return location == Location.QUEST;
     }
 
     public void setLocation(Location location) {
         this.location = location;
     }
-
-    public void setLocationReturnTime(Date locationReturnTime) {
-        this.locationReturnTime = locationReturnTime;
-    }
-
-    public Date getLocationReturnTime() {
-        return locationReturnTime;
-    }
-
     public void setFoodCount(int foodCount) {
         this.foodCount = foodCount;
     }
@@ -655,7 +610,7 @@ public class User {
         return wantedFood;
     }
 
-    public void incFightClubWins() {
+    void incFightClubWins() {
         fightClubWins++;
     }
 
@@ -690,4 +645,5 @@ public class User {
     public void setDrinkedWeek(int drinkedWeek) {
         this.drinkedWeek = drinkedWeek;
     }
+
 }

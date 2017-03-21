@@ -1,13 +1,13 @@
 package org.nia.bots;
 
-import org.nia.logic.Location;
+import org.apache.commons.lang.time.DateUtils;
 import org.nia.logic.ServingMessage;
+import org.nia.logic.quests.IQuestEvent;
+import org.nia.model.Quest;
+import org.nia.model.QuestEvent;
 import org.nia.model.User;
-import org.nia.strings.Emoji;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.util.Date;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,17 +31,24 @@ public class BotTimerThread extends Thread {
                 TimeUnit.SECONDS.sleep(5);
                 now = new Date();
                 for (User usr : User.getAll()) {
-                    if (usr.onQuest() && usr.getLocationReturnTime().before(now)) {
-                        Location location = usr.getLocation();
-                        usr.setLocation(Location.TAVERN);
-                        usr.setLocationReturnTime(null);
-                        int earn = 3 + new Random().nextInt(3);
-                        usr.setGold(usr.getGold() + earn);
-                        usr.save();
-                        try {
-                            bot.sendMessage(ServingMessage.getTimedMessage(usr.getUserID(), location.getResult() + "\n\nТы выполнил просьбу Михалыча и получил " + earn + Emoji.GOLD));
-                        } catch (TelegramApiException e) {
-                            e.printStackTrace();
+                    if (usr.onQuest()) {
+                        Quest quest = Quest.getCurrent(usr);
+                        QuestEvent event = QuestEvent.getCurrent(quest);
+                        if (event != null && event.getEventTime().before(DateUtils.addMinutes(now, -5))) {
+                            String badText = event.getStep().getBadText() + "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
+                            event.setWin(false);
+                            event.save();
+                            quest.setEventTime(quest.getQuestEnum().getNextEventTime());
+                            quest.save();
+                            bot.sendMessage(ServingMessage.getTimedMessage(usr, badText));
+                        } else if (event == null && quest.getEventTime().before(new Date())) {
+                            IQuestEvent iQuestEvent = quest.getQuestEnum().getIQuest().getRandomEvent();
+                            event = new QuestEvent();
+                            event.setEventTime(quest.getEventTime());
+                            event.setQuest(quest);
+                            event.setStep(iQuestEvent.getInit());
+                            event.setIQuestEvent(iQuestEvent);
+                            event.save();
                         }
                     }
                 }
