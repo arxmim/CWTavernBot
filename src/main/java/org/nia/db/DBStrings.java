@@ -74,6 +74,8 @@ class DBStrings {
             "create table cwt_QuestEvent (\n" +
             "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
             "QuestID INTEGER NOT NULL, \n" +
-            "SceneName varchar(50), \n" +
-            "result bit)";
+            "eventName varchar(50), \n" +
+            "eventTime DATETIME, \n" +
+            "eventStep varchar(50), \n" +
+            "win bit)";
 }

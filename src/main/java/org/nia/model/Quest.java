@@ -4,10 +4,7 @@ import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
 import org.nia.logic.quests.QuestsEnum;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Date;
 
 /**
@@ -36,8 +33,16 @@ public class Quest {
                 preparedStatement.setInt(1, user.getUserID());
                 preparedStatement.setString(2, quest.name());
                 preparedStatement.setTimestamp(3, new Timestamp(startTime.getTime()));
-                preparedStatement.setTimestamp(4, new Timestamp(eventTime.getTime()));
-                preparedStatement.setTimestamp(5, new Timestamp(returnTime.getTime()));
+                if (eventTime != null) {
+                    preparedStatement.setTimestamp(4, new Timestamp(eventTime.getTime()));
+                } else {
+                    preparedStatement.setNull(4, Types.TIMESTAMP);
+                }
+                if (returnTime != null) {
+                    preparedStatement.setTimestamp(5, new Timestamp(returnTime.getTime()));
+                } else {
+                    preparedStatement.setNull(5, Types.TIMESTAMP);
+                }
                 preparedStatement.setInt(6, goldEarned);
                 preparedStatement.setInt(7, publicID);
                 preparedStatement.execute();
@@ -50,8 +55,16 @@ public class Quest {
                 preparedStatement.setInt(1, user.getUserID());
                 preparedStatement.setString(2, quest.name());
                 preparedStatement.setTimestamp(3, new Timestamp(startTime.getTime()));
-                preparedStatement.setTimestamp(4, new Timestamp(eventTime.getTime()));
-                preparedStatement.setTimestamp(5, new Timestamp(returnTime.getTime()));
+                if (eventTime != null) {
+                    preparedStatement.setTimestamp(4, new Timestamp(eventTime.getTime()));
+                } else {
+                    preparedStatement.setNull(4, Types.TIMESTAMP);
+                }
+                if (returnTime != null) {
+                    preparedStatement.setTimestamp(5, new Timestamp(returnTime.getTime()));
+                } else {
+                    preparedStatement.setNull(5, Types.TIMESTAMP);
+                }
                 preparedStatement.setInt(6, goldEarned);
                 preparedStatement.execute();
                 preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_Quest where userID = ? and questName = ?" +
@@ -60,8 +73,9 @@ public class Quest {
                 preparedStatement.setString(2, quest.name());
                 preparedStatement.setTimestamp(3, new Timestamp(startTime.getTime()));
                 ResultSet resultSet = preparedStatement.executeQuery();
-                resultSet.next();
-                publicID = resultSet.getInt(1);
+                if (resultSet.next()) {
+                    publicID = resultSet.getInt(1);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

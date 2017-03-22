@@ -118,7 +118,7 @@ public enum PersonalCommands implements Commands {
                 quest.setReturnTime(null);
                 quest.save();
                 user.save();
-                return randomQuest.getIQuest().getStart() + "\n\nТы можешь вернуться в любой момент, но чем дольше ты проведешь на задании, тем более получишь в награду";
+                return randomQuest.getIQuest().getStart() + "\n\nТы можешь вернуться в любой момент, но чем дольше ты проведешь на задании, тем более получишь в награду.";
             } else {
                 return "";
             }
@@ -156,6 +156,7 @@ public enum PersonalCommands implements Commands {
                 quest.setGoldEarned(sum);
                 quest.save();
                 user.setLocation(Location.TAVERN);
+                user.setGold(user.getGold() + sum);
                 user.save();
                 return "Ты вернулся с задания, заработав " + sum + Emoji.GOLD;
             } else if (user.inTavern()) {

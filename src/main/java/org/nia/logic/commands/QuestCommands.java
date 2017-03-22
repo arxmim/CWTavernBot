@@ -43,6 +43,8 @@ public class QuestCommands implements Commands {
                 res = iQuestStep.getText();
             }
             event.save();
+            quest.setEventTime(quest.getQuestEnum().getNextEventTime());
+            quest.save();
         }
         return res;
     }

@@ -49,6 +49,7 @@ public class BotTimerThread extends Thread {
                             event.setStep(iQuestEvent.getInit());
                             event.setIQuestEvent(iQuestEvent);
                             event.save();
+                            bot.sendMessage(ServingMessage.getTimedMessage(usr, iQuestEvent.getInit().getText()));
                         }
                     }
                 }

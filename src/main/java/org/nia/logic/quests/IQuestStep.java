@@ -18,6 +18,6 @@ public interface IQuestStep {
     public abstract String getGoodText();
     public abstract String getBadText();
     public default boolean isWin() {
-        return new Random().nextInt(101) > 70;
+        return new Random().nextInt(101) > 20;
     }
 }

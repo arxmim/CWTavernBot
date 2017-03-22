@@ -263,8 +263,8 @@ public class Tournament {
                             TournamentUsers loser = null;
                             Random random = new Random();
 
-                            int leftScore = left.getScore() + random.nextInt(51);
-                            int rightScore = right.getScore() + random.nextInt(51);
+                            int leftScore = left.getScore() + random.nextInt(81);
+                            int rightScore = right.getScore() + random.nextInt(81);
                             if (leftScore < rightScore) {
                                 winner = right;
                                 loser = left;

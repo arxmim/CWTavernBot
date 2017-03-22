@@ -5,10 +5,7 @@ import org.nia.db.DatabaseManager;
 import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +35,11 @@ public class QuestEvent {
                 preparedStatement.setString(2, iQuestEvent.getName());
                 preparedStatement.setString(3, step.getName());
                 preparedStatement.setTimestamp(4, new Timestamp(eventTime.getTime()));
-                preparedStatement.setBoolean(5, win);
+                if (win != null) {
+                    preparedStatement.setBoolean(5, win);
+                } else {
+                    preparedStatement.setNull(5, Types.BIT);
+                }
                 preparedStatement.setInt(6, publicID);
                 preparedStatement.execute();
             } else {
@@ -49,7 +50,11 @@ public class QuestEvent {
                 preparedStatement.setString(2, iQuestEvent.getName());
                 preparedStatement.setString(3, step.getName());
                 preparedStatement.setTimestamp(4, new Timestamp(eventTime.getTime()));
-                preparedStatement.setBoolean(5, win);
+                if (win != null) {
+                    preparedStatement.setBoolean(5, win);
+                } else {
+                    preparedStatement.setNull(5, Types.BIT);
+                }
                 preparedStatement.execute();
                 preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_QuestEvent where questID = ? and eventTime = ?");
                 preparedStatement.setInt(1, quest.getPublicID());

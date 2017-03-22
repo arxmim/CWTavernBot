@@ -30,7 +30,6 @@ public enum FightClubCommands implements Commands {
             currentByUserID.setScore(user.getFightClubStatsSum());
             currentByUserID.save();
 
-            return String.format(currentByUserID.getTournament().getType().getStartPhrase(), user);
         }
     };
     protected String text;

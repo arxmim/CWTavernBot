@@ -4,6 +4,7 @@ import org.nia.bots.CWTavernBot;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -16,6 +17,7 @@ import java.util.List;
 public interface Commands {
 
     public String apply(Message message);
+
     public boolean isApplicable(Message message);
 
     public default SendMessage getMessage(Message message, String answer) throws TelegramApiException {
@@ -25,15 +27,23 @@ public interface Commands {
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboad(true);
-        List<KeyboardRow> keyboard = CWTavernBot.getKeyboard(User.getFromMessage(message.getFrom()));
-        if (keyboard != null && !keyboard.isEmpty()) {
-            replyKeyboardMarkup.setKeyboard(keyboard);
+
+        if (message.isUserMessage()) {
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+            replyKeyboardMarkup.setSelective(true);
+            replyKeyboardMarkup.setResizeKeyboard(true);
+            replyKeyboardMarkup.setOneTimeKeyboad(true);
+            List<KeyboardRow> keyboard = CWTavernBot.getKeyboard(User.getFromMessage(message.getFrom()));
+            if (keyboard != null && !keyboard.isEmpty()) {
+                replyKeyboardMarkup.setKeyboard(keyboard);
+            }
+            sendMessage.setReplyMarkup(replyKeyboardMarkup);
+        } else {
+            ReplyKeyboardHide replyKeyboardHide = new ReplyKeyboardHide();
+            replyKeyboardHide.setSelective(true);
+            sendMessage.setReplyMarkup(replyKeyboardHide);
+
         }
-        sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
         return sendMessage;
     }
