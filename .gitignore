@@ -64,6 +64,8 @@ $RECYCLE.BIN/
 *.xml
 !pom.xml
 CWTavernBot.iml
+*.log
+*.log.lck
 *.class
 target/test-classes/ex1.txt
 src/main/resources/credentials.properties
