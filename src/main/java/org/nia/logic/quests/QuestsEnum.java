@@ -1,8 +1,9 @@
 package org.nia.logic.quests;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.nia.logic.quests.buyfish.SellFishQuest;
 import org.nia.logic.quests.potato.PotatoQuest;
+import org.nia.model.Quest;
 
 import java.util.Date;
 
@@ -43,12 +44,17 @@ public enum QuestsEnum {
     }
 
     public Date getFirstEventTime() {
-//        return DateUtils.addMinutes(new Date(), 30 + new Random().nextInt(241));
+
+//        return DateUtils.addMinutes(new Date(), 30 + new Random().nextInt(191));
         return DateUtils.addMinutes(new Date(), 2);
     }
 
-    public Date getNextEventTime() {
-//        return DateUtils.addMinutes(new Date(), new Random().nextInt(241));
+    public Date getNextEventTime(Quest quest) {
+//        final int EVENT_INTERVAL = 4;
+//        int count = QuestEvent.getCount(quest);
+//        Date startTime = quest.getStartTime();
+//        startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);
+//        return DateUtils.addMinutes(startTime, 20 + new Random().nextInt(201));
         return DateUtils.addMinutes(new Date(), 1);
     }
 }

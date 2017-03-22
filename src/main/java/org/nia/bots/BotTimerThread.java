@@ -38,7 +38,7 @@ public class BotTimerThread extends Thread {
                             String badText = event.getStep().getBadText() + "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
                             event.setWin(false);
                             event.save();
-                            quest.setEventTime(quest.getQuestEnum().getNextEventTime());
+                            quest.setEventTime(quest.getQuestEnum().getNextEventTime(quest));
                             quest.save();
                             bot.sendMessage(ServingMessage.getTimedMessage(usr, badText));
                         } else if (event == null && quest.getEventTime().before(new Date())) {

@@ -6,6 +6,8 @@ import org.nia.logic.quests.QuestsEnum;
 
 import java.sql.*;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author IANazarov
@@ -109,12 +111,8 @@ public class Quest {
         return res;
     }
 
-    public Integer getPublicID() {
+    Integer getPublicID() {
         return publicID;
-    }
-
-    public void setPublicID(Integer publicID) {
-        this.publicID = publicID;
     }
 
     public User getUser() {
@@ -149,19 +147,50 @@ public class Quest {
         this.eventTime = eventTime;
     }
 
-    public int getGoldEarned() {
-        return goldEarned;
-    }
-
     public void setGoldEarned(int goldEarned) {
         this.goldEarned = goldEarned;
     }
 
-    public Date getReturnTime() {
+    private Date getReturnTime() {
         return returnTime;
     }
 
     public void setReturnTime(Date returnTime) {
         this.returnTime = returnTime;
+    }
+
+    public int getReward() {
+        int INCREMENT = 1;
+        int STEP_HOURS = 1;
+        int START_SUM = 1;
+        int MAX_PROGRESS_HOURS = 4;
+        List<QuestEvent> all = QuestEvent.getAll(this);
+        int sum = all.stream().mapToInt(e -> {
+            if (e.getWin()) {
+                return e.getIQuestEvent().getReward();
+            } else {
+                return -e.getIQuestEvent().getReward();
+            }
+        }).sum();
+        Date returnTime = getReturnTime();
+        Date startTime = getStartTime();
+        int duration = (int) TimeUnit.HOURS.convert(returnTime.getTime() - startTime.getTime(), TimeUnit.MILLISECONDS);
+        if (duration > 0) {
+            if (duration > MAX_PROGRESS_HOURS) {
+                int progressInterval = MAX_PROGRESS_HOURS / STEP_HOURS;
+                int constantInterval = (duration - MAX_PROGRESS_HOURS) / STEP_HOURS;
+                int finalProgressElement = START_SUM + (progressInterval - 1) * INCREMENT;
+                sum += (START_SUM + finalProgressElement) / 2 * progressInterval;
+                sum += constantInterval * finalProgressElement;
+            } else {
+                int progressInterval = duration / STEP_HOURS;
+                int finalProgressElement = START_SUM + (progressInterval - 1) * INCREMENT;
+                sum += (START_SUM + finalProgressElement) / 2 * progressInterval;
+            }
+        }
+        if (sum < 0) {
+            sum = 0;
+        }
+        return sum;
     }
 }

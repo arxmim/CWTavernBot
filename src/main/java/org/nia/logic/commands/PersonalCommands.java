@@ -4,15 +4,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.nia.logic.Location;
 import org.nia.logic.TournamentState;
 import org.nia.logic.TournamentType;
-import org.nia.logic.commands.Commands;
 import org.nia.logic.quests.QuestsEnum;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,7 +117,7 @@ public enum PersonalCommands implements Commands {
                 quest.setReturnTime(null);
                 quest.save();
                 user.save();
-                return randomQuest.getIQuest().getStart() + "\n\nТы можешь вернуться в любой момент, но чем дольше ты проведешь на задании, тем более получишь в награду.";
+                return randomQuest.getIQuest().getStart() + "\n\nТы можешь вернуться в любой момент, но чем дольше ты проведешь на задании, тем больше получишь в награду.";
             } else {
                 return "";
             }
@@ -135,30 +134,14 @@ public enum PersonalCommands implements Commands {
                     event.setWin(false);
                     event.save();
                 }
-                List<QuestEvent> all = QuestEvent.getAll(quest);
-                int sum = all.stream().mapToInt(e -> {
-                    if (e.getWin()) {
-                        return e.getIQuestEvent().getReward();
-                    } else {
-                        return -e.getIQuestEvent().getReward();
-                    }
-                }).sum();
                 quest.setReturnTime(new Date());
-                Date returnTime = quest.getReturnTime();
-                Date startTime = quest.getStartTime();
-                long duration = TimeUnit.MINUTES.convert(returnTime.getTime() - startTime.getTime(), TimeUnit.MILLISECONDS);
-                if (duration > 30) {
-                    sum += duration / 10;
-                }
-                if (sum < 0) {
-                    sum = 0;
-                }
-                quest.setGoldEarned(sum);
+                int reward = quest.getReward();
+                quest.setGoldEarned(reward);
                 quest.save();
                 user.setLocation(Location.TAVERN);
-                user.setGold(user.getGold() + sum);
+                user.setGold(user.getGold() + reward);
                 user.save();
-                return "Ты вернулся с задания, заработав " + sum + Emoji.GOLD;
+                return "Ты вернулся с задания, заработав " + reward + Emoji.GOLD;
             } else if (user.inTavern()) {
                 return "Ты уже вернулся с задания.";
             } else {

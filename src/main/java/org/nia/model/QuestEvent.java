@@ -127,6 +127,22 @@ public class QuestEvent {
         return res;
     }
 
+    public static int getCount(Quest quest) {
+        int res = 0;
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
+                    "select count(1) from cwt_QuestEvent where questID = ?");
+            preparedStatement.setInt(1, quest.getPublicID());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            res = resultSet.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
     public Integer getPublicID() {
         return publicID;
     }
