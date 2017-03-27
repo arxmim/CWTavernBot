@@ -4,8 +4,10 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.nia.logic.quests.buyfish.SellFishQuest;
 import org.nia.logic.quests.potato.PotatoQuest;
 import org.nia.model.Quest;
+import org.nia.model.QuestEvent;
 
 import java.util.Date;
+import java.util.Random;
 
 /**
  * @author IANazarov
@@ -14,7 +16,6 @@ public enum QuestsEnum {
 
 //    BUY_FISH("Остап попросил тебя купить рыбу на рынке."
 //            , "На рынке тебе удалось спереть рыбину с прилавка. На выданные Остапом деньги ты покатался на карусели."
-//            , "На рынке ты купил черепаху. Она угрожала что тебя найдет какой-то черно-белый медведь и отомстит за нее."
 //            , "Ты решил наловить рыбы сам, а деньги Остапа забрать себе. На рыбалке тебе разморило и ты заснул, а " +
 //            "когда очнулся обнаружил что к твоим пожиткам приделали ноги. Ты потерял удочку, деньги, сапоги и всю наловленную рыбу... " +
 //            "зато в кармане ты обнаружил лягушку. Напоив Остапа, тебе удалось убедить его что лягушка - тоже рыба."),
@@ -45,16 +46,16 @@ public enum QuestsEnum {
 
     public Date getFirstEventTime() {
 
-//        return DateUtils.addMinutes(new Date(), 30 + new Random().nextInt(191));
-        return DateUtils.addMinutes(new Date(), 2);
+        return DateUtils.addMinutes(new Date(), 30 + new Random().nextInt(191));
+//        return DateUtils.addMinutes(new Date(),0);
     }
 
     public Date getNextEventTime(Quest quest) {
-//        final int EVENT_INTERVAL = 4;
-//        int count = QuestEvent.getCount(quest);
-//        Date startTime = quest.getStartTime();
-//        startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);
-//        return DateUtils.addMinutes(startTime, 20 + new Random().nextInt(201));
-        return DateUtils.addMinutes(new Date(), 1);
+        final int EVENT_INTERVAL = 4;
+        int count = QuestEvent.getCount(quest);
+        Date startTime = quest.getStartTime();
+        startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);
+        return DateUtils.addMinutes(startTime, 20 + new Random().nextInt(201));
+//        return DateUtils.addMinutes(new Date(), 1);
     }
 }

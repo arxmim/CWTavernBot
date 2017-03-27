@@ -1,6 +1,7 @@
 package org.nia.bots;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.nia.PropertiesLoader;
 import org.nia.logic.*;
 import org.nia.logic.commands.Commands;
@@ -19,10 +20,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author IANazarov
@@ -43,13 +41,17 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     User newChatMember = message.getNewChatMember();
                     if (newChatMember != null) {
                         org.nia.model.User user = org.nia.model.User.getFromMessage(newChatMember);
-                        user.setAlkoCount(2);
-                        int rand = new Random().nextInt(DrinkType.values().length);
-                        DrinkType drinkType = DrinkType.values()[rand];
-                        user.setDrinkType(drinkType);
-                        user.save();
-                        String answer = String.format(drinkType.getEnterPhrase(), user);
-                        sendMessage(TavernCommands.GIVE.getMessage(message, answer));
+                        if (user.getLastDrinkTime() != null && user.getLastDrinkTime().after(DateUtils.addMinutes(new Date(), -20))) {
+                            sendMessage(TavernCommands.GIVE.getMessage(message, user + ", ты либо сидишь в таверне, либо уходишь, хватит бегать туда-сюда!"));
+                        } else {
+                            user.setAlkoCount(2);
+                            int rand = new Random().nextInt(DrinkType.values().length);
+                            DrinkType drinkType = DrinkType.values()[rand];
+                            user.setDrinkType(drinkType);
+                            user.save();
+                            String answer = String.format(drinkType.getEnterPhrase(), user);
+                            sendMessage(TavernCommands.GIVE.getMessage(message, answer));
+                        }
                     }
                     BotLogger.info(LOGTAG, "no text");
                 }

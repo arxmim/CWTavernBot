@@ -1,10 +1,10 @@
 package org.nia.logic.commands;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nia.bots.CWTavernBot;
 import org.nia.logic.DrinkType;
 import org.nia.logic.Food;
 import org.nia.model.*;
-import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -129,6 +129,11 @@ public enum TavernCommands implements Commands {
     },
     BK_TOP("/bk_top") {
         @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+        }
+
+        @Override
         public String apply(Message message) {
             StringBuilder sb = new StringBuilder();
             sb.append("Количество побед в бойцовском клубе за всё время:\n");
@@ -190,12 +195,20 @@ public enum TavernCommands implements Commands {
             }
         }
     },
-    TEST("/test123") {
+    SHOW_STATS("/show_stats") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message).isAdmin();
+        }
+
         @Override
         public String apply(Message message) {
-            return Emoji.CON.toString();
-//            TournamentUsers winner = TournamentUsers.getByID(107);
-//            return TournamentBet.evalTournamentResults(winner);
+            String name = StringUtils.substringAfter(message.getText(), text).trim();
+            if (name.isEmpty()) {
+                return User.getFromMessage(message).getFightClubStats();
+            } else {
+                return User.getByNick(name).getFightClubStats();
+            }
         }
     },
     GIVE("") {

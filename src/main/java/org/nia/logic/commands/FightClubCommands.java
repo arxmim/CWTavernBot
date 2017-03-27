@@ -30,7 +30,7 @@ public enum FightClubCommands implements Commands {
             currentByUserID.setScore(user.getFightClubStatsSum());
             currentByUserID.save();
 
-            return String.format(currentByUserID.getTournament().getType().getStartPhrase(), user) + "\n\nХочешь поддержать участника? Жми /AVE_" + user.toString().toUpperCase().replace("@", "");
+            return String.format(currentByUserID.getTournament().getType().getStartPhrase(), user);
         }
     };
     protected String text;

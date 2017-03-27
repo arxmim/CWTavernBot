@@ -16,10 +16,29 @@ public class SellFishQuest implements IQuest {
 
     @Override
     public String getStart() {
-        return "Остап попросил тебя продать рыбу на рынке.";
+        return "Остап попросил тебя поторговать рыбой на рынке. Ему недавно привезли несколько повозок с рыбой, и " +
+                "теперь её надо продать, пока не испортилась.";
     }
 
     private enum SellFishEvent implements IQuestEvent {
+        SELL_FISH_NOISY_MAN(NoisyMan.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return NoisyMan.valueOf(questStep);
+            }
+        },
+        SELL_FISH_INSPECTION(Inspection.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return Inspection.valueOf(questStep);
+            }
+        },
+        SELL_FISH_TURTLE_PANDA(TurtlePanda.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return TurtlePanda.valueOf(questStep);
+            }
+        },
         SELL_FISH_MAGIC_FISH(MagicFish.INIT) {
             @Override
             public IQuestStep getQuestStep(String questStep) {
