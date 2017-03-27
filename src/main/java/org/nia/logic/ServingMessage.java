@@ -15,16 +15,37 @@ public class ServingMessage {
     private static long chatID = -1001104513622L;
     private static long chatID_test = -213390213;
     private static long chatID_test_with_alex = -1001113989941L;
+
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatID);
         sendMessage.enableHtml(true);
         StringBuilder sb = new StringBuilder();
-        sb.append("А вот и я! Принесла напитки для посетителей:\n");
+        sb.append("А вот и я! ");
+        if (!served.isEmpty()) {
+            sb.append("Принесла напитки для посетителей:\n");
+        }
         served.forEach(usr -> sb.append(usr).append(" - ").append(usr.getDrinkType().getName()).append("\n"));
-        sb.append("\nА еще вот еда:\n");
+        if (!servedFood.isEmpty()) {
+            if (!served.isEmpty()) {
+                sb.append("\nА еще вот закуски:\n");
+            } else {
+                sb.append("Принесла закуски для посетителей:\n");
+            }
+        }
         servedFood.forEach(usr -> sb.append(usr).append(" - ").append(usr.getFood().getName()).append("\n"));
-        sb.append("Можете приступать к /drink и /eat!");
+        sb.append("\nМожете приступать к ");
+        if (!served.isEmpty()) {
+            sb.append("/drink");
+        }
+        if (!servedFood.isEmpty()) {
+            if (!served.isEmpty()) {
+                sb.append("и /eat");
+            } else {
+                sb.append("/eat");
+            }
+        }
+        sb.append("!");
         sendMessage.setText(sb.toString());
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
