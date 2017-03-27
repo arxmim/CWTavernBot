@@ -8,6 +8,9 @@ import org.nia.db.DatabaseManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
 
 /**
  * @author Иван, 11.03.2017.
@@ -35,21 +38,32 @@ public class TournamentUsers {
             if (resultSet.next()) {
                 return user + ", ты уже зарегистрировался на турнир!";
             } else {
-                preparedStatement = connectionDB.getPreparedStatement("select count(1) from cwt_TournamentUsers where TournamentID = ?");
+                preparedStatement = connectionDB.getPreparedStatement("select position from cwt_TournamentUsers where TournamentID = ?");
                 preparedStatement.setInt(1, tournament.getPublicID());
                 resultSet = preparedStatement.executeQuery();
-                resultSet.next();
-                int count = resultSet.getInt(1) + 1;
-                if (count > tournament.getMaxUsers()) {
+                int newCount = 1;
+                HashSet<Integer> has = new HashSet<>();
+                ArrayList<Integer> hasNot = new ArrayList<>();
+                while (resultSet.next()) {
+                    newCount++;
+                    has.add(resultSet.getInt(1));
+                }
+                if (newCount > tournament.getMaxUsers()) {
                     return "Извини, " + user + ", но места для участников уже все заняты. В следующий раз соображай быстрее!";
                 }
+                for (int i = 1; i <= tournament.getMaxUsers(); i++) {
+                    if (!has.contains(i)) {
+                        hasNot.add(i);
+                    }
+                }
+                int position = hasNot.get(new Random().nextInt(hasNot.size()));
                 preparedStatement = connectionDB.getPreparedStatement("INSERT INTO cwt_TournamentUsers (userID, TournamentID, position) " +
                         "VALUES (?, ?, ?)");
                 preparedStatement.setInt(1, user.getUserID());
                 preparedStatement.setInt(2, tournament.getPublicID());
-                preparedStatement.setInt(3, count);
+                preparedStatement.setInt(3, position);
                 preparedStatement.execute();
-                return user + ", ты успешно зарегистрирован на турнир, твой номер - " + count;
+                return user + ", ты успешно зарегистрирован на турнир, твой номер - " + position + ", уже зарегистрировано - " + newCount;
             }
         } catch (SQLException e) {
             e.printStackTrace();

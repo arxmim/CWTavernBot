@@ -248,10 +248,10 @@ public class User {
             if (exists) {
                 preparedStatement = connectionDB.getPreparedStatement(
                         "update cwt_User set nick = ?, name = ?, isBarmen = ?, alkoCount = ?, lastDrinkTime = ?" +
-                        ", drinkedTotal = ?, drinkType = ?, wanted = ?, isAdmin = ?, gold = ?" +
-                        ", visitTavern = ?, location = ?, food = ?, wantedFood = ?, foodCount = ?" +
-                        ", eatTotal = ?, fightClubWins = ?, brewCount = ?, lastEatTime = ?, drinkedWeek = ?" +
-                        " where UserID = ?");
+                                ", drinkedTotal = ?, drinkType = ?, wanted = ?, isAdmin = ?, gold = ?" +
+                                ", visitTavern = ?, location = ?, food = ?, wantedFood = ?, foodCount = ?" +
+                                ", eatTotal = ?, fightClubWins = ?, brewCount = ?, lastEatTime = ?, drinkedWeek = ?" +
+                                " where UserID = ?");
                 preparedStatement.setString(1, nick);
                 preparedStatement.setString(2, name);
                 preparedStatement.setBoolean(3, isBarmen);
@@ -499,6 +499,53 @@ public class User {
                 + "\n" + Emoji.CON + "Стойкость: " + getCon(drinkPrefs) + "\n" + Emoji.KNO + "Знание таверны: " + getKno();
     }
 
+    public String getPublicFightClubStats() {
+        DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
+        return "Твои характеристики:\n" + Emoji.STR + "Сила: " + roundStatToString(getStr(drinkPrefs))
+                + "\n" + Emoji.AGI + "Ловкость: " + roundStatToString(getAgi(drinkPrefs))
+                + "\n" + Emoji.CHA + "Обаяние: " + roundStatToString(getCha(drinkPrefs))
+                + "\n" + Emoji.CON + "Стойкость: " + roundStatToString(getCon(drinkPrefs))
+                + "\n" + Emoji.KNO + "Знание таверны: " + getKno();
+    }
+
+    public String roundStatToString(int stat) {
+        String res;
+        if (stat < 4) {
+            res = "чуть меньше чем ничего";
+        } else if (stat < 6) {
+            res = "тебя превосходят даже голуби";
+        } else if (stat < 8) {
+            res = "как у ребенка";
+        } else if (stat < 10) {
+            res = "низко";
+        } else if (stat < 13) {
+            res = "довольно низко, но уже не так стыдно";
+        } else if (stat < 16) {
+            res = "почти нормально";
+        } else if (stat < 20) {
+            res = "нормально";
+        } else if (stat < 24) {
+            res = "выше среднего";
+        } else if (stat < 28) {
+            res = "высоко";
+        } else if (stat < 32) {
+            res = "очень высоко";
+        } else if (stat < 36) {
+            res = "практически нет равных";
+        } else if (stat < 40) {
+            res = "нет равных";
+        } else if (stat < 45) {
+            res = "почти как у бога";
+        } else if (stat < 50) {
+            res = "почти божественно";
+        } else if (stat < 55) {
+            res = "божественно";
+        } else {
+            res = "превосходит богов";
+        }
+        return res;
+    }
+
     private int getStr(DrinkPrefs drinkPrefs) {
         int strength = 1;
         if (drinkPrefs != null) {
@@ -578,6 +625,7 @@ public class User {
     public void setLocation(Location location) {
         this.location = location;
     }
+
     public void setFoodCount(int foodCount) {
         this.foodCount = foodCount;
     }

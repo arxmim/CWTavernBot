@@ -12,7 +12,9 @@ import org.nia.strings.Emoji;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -162,30 +164,30 @@ public class Tournament {
         return registrationDateTime;
     }
 
-    public String work() {
-        String res = "";
+    public List<String> work() {
+        ArrayList<String> res = new ArrayList<>();
         if (isAnnounced()) {
             tournamentState = TournamentState.REGISTRATION;
             save();
-            res = "Регистрация на турнир " + tournamentType + " открыта на 10 минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
-                    "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet";
+            res.add("Регистрация на турнир " + tournamentType + " открыта на 10 минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
+                    "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet");
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
             if (pair == null || pair.getRight() == null) {
                 tournamentState = TournamentState.FINISHED;
                 save();
-                res = "Турнира не будет. Не набралось и двух участников";
+                res.add("Турнира не будет. Не набралось и двух участников");
             } else {
                 tournamentState = TournamentState.PROGRESS;
                 save();
-                res = Emoji.DRINKS + "Турнир " + tournamentType + " начинается!\nГлавный приз - почет и уважение!" + Emoji.DRINK + "\n\nПолный список участников:\n" + TournamentUsers.getAllString(this, round + 1) + "\n Первое состязание состоится через 1 минуту, всем занять свои места, МЫ НАЧИНАЕМ!";
+                res.add(Emoji.DRINKS + "Турнир " + tournamentType + " начинается!\nГлавный приз - почет и уважение!" + Emoji.DRINK + "\n\nПолный список участников:\n" + TournamentUsers.getAllString(this, round + 1) + "\n Первое состязание состоится через 1 минуту, всем занять свои места, МЫ НАЧИНАЕМ!");
             }
         } else if (isInProgress()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
             if (pair == null) {
                 tournamentState = TournamentState.FINISHED;
                 save();
-                res = "Увы, но на финал турнира не нашлось бойцов. Турнир окончен до выявления победителя.";
+                res.add("Увы, но на финал турнира не нашлось бойцов. Турнир окончен до выявления победителя.");
             } else {
                 TournamentUsers left = pair.getLeft();
                 TournamentUsers right = pair.getRight();
@@ -198,41 +200,43 @@ public class Tournament {
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
-                    res = TournamentBet.evalTournamentResults(left);
+                    res.add(TournamentBet.evalTournamentResults(left));
                 } else if (left.getRound() < right.getRound()) {
                     left.incRound();
                     left.getUser().incFightClubWins();
                     left.getUser().save();
                     left.save();
-                    res = left.getUser() + ", тебе повезло, соперника не нашлось, и ты автоматически проходишь в следующий этап.";
+                    res.add(left.getUser() + ", тебе повезло, соперника не нашлось, и ты автоматически проходишь в следующий этап.");
                 } else {
                     if (round < left.getRound()) {
                         round++;
                         save();
                         int phase = maxUsers / (Double.valueOf(Math.pow(2, round))).intValue();
-                        switch (phase) {
+                        String roundStr = "Начинается следующий этап!\n";
+                        switch (round) {
                             case 1:
-                                res = "Начинается финал!\n";
+                                roundStr = "Начинается финал!\n";
                                 break;
                             case 2:
-                                res = "Начинается полуфинал!\n";
+                                roundStr = "Начинается полуфинал!\n";
                                 break;
                             case 4:
-                                res = "Начинается четвертьфинал!\n";
+                                roundStr = "Начинается четвертьфинал!\n";
                                 break;
                             case 8:
-                                res = "Начинается 1/8 финала!\n";
+                                roundStr = "Начинается 1/8 финала!\n";
                                 break;
                             case 16:
-                                res = "Начинается 1/16 финала!\n";
+                                roundStr = "Начинается 1/16 финала!\n";
                                 break;
                             case 32:
-                                res = "Начинается 1/32 финала!\n";
+                                roundStr = "Начинается 1/32 финала!\n";
                                 break;
                         }
-                        res += TournamentUsers.getAllString(this, round);
+                        res.add(roundStr + TournamentUsers.getAllString(this, round));
                     }
                     if (left.InFight()) {
+                        String fightResult;
                         if (left.getScore() == 0 && right.getScore() == 0) {
                             left.setLose(true);
                             right.setLose(true);
@@ -240,7 +244,7 @@ public class Tournament {
                             right.setInFight(false);
                             left.save();
                             right.save();
-                            res = "Оба участника пропустили состязание и были дисквалифицированы! " + left.getUser() + ", " + right.getUser() + " в следующий раз будете смелее!\n";
+                            fightResult = "Оба участника пропустили состязание и были дисквалифицированы! " + left.getUser() + ", " + right.getUser() + " в следующий раз будете смелее!\n";
                         } else if (left.getScore() == 0 || right.getScore() == 0) {
                             TournamentUsers winner = left;
                             TournamentUsers loser = right;
@@ -257,7 +261,7 @@ public class Tournament {
                             winner.setInFight(false);
                             winner.setScore(0);
                             winner.save();
-                            res = "Участник " + loser.getUser() + " трус, он не явился на состязание! Его соперник " + winner.getUser() + " автоматически проходит в следующий этап!\n";
+                            fightResult = "Участник " + loser.getUser() + " трус, он не явился на состязание! Его соперник " + winner.getUser() + " автоматически проходит в следующий этап!\n";
                         } else {
                             TournamentUsers winner = null;
                             TournamentUsers loser = null;
@@ -282,7 +286,7 @@ public class Tournament {
                                 winner.setInFight(false);
                                 winner.setScore(0);
                                 winner.save();
-                                res = String.format(tournamentType.getWinPhrase(), winner.getUser(), loser.getUser()) + "\n";
+                                fightResult = String.format(tournamentType.getWinPhrase(), winner.getUser(), loser.getUser()) + "\n";
                             } else {
                                 left.setScore(0);
                                 left.setInFight(false);
@@ -290,17 +294,20 @@ public class Tournament {
                                 right.setScore(0);
                                 right.setInFight(false);
                                 right.save();
-                                res = String.format(tournamentType.getTie(), left.getUser(), right.getUser()) + "\n";
+                                fightResult = String.format(tournamentType.getTie(), left.getUser(), right.getUser()) + "\n";
                             }
                         }
                         OficiantThread.INSTANCE.setTournamentPhase(true);
-                        res += "Следующее состязание вот-вот начнется!";
+                        fightResult += "Следующее состязание вот-вот начнется!";
+                        res.add(fightResult);
                     } else {
                         left.setInFight(true);
                         right.setInFight(true);
                         left.save();
                         right.save();
-                        res += left.getUser() + ", " + right.getUser() + " ваш выход! " + tournamentType.getRule() + "\n\nРАУНД НАЧИНАЕТСЯ!";
+                        res.add(left.getUser() + " - твой выход!\n" + left.getUser().getPublicFightClubStats());
+                        res.add(right.getUser() + " - твой выход!\n" + right.getUser().getPublicFightClubStats());
+                        res.add(tournamentType.getRule() + "\n\nРАУНД НАЧИНАЕТСЯ!");
                     }
                 }
             }

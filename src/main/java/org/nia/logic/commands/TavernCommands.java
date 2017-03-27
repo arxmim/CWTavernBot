@@ -205,9 +205,11 @@ public enum TavernCommands implements Commands {
         public String apply(Message message) {
             String name = StringUtils.substringAfter(message.getText(), text).trim();
             if (name.isEmpty()) {
-                return User.getFromMessage(message).getFightClubStats();
+                User user = User.getFromMessage(message);
+                return user.getFightClubStats()+ "\n" + user.getPublicFightClubStats();
             } else {
-                return User.getByNick(name).getFightClubStats();
+                User user = User.getByNick(name);
+                return user.getFightClubStats() + "\n" + user.getPublicFightClubStats();
             }
         }
     },

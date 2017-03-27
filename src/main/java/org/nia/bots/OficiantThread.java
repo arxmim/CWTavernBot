@@ -1,6 +1,5 @@
 package org.nia.bots;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.logic.ServingMessage;
 import org.nia.model.Tournament;
@@ -41,8 +40,8 @@ public class OficiantThread extends Thread {
                     serve();
                 } else if ((current != null && (tournamentInterval(gcWas, current) || tournamentPhase))) {
                     tournamentPhase = false;
-                    String answer = current.work();
-                    if (!StringUtils.isEmpty(answer)) {
+                    List<String> answerList = current.work();
+                    for (String answer : answerList) {
                         bot.sendMessage(ServingMessage.getTournamentMessage(answer));
                     }
                 }
