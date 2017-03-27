@@ -213,7 +213,7 @@ public class Tournament {
                         save();
                         int phase = maxUsers / (Double.valueOf(Math.pow(2, round))).intValue();
                         String roundStr = "Начинается следующий этап!\n";
-                        switch (round) {
+                        switch (phase) {
                             case 1:
                                 roundStr = "Начинается финал!\n";
                                 break;
@@ -305,8 +305,8 @@ public class Tournament {
                         right.setInFight(true);
                         left.save();
                         right.save();
-                        res.add(left.getUser() + " - твой выход!\n" + left.getUser().getPublicFightClubStats());
-                        res.add(right.getUser() + " - твой выход!\n" + right.getUser().getPublicFightClubStats());
+                        res.add(left.getUser() + " - твой выход!\n\n" + left.getUser().getPublicFightClubStats());
+                        res.add(right.getUser() + " - твой выход!\n\n" + right.getUser().getPublicFightClubStats());
                         res.add(tournamentType.getRule() + "\n\nРАУНД НАЧИНАЕТСЯ!");
                     }
                 }
