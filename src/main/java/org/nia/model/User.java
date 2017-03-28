@@ -505,7 +505,7 @@ public class User {
                 + "\n" + Emoji.AGI + "Ловкость: " + roundStatToString(getAgi(drinkPrefs))
                 + "\n" + Emoji.CHA + "Обаяние: " + roundStatToString(getCha(drinkPrefs))
                 + "\n" + Emoji.CON + "Стойкость: " + roundStatToString(getCon(drinkPrefs))
-                + "\n" + Emoji.KNO + "Знание таверны: " + getKno();
+                + "\n" + Emoji.KNO + "Знание таверны: " + roundStatToString(getKno() /2);
     }
 
     public String roundStatToString(int stat) {
@@ -517,11 +517,11 @@ public class User {
         } else if (stat < 8) {
             res = "как у ребенка";
         } else if (stat < 10) {
-            res = "низко";
+            res = "так мало, что даже стыдно";
         } else if (stat < 13) {
-            res = "довольно низко, но уже не так стыдно";
+            res = "низко";
         } else if (stat < 16) {
-            res = "почти нормально";
+            res = "чуть ниже нормы";
         } else if (stat < 20) {
             res = "нормально";
         } else if (stat < 24) {

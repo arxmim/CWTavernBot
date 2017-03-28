@@ -40,7 +40,7 @@ public class ServingMessage {
         }
         if (!servedFood.isEmpty()) {
             if (!served.isEmpty()) {
-                sb.append("и /eat");
+                sb.append(" и /eat");
             } else {
                 sb.append("/eat");
             }
