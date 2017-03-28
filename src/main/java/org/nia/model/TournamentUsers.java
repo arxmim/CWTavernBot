@@ -95,6 +95,10 @@ public class TournamentUsers {
         return score;
     }
 
+    public int getFinalResult() {
+        return tournament.getType().evalFinalResult(score);
+    }
+
     public boolean InFight() {
         return inFight;
     }

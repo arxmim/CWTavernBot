@@ -2,6 +2,8 @@ package org.nia.logic;
 
 import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.FightClubCommands;
+import org.nia.logic.commands.PostukCommands;
+import org.nia.model.TournamentUsers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,13 +14,7 @@ import java.util.Random;
  * @author Иван, 11.03.2017.
  */
 public enum TournamentType {
-    DRINK_MASTER("Мастер выпивки") {
-        @Override
-        public List<? extends Commands> getCommands() {
-            return null;
-        }
-    },
-    FIGHT_CLUB("Бойцовский клуб") {
+    FIGHT_CLUB("\"Бойцовский клуб\"") {
         @Override
         public List<? extends Commands> getCommands() {
             return Arrays.asList(FightClubCommands.values());
@@ -48,12 +44,39 @@ public enum TournamentType {
             addStartPhrase("%s взял в обе руки по разному напитку и приготовился метать ими в противника.");
             addStartPhrase("%s прокричал: \"Пиво богу пива! Кружки для трона из кружек!\" и приготовился к драке.");
         }
+
+        @Override
+        public int evalFinalResult(int score) {
+            return score + new Random().nextInt(81);
+        }
+    },
+    POSTUK("\"ПОСТУК\"") {
+        @Override
+        public List<? extends Commands> getCommands() {
+            return Arrays.asList(PostukCommands.values());
+        }
+
+        @Override
+        protected void init() {
+            setTie("Оба бойца были долго обменивались ударами, но ни один так и не упал.\n\nОБЪЯВЛЯЕТСЯ НИЧЬЯ! Бой состоится заново!");
+            setRule("Бойцы, отправляйтесь в личку к Лизе, и выбирайте оружие, которым будете сражаться!");
+            addStartPhrase("Боец %s сделал свой выбор!");
+        }
+
+        public String getWinPhrase(TournamentUsers winner, TournamentUsers loser) {
+            return String.format(win.get(new Random().nextInt(win.size())), winner.getUser(), loser.getUser());
+        }
+
+        @Override
+        public int evalFinalResult(int score) {
+            return score + new Random().nextInt(81);
+        }
     };
 
     private String name;
     private String tie;
     private String rule;
-    private List<String> win = new ArrayList<>();
+    List<String> win = new ArrayList<>();
     private List<String> start = new ArrayList<>();
 
     TournamentType(String name) {
@@ -71,12 +94,12 @@ public enum TournamentType {
         return name;
     }
 
-    public String getTie() {
-        return tie;
+    public String getTie(TournamentUsers left, TournamentUsers right) {
+        return String.format(tie, left.getUser(), right.getUser());
     }
 
-    public String getWinPhrase() {
-        return win.get(new Random().nextInt(win.size()));
+    public String getWinPhrase(TournamentUsers winner, TournamentUsers loser) {
+        return String.format(win.get(new Random().nextInt(win.size())), winner.getUser(), loser.getUser());
     }
 
     public String getStartPhrase() {
@@ -110,4 +133,6 @@ public enum TournamentType {
     public void addStartPhrase(String phrase) {
         start.add(phrase);
     }
+
+    public abstract int evalFinalResult(int score);
 }

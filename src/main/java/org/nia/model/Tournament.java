@@ -169,7 +169,7 @@ public class Tournament {
         if (isAnnounced()) {
             tournamentState = TournamentState.REGISTRATION;
             save();
-            res.add("Регистрация на турнир " + tournamentType + " открыта на 3 минуты! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
+            res.add("Регистрация на турнир " + tournamentType + " открыта на 10 минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
                     "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet");
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
@@ -267,8 +267,8 @@ public class Tournament {
                             TournamentUsers loser = null;
                             Random random = new Random();
 
-                            int leftScore = left.getScore() + random.nextInt(81);
-                            int rightScore = right.getScore() + random.nextInt(81);
+                            int leftScore = left.getFinalResult();
+                            int rightScore = right.getFinalResult();
                             if (leftScore < rightScore) {
                                 winner = right;
                                 loser = left;
@@ -286,7 +286,7 @@ public class Tournament {
                                 winner.setInFight(false);
                                 winner.setScore(0);
                                 winner.save();
-                                fightResult = String.format(tournamentType.getWinPhrase(), winner.getUser(), loser.getUser()) + "\n";
+                                fightResult = tournamentType.getWinPhrase(winner, loser) + "\n";
                             } else {
                                 left.setScore(0);
                                 left.setInFight(false);
@@ -294,7 +294,7 @@ public class Tournament {
                                 right.setScore(0);
                                 right.setInFight(false);
                                 right.save();
-                                fightResult = String.format(tournamentType.getTie(), left.getUser(), right.getUser()) + "\n";
+                                fightResult = tournamentType.getTie(left, right) + "\n";
                             }
                         }
                         OficiantThread.INSTANCE.setTournamentPhase(true);
