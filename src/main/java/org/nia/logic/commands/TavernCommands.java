@@ -88,7 +88,8 @@ public enum TavernCommands implements Commands {
         public boolean isApplicable(Message message) {
             if (super.isApplicable(message)) {
                 Tournament current = Tournament.getCurrent();
-                return current != null && current.isRegistration();
+                User user = User.getFromMessage(message);
+                return (current != null && current.isRegistration()) || (current != null && current.isAnnounced() && user.isBarmen());
             }
             return false;
         }
@@ -96,7 +97,18 @@ public enum TavernCommands implements Commands {
         @Override
         public String apply(Message message) {
             Tournament tournament = Tournament.getCurrent();
-            return TournamentUsers.register(tournament, User.getFromMessage(message.getFrom()));
+            User user = User.getFromMessage(message.getFrom());
+            if (user.isBarmen()) {
+                String text = message.getText();
+                String nick = StringUtils.substringAfter(text, this.text).trim();
+                if (!nick.isEmpty()) {
+                    User byNick = User.getByNick(nick);
+                    if (byNick != null) {
+                        user = byNick;
+                    }
+                }
+            }
+            return TournamentUsers.register(tournament, user);
         }
     },
     TOP("/top") {
