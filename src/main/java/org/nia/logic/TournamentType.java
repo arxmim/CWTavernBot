@@ -1,14 +1,16 @@
 package org.nia.logic;
 
+import org.nia.bots.CWTavernBot;
 import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.FightClubCommands;
-import org.nia.logic.commands.PostukCommands;
+import org.nia.logic.commands.ArenaCommands;
+import org.nia.logic.commands.PersonalCommands;
 import org.nia.model.TournamentUsers;
+import org.nia.model.User;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Иван, 11.03.2017.
@@ -46,14 +48,19 @@ public enum TournamentType {
         }
 
         @Override
-        public int evalFinalResult(int score) {
-            return score + new Random().nextInt(81);
+        public int evalFinalResult(TournamentUsers first, TournamentUsers second) {
+            return first.getScore() + new Random().nextInt(81);
         }
     },
-    POSTUK("\"ПОСТУК\"") {
+    CHAIR_LEG("\"Ножка от стула\"") {
         @Override
         public List<? extends Commands> getCommands() {
-            return Arrays.asList(PostukCommands.values());
+            return Arrays.asList(ArenaCommands.values());
+        }
+
+        @Override
+        public List<String> getCommandButtons() {
+            return Arrays.stream(ArenaCommands.Weapon.values()).map(ArenaCommands.Weapon::getName).collect(Collectors.toList());
         }
 
         @Override
@@ -64,12 +71,25 @@ public enum TournamentType {
         }
 
         public String getWinPhrase(TournamentUsers winner, TournamentUsers loser) {
-            return String.format(win.get(new Random().nextInt(win.size())), winner.getUser(), loser.getUser());
+            ArenaCommands.Weapon winWep = ArenaCommands.Weapon.getByNumber(winner.getScore());
+            ArenaCommands.Weapon loseWep = ArenaCommands.Weapon.getByNumber(loser.getScore());
+            return String.format(winWep.getWinPhrase(loseWep), winner.getUser(), loser.getUser());
         }
 
         @Override
-        public int evalFinalResult(int score) {
-            return score + new Random().nextInt(81);
+        public void remindUser(User user) {
+            try {
+                CWTavernBot.INSTANCE.sendMessage(PersonalCommands.HELP.getPersonalMessage(user, "Выбирай, чем будешь драться!"));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public int evalFinalResult(TournamentUsers first, TournamentUsers second) {
+            ArenaCommands.Weapon winWep = ArenaCommands.Weapon.getByNumber(first.getScore());
+            ArenaCommands.Weapon loseWep = ArenaCommands.Weapon.getByNumber(second.getScore());
+            return winWep.against(loseWep) + winWep.getStat(first.getUser());
         }
     };
 
@@ -85,6 +105,9 @@ public enum TournamentType {
     }
 
     public abstract List<? extends Commands> getCommands();
+    public List<String> getCommandButtons() {
+        return Collections.emptyList();
+    }
 
     protected void init() {
     }
@@ -96,6 +119,10 @@ public enum TournamentType {
 
     public String getTie(TournamentUsers left, TournamentUsers right) {
         return String.format(tie, left.getUser(), right.getUser());
+    }
+
+    public void remindUser(User user) {
+
     }
 
     public String getWinPhrase(TournamentUsers winner, TournamentUsers loser) {
@@ -134,5 +161,5 @@ public enum TournamentType {
         start.add(phrase);
     }
 
-    public abstract int evalFinalResult(int score);
+    public abstract int evalFinalResult(TournamentUsers first, TournamentUsers second);
 }

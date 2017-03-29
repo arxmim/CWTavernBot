@@ -89,7 +89,7 @@ public enum TavernCommands implements Commands {
             if (super.isApplicable(message)) {
                 Tournament current = Tournament.getCurrent();
                 User user = User.getFromMessage(message);
-                return (current != null && current.isRegistration()) || (current != null && current.isAnnounced() && user.isBarmen());
+                return (current != null && current.isRegistration()) || (current != null && current.isAnnounced() && user.isBarmen() && message.isUserMessage());
             }
             return false;
         }
@@ -100,7 +100,7 @@ public enum TavernCommands implements Commands {
             User user = User.getFromMessage(message.getFrom());
             if (user.isBarmen()) {
                 String text = message.getText();
-                String nick = StringUtils.substringAfter(text, this.text).trim();
+                String nick = StringUtils.substringAfter(text, this.text + " ").trim();
                 if (!nick.isEmpty()) {
                     User byNick = User.getByNick(nick);
                     if (byNick != null) {

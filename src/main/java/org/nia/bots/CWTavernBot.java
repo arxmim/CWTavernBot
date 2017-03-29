@@ -11,6 +11,7 @@ import org.nia.logic.commands.TavernCommands;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 import org.nia.model.Tournament;
+import org.nia.model.TournamentUsers;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
@@ -171,12 +172,31 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 });
             }
         } else if (user.inTavern()) {
-            KeyboardRow keyboardButtons = new KeyboardRow();
-            keyboardButtons.add(PersonalCommands.MY_INFO.getText());
-            if (user.isAdmin()) {
-                keyboardButtons.add(PersonalCommands.QUEST.getText());
+            TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(user.getUserID());
+            if (currentByUserID != null && currentByUserID.InFight() && currentByUserID.getScore() == 0) {
+                List<String> buttons = currentByUserID.getTournament().getType().getCommandButtons();
+                KeyboardRow keyboardButtons = new KeyboardRow();
+                int i = 0;
+                for (String btn : buttons) {
+                    i++;
+                    keyboardButtons.add(btn);
+                    if (i%2==0) {
+                        i = 0;
+                        keyboardRows.add(keyboardButtons);
+                        keyboardButtons = new KeyboardRow();
+                    }
+                }
+                if (i > 0) {
+                    keyboardRows.add(keyboardButtons);
+                }
+            } else {
+                KeyboardRow keyboardButtons = new KeyboardRow();
+                keyboardButtons.add(PersonalCommands.MY_INFO.getText());
+                if (user.isAdmin()) {
+                    keyboardButtons.add(PersonalCommands.QUEST.getText());
+                }
+                keyboardRows.add(keyboardButtons);
             }
-            keyboardRows.add(keyboardButtons);
         }
         return keyboardRows;
     }

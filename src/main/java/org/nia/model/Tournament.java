@@ -21,6 +21,7 @@ import java.util.Random;
  * @author Иван, 11.03.2017.
  */
 public class Tournament {
+    public static int REGISTRATION_TIME = 1;
     private Integer publicID;
     private Date registrationDateTime;
     private TournamentType tournamentType;
@@ -169,7 +170,7 @@ public class Tournament {
         if (isAnnounced()) {
             tournamentState = TournamentState.REGISTRATION;
             save();
-            res.add("Регистрация на турнир " + tournamentType + " открыта на 10 минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
+            res.add("Регистрация на турнир " + tournamentType + " открыта на "+REGISTRATION_TIME+" минуту! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
                     "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet");
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
@@ -265,10 +266,9 @@ public class Tournament {
                         } else {
                             TournamentUsers winner = null;
                             TournamentUsers loser = null;
-                            Random random = new Random();
 
-                            int leftScore = left.getFinalResult();
-                            int rightScore = right.getFinalResult();
+                            int leftScore = left.getFinalResult(right);
+                            int rightScore = right.getFinalResult(left);
                             if (leftScore < rightScore) {
                                 winner = right;
                                 loser = left;
@@ -280,13 +280,13 @@ public class Tournament {
                                 loser.setInFight(false);
                                 loser.setLose(true);
                                 loser.save();
+                                fightResult = tournamentType.getWinPhrase(winner, loser) + "\n";
                                 winner.incRound();
                                 winner.getUser().incFightClubWins();
                                 winner.getUser().save();
                                 winner.setInFight(false);
                                 winner.setScore(0);
                                 winner.save();
-                                fightResult = tournamentType.getWinPhrase(winner, loser) + "\n";
                             } else {
                                 left.setScore(0);
                                 left.setInFight(false);
@@ -308,6 +308,8 @@ public class Tournament {
                         res.add(left.getUser() + " - твой выход!\n\n" + left.getUser().getPublicFightClubStats());
                         res.add(right.getUser() + " - твой выход!\n\n" + right.getUser().getPublicFightClubStats());
                         res.add(tournamentType.getRule() + "\n\nРАУНД НАЧИНАЕТСЯ!");
+                        tournamentType.remindUser(left.getUser());
+                        tournamentType.remindUser(right.getUser());
                     }
                 }
             }

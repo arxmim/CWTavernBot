@@ -505,7 +505,7 @@ public class User {
                 + "\n" + Emoji.AGI + "Ловкость: " + roundStatToString(getAgi(drinkPrefs))
                 + "\n" + Emoji.CHA + "Обаяние: " + roundStatToString(getCha(drinkPrefs))
                 + "\n" + Emoji.CON + "Стойкость: " + roundStatToString(getCon(drinkPrefs))
-                + "\n" + Emoji.KNO + "Знание таверны: " + roundStatToString(getKno() /2);
+                + "\n" + Emoji.KNO + "Знание таверны: " + roundStatToString(getKno());
     }
 
     public String roundStatToString(int stat) {
@@ -546,7 +546,7 @@ public class User {
         return res;
     }
 
-    private int getStr(DrinkPrefs drinkPrefs) {
+    public int getStr(DrinkPrefs drinkPrefs) {
         int strength = 1;
         if (drinkPrefs != null) {
             strength += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
@@ -557,7 +557,7 @@ public class User {
         return strength;
     }
 
-    private int getAgi(DrinkPrefs drinkPrefs) {
+    public int getAgi(DrinkPrefs drinkPrefs) {
         int agility = 1;
         if (drinkPrefs != null) {
             agility += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
@@ -566,7 +566,7 @@ public class User {
         return agility;
     }
 
-    private int getCha(DrinkPrefs drinkPrefs) {
+    public int getCha(DrinkPrefs drinkPrefs) {
         int charism = 1;
         if (drinkPrefs != null) {
             charism += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
@@ -577,7 +577,7 @@ public class User {
         return charism;
     }
 
-    private int getCon(DrinkPrefs drinkPrefs) {
+    public int getCon(DrinkPrefs drinkPrefs) {
         int constitution = 1;
         if (drinkPrefs != null) {
             constitution += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
@@ -586,8 +586,8 @@ public class User {
         return constitution;
     }
 
-    private int getKno() {
-        return (int) Math.sqrt(this.getDrinkedTotal());
+    public int getKno() {
+        return (int) Math.sqrt(this.getDrinkedTotal()) /2;
     }
 
     public DrinkType getWanted() {

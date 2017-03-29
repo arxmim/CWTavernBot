@@ -14,7 +14,7 @@ import java.util.List;
 public class ServingMessage {
     private static long chatID = -1001104513622L;
     private static long chatID_test = -213390213;
-    private static long chatID_test_with_alex = -1001113989941L;
+    private static long chatID_test_with_barmens = -1001083996255L;
 
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
@@ -59,7 +59,7 @@ public class ServingMessage {
 
     public static SendMessage getTournamentMessage(String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatID);
+        sendMessage.setChatId(chatID_test_with_barmens);
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 

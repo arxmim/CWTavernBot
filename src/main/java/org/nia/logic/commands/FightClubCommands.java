@@ -1,12 +1,8 @@
 package org.nia.logic.commands;
 
-import org.nia.logic.commands.Commands;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
-
-import java.util.List;
 
 
 /**
