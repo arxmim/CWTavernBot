@@ -467,6 +467,25 @@ public class User {
         return res;
     }
 
+    public static List<User> getBarmenTop() {
+        List<User> res = new ArrayList<>();
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, brewCount from cwt_User where brewCount > 0 order by brewCount desc");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.nick = resultSet.getString(1);
+                user.name = resultSet.getString(2);
+                user.brewCount = resultSet.getInt(3);
+                res.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
     public static List<User> getBkTop() {
         List<User> res = new ArrayList<>();
         try {
@@ -694,4 +713,7 @@ public class User {
         this.drinkedWeek = drinkedWeek;
     }
 
+    public int getBrewCount() {
+        return brewCount;
+    }
 }

@@ -105,6 +105,8 @@ public enum TavernCommands implements Commands {
                     User byNick = User.getByNick(nick);
                     if (byNick != null) {
                         user = byNick;
+                    } else {
+                        return "";
                     }
                 }
             }
@@ -150,6 +152,20 @@ public enum TavernCommands implements Commands {
             StringBuilder sb = new StringBuilder();
             sb.append("Количество побед в бойцовском клубе за всё время:\n");
             User.getBkTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getFightClubWins()).append("\n"));
+            return sb.toString();
+        }
+    },
+    BARMEN_TOP("/barmen_top") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+        }
+
+        @Override
+        public String apply(Message message) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Количество налитых напитков и розданных закусок за всё время:\n");
+            User.getBarmenTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getBrewCount()).append("\n"));
             return sb.toString();
         }
     },

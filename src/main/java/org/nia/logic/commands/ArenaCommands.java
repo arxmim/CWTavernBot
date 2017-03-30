@@ -31,25 +31,25 @@ public enum ArenaCommands implements Commands {
             Weapon weapon = Weapon.getByName(message.getText());
             currentByUserID.setScore(weapon.getNumber());
             currentByUserID.save();
-            Pair<TournamentUsers, TournamentUsers> twoUsers = TournamentUsers.getTwoUsers(currentByUserID.getTournament());
 
-//            try {
-//                CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(String.format(currentByUserID.getTournament().getType().getStartPhrase(), user)));
-//            } catch (TelegramApiException e) {
-//                e.printStackTrace();
-//            }
-            TournamentUsers left = twoUsers.getLeft();
-            TournamentUsers right = twoUsers.getRight();
-            Weapon leftWep = Weapon.getByNumber(left.getScore());
-            Weapon rightWep = Weapon.getByNumber(right.getScore());
-            if (leftWep != null && rightWep != null) {
-                try {
-                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(String.format(leftWep.getReadyPhrase(), left.getUser(), left.getUser().roundStatToString(leftWep.getStat(left.getUser())))));
-                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(String.format(rightWep.getReadyPhrase(), right.getUser(), right.getUser().roundStatToString(rightWep.getStat(right.getUser())))));
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
+            try {
+                CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(String.format(currentByUserID.getTournament().getType().getStartPhrase(), user)));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
             }
+//            Pair<TournamentUsers, TournamentUsers> twoUsers = TournamentUsers.getTwoUsers(currentByUserID.getTournament());
+//            TournamentUsers left = twoUsers.getLeft();
+//            TournamentUsers right = twoUsers.getRight();
+//            Weapon leftWep = Weapon.getByNumber(left.getScore());
+//            Weapon rightWep = Weapon.getByNumber(right.getScore());
+//            if (leftWep != null && rightWep != null) {
+//                try {
+//                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(String.format(leftWep.getReadyPhrase(), left.getUser(), left.getUser().roundStatToString(leftWep.getStat(left.getUser())))));
+//                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(String.format(rightWep.getReadyPhrase(), right.getUser(), right.getUser().roundStatToString(rightWep.getStat(right.getUser())))));
+//                } catch (TelegramApiException e) {
+//                    e.printStackTrace();
+//                }
+//            }
             return "Ты сделал хороший выбор. Теперь возвращайся в таверну и следи за результатом боя!";
         }
     };
@@ -80,9 +80,9 @@ public enum ArenaCommands implements Commands {
             @Override
             public int against(Weapon another) {
                 if (another == KARATE) {
-                    return winWep;
+                    return halfWin;
                 } else if (another == ARM) {
-                    return winWep;
+                    return fullWin;
                 }
                 return 0;
             }
@@ -121,9 +121,9 @@ public enum ArenaCommands implements Commands {
             @Override
             public int against(Weapon another) {
                 if (another == ARM) {
-                    return winWep;
+                    return halfWin;
                 } else if (another == CAPOEIRA) {
-                    return winWep;
+                    return fullWin;
                 }
                 return 0;
             }
@@ -160,9 +160,9 @@ public enum ArenaCommands implements Commands {
             @Override
             public int against(Weapon another) {
                 if (another == CAPOEIRA) {
-                    return winWep;
+                    return halfWin;
                 } else if (another == MUG) {
-                    return winWep;
+                    return fullWin;
                 }
                 return 0;
             }
@@ -192,16 +192,16 @@ public enum ArenaCommands implements Commands {
         CAPOEIRA(4, "Капоэйра") {
             @Override
             public void init() {
-                addSameWeaponPhrase("Оба бойца решили сражатсья, используя искусство капоэйры, но %s оказался #чутьлучше чем %s. Чистая победа!");
+                addSameWeaponPhrase("Оба бойца решили сражаться, используя искусство капоэйры, но %s оказался #чутьлучше чем %s. Чистая победа!");
                 addSameWeaponPhrase("Сражающиеся сегодня решили померяться своей капоэйрой. Удача сегодня на стороне %s, он без труда расправился с %s.");
                 readyPhrase = "Боец %s будет сражаться при помощи капоейры.\nБонус обаяния: %s";
             }
             @Override
             public int against(Weapon another) {
                 if (another == MUG) {
-                    return winWep;
+                    return halfWin;
                 } else if (another == CHAIR) {
-                    return winWep;
+                    return fullWin;
                 }
                 return 0;
             }
@@ -245,9 +245,9 @@ public enum ArenaCommands implements Commands {
             @Override
             public int against(Weapon another) {
                 if (another == CHAIR) {
-                    return winWep;
+                    return halfWin;
                 } else if (another == KARATE) {
-                    return winWep;
+                    return fullWin;
                 }
                 return 0;
             }
@@ -270,7 +270,8 @@ public enum ArenaCommands implements Commands {
         };//str
 
         private List<String> sameWeaponPhrase = new ArrayList<>();
-        int winWep = 15;
+        int fullWin = 20;
+        int halfWin = 10;
         String readyPhrase;
         int number;
         String name;

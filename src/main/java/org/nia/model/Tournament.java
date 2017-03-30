@@ -21,7 +21,7 @@ import java.util.Random;
  * @author Иван, 11.03.2017.
  */
 public class Tournament {
-    public static int REGISTRATION_TIME = 1;
+    public static int REGISTRATION_TIME = 10;
     private Integer publicID;
     private Date registrationDateTime;
     private TournamentType tournamentType;
@@ -170,7 +170,7 @@ public class Tournament {
         if (isAnnounced()) {
             tournamentState = TournamentState.REGISTRATION;
             save();
-            res.add("Регистрация на турнир " + tournamentType + " открыта на "+REGISTRATION_TIME+" минуту! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
+            res.add("Регистрация на турнир " + tournamentType + " открыта на "+REGISTRATION_TIME+" минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
                     "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet");
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);

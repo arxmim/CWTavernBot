@@ -59,7 +59,7 @@ public class ServingMessage {
 
     public static SendMessage getTournamentMessage(String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatID_test_with_barmens);
+        sendMessage.setChatId(chatID);
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 
