@@ -19,7 +19,7 @@ public class JudgeQuest implements IQuest {
         return "Остап попросил тебя заменить заболевшего городского юриста на сегодняшних заседаниях суда. " +
                 "Ты берешь подобающий по случаю парик и идешь в здание суда. В зависимости от желаний судьи и " +
                 "потерпевшего, тебе придется исполнять роль прокурора или адвоката. Награда за " +
-                "задание будет увеличиваться или уменьшаться в зависимости от того, насколько успешно ты будешь вести дела";
+                "задание будет увеличиваться или уменьшаться в зависимости от того, насколько успешно ты будешь вести дела.";
     }
 
     private enum JudgeEvent implements IQuestEvent {
@@ -29,6 +29,12 @@ public class JudgeQuest implements IQuest {
                 return StolenHorse.valueOf(questStep);
             }
         },
+        JUDGE_BROTHERS(Brothers.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return Brothers.valueOf(questStep);
+            }
+        }
         ;
         private IQuestStep init;
 
