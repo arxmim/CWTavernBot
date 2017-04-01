@@ -3,7 +3,7 @@ package org.nia.bots;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.PropertiesLoader;
-import org.nia.logic.*;
+import org.nia.logic.DrinkType;
 import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.PersonalCommands;
 import org.nia.logic.commands.QuestCommands;
@@ -78,10 +78,10 @@ public class CWTavernBot extends TelegramLongPollingBot {
 
     private void handleIncomingMessage(Message message) throws TelegramApiException {
         SendMessage sendMessageRequest = null;
+        org.nia.model.User user = org.nia.model.User.getFromMessage(message);
         if (isCommand(message.getText()) || message.isUserMessage()) {
             Tournament current = Tournament.getCurrent();
             if (current != null && current.isInProgress()) {
-                org.nia.model.User user = org.nia.model.User.getFromMessage(message);
                 List<Commands> commandsList = new ArrayList<>();
                 if (user.inTavern()) {
                     commandsList.addAll(current.getType().getCommands());
@@ -99,7 +99,6 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     }
                 }
             } else {
-                org.nia.model.User user = org.nia.model.User.getFromMessage(message);
                 List<Commands> commandsList = new ArrayList<>();
                 if (user.inTavern()) {
                     commandsList.addAll(Arrays.asList(TavernCommands.values()));
@@ -122,7 +121,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     }
                 }
             }
-            if (sendMessageRequest == null && message.isUserMessage()) {
+            if (sendMessageRequest == null && message.isUserMessage() && user.inTavern()) {
                 String answer = PersonalCommands.MY_INFO.apply(message);
                 sendMessageRequest = PersonalCommands.MY_INFO.getMessage(message, answer);
             }
@@ -131,7 +130,6 @@ public class CWTavernBot extends TelegramLongPollingBot {
             sendMessage(sendMessageRequest);
         }
     }
-
 
 
     /**
@@ -151,7 +149,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
         } else if (user.onQuest()) {
             Quest quest = Quest.getCurrent(user);
             QuestEvent event = QuestEvent.getCurrent(quest);
-            if (event == null) {
+            if (event == null || event.getStep().getNext().isEmpty()) {
                 KeyboardRow keyboardButtons = new KeyboardRow();
                 keyboardButtons.add(PersonalCommands.MY_INFO.getText());
                 keyboardButtons.add(PersonalCommands.QUEST_RETURN.getText());
@@ -176,7 +174,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 for (String btn : buttons) {
                     i++;
                     keyboardButtons.add(btn);
-                    if (i%2==0) {
+                    if (i % 2 == 0) {
                         i = 0;
                         keyboardRows.add(keyboardButtons);
                         keyboardButtons = new KeyboardRow();

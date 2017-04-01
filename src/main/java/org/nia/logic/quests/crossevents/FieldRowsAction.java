@@ -10,8 +10,7 @@ import org.nia.model.QuestEvent;
  * @author IANazarov
  */
 public enum FieldRowsAction implements IQuestAction {
-    INIT(FieldRowsJudgement.INIT
-            , "Тебе досталось дело о парне, который перепутал участки и копал картошку на чужом огороде. Парня зовут " +
+    INIT("Тебе досталось дело о парне, который перепутал участки и копал картошку на чужом огороде. Парня зовут " +
             "%s. Ты и сам не раз бывал в подобной ситуации, поэтому не раздумывая решил ему помочь."
             , "Доказать невиновность в суде будет нереально, поэтому единственный способ не потерять деньги - " +
             "попробовать урегулировать дело до суда."
@@ -20,17 +19,25 @@ public enum FieldRowsAction implements IQuestAction {
             , "Ты должен задать серию вопросов, которые помогут соседу понять, что он только выиграл от работы %s на " +
             "его огороде. Первое, что ты должен узнать - что росло на соседском огороде. Выбери, у кого ты будешь спрашивать:") {
         @Override
+        public IQuestStep getMoveToStep() {
+            return FieldRowsJudgement.INIT;
+        }
+
+        @Override
         public void doWork(QuestEvent from, QuestEvent to) {
             setWinChance(from, to, 70);
         }
     },
-    ASK_USER_WHAT(FieldRows.QUESTION_WHAT
-            , "%s спрашивает у тебя, что росло на огороде."
+    ASK_USER_WHAT("%s спрашивает у тебя, что росло на огороде."
             , ""
-            , "Ожидание ответа %s"
-            , ""),
-    ASK_NPC_WHAT(null
-            , "%s спросил у соседа, что росло на огороде."
+            , "Ждешь реакции %s..."
+            , "") {
+        @Override
+        public IQuestStep getMoveToStep() {
+            return FieldRows.QUESTION_WHAT;
+        }
+    },
+    ASK_NPC_WHAT("%s спросил у соседа, что росло на огороде."
             , "- Да у меня там была ценная рассада! Я выращивал эксклюзивный вид редиса!\n\nКажется, он начинает злиться."
             , "Твой следующий вопрос касается качества работы %s. Выбери, у кого ты будешь спрашивать:"
             , "Ждешь реакции %s...") {
@@ -39,35 +46,46 @@ public enum FieldRowsAction implements IQuestAction {
             incWinChance(from, to, -10);
         }
     },
-    ANSWER_WHAT_NOTHING(FieldRowsJudgement.USER_WHAT_ANSWER_NOTHING
-            , "%s ответил:\n- Ничего не росло."
+    ANSWER_WHAT_NOTHING("%s ответил:\n- Ничего не росло."
             , "Услышав такой ответ, сосед начал ругаться:\n- Парень, да ты совсем слепой! Там была моя ценнейшая " +
             "рассада эксклюзивного вида редиса!"
-            , "Ждешь реакции %s"
+            , "Ждешь реакции %s..."
             , "Твой следующий вопрос касается качества работы %s. Выбери, у кого ты будешь спрашивать:") {
+        @Override
+        public IQuestStep getMoveToStep() {
+            return FieldRowsJudgement.USER_WHAT_ANSWER_NOTHING;
+        }
+
         @Override
         public void doWork(QuestEvent from, QuestEvent to) {
             incWinChance(from, to, -10);
         }
     },
-    ANSWER_WHAT_GRASS(FieldRowsJudgement.USER_WHAT_ANSWER_GRASS
-            , "%s ответил:\n- Росла какая-то трава."
+    ANSWER_WHAT_GRASS("%s ответил:\n- Росла какая-то трава."
             , "Услышав такой ответ, сосед что-то проворчал про себя. Видимо, он согласен, но пока не хочет " +
             "признавать, что он только в плюсе от проделанной работы."
-            , "Ждешь реакции %s"
+            , "Ждешь реакции %s..."
             , "Твой следующий вопрос касается качества работы %s. Выбери, у кого ты будешь спрашивать:") {
+        @Override
+        public IQuestStep getMoveToStep() {
+            return FieldRowsJudgement.USER_WHAT_ANSWER_GRASS;
+        }
+
         @Override
         public void doWork(QuestEvent from, QuestEvent to) {
             incWinChance(from, to, 10);
         }
     },
-    ASK_USER_HOW(FieldRows.QUESTION_HOW
-            , "%s спрашивает у тебя, насколько хорошо и качественно ты работал."
+    ASK_USER_HOW("%s спрашивает у тебя, насколько хорошо и качественно ты работал."
             , ""
-            , "Ожидание ответа %s"
-            , ""),
-    ASK_NPC_HOW(null
-            , "%s спросил у соседа, насколько хорошо и качественно ты работал."
+            , "Ждешь реакции %s..."
+            , "") {
+        @Override
+        public IQuestStep getMoveToStep() {
+            return FieldRows.QUESTION_HOW;
+        }
+    },
+    ASK_NPC_HOW("%s спросил у соседа, насколько хорошо и качественно ты работал."
             , "- Ну, парень явно старался, ничего не могу сказать. Картошка вскопана что надо!"
             , "У тебя больше не осталось вопросов по делу, и теперь надо лишь узнать, готов ли сосед заплатить %s " +
             "за работу."
@@ -77,23 +95,31 @@ public enum FieldRowsAction implements IQuestAction {
             incWinChance(from, to, 10);
         }
     },
-    ANSWER_HOW_GOOD(FieldRowsJudgement.USER_HOW_ANSWER_GOOD
-            , "%s ответил:\n- Отлично вскопал!"
+    ANSWER_HOW_GOOD("%s ответил:\n- Отлично вскопал!"
             , "Услышав эти слова, сосед немного успокоился и кивком согласился с ответом."
-            , "Ждешь реакции %s"
+            , "Ждешь реакции %s..."
             , "У тебя больше не осталось вопросов по делу, и теперь надо лишь узнать, готов ли сосед заплатить %s " +
             "за работу.") {
+        @Override
+        public IQuestStep getMoveToStep() {
+            return FieldRowsJudgement.USER_HOW_ANSWER_GOOD;
+        }
+
         @Override
         public void doWork(QuestEvent from, QuestEvent to) {
             incWinChance(from, to, 10);
         }
     },
-    ANSWER_HOW_BAD(FieldRowsJudgement.USER_HOW_ANSWER_BAD
-            , "%s ответил:\n- Ну, я старался..."
+    ANSWER_HOW_BAD("%s ответил:\n- Ну, я старался..."
             , "Услышав такой ответ, сосед начал орать:\n- Да что этот сопляк понимает в картошке!"
-            , "Ждешь реакции %s"
+            , "Ждешь реакции %s..."
             , "У тебя больше не осталось вопросов по делу, и теперь надо лишь узнать, готов ли сосед заплатить %s " +
             "за работу.") {
+        @Override
+        public IQuestStep getMoveToStep() {
+            return FieldRowsJudgement.USER_HOW_ANSWER_BAD;
+        }
+
         @Override
         public void doWork(QuestEvent from, QuestEvent to) {
             incWinChance(from, to, -10);
@@ -115,11 +141,9 @@ public enum FieldRowsAction implements IQuestAction {
     private String eventText;
     private String fromEndText;
     private String toEndText;
-    private IQuestStep moveToStep;
     private Boolean win = null;
 
-    FieldRowsAction(IQuestStep moveToStep, String explainText, String eventText, String fromEndText, String toEndText) {
-        this.moveToStep = moveToStep;
+    FieldRowsAction(String explainText, String eventText, String fromEndText, String toEndText) {
         this.explainText = explainText;
         this.eventText = eventText;
         this.fromEndText = fromEndText;
@@ -127,7 +151,6 @@ public enum FieldRowsAction implements IQuestAction {
     }
 
     FieldRowsAction(boolean win, String explainText, String eventText, String fromEndText, String toEndText) {
-        this.moveToStep = null;
         this.explainText = explainText;
         this.eventText = eventText;
         this.fromEndText = fromEndText;
@@ -152,7 +175,7 @@ public enum FieldRowsAction implements IQuestAction {
     }
 
     public IQuestStep getMoveToStep() {
-        return moveToStep;
+        return null;
     }
 
     @Override

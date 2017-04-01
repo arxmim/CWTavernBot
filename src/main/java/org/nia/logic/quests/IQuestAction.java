@@ -38,10 +38,10 @@ public interface IQuestAction {
             linkedEvent.setEventTime(DateUtils.addMinutes(new Date(), -1));
             linkedEvent.setQuest(randomActive);
             linkedEvent.setLinkedQuestEvent(from);
-            from.setLinkedQuestEvent(linkedEvent);
             linkedEvent.setStep(this.getMoveToStep());
             linkedEvent.setIQuestEvent(this.getMoveToStep().getIQuest());
             linkedEvent.save();
+            from.setLinkedQuestEvent(linkedEvent);
             randomActive.setEventTime(linkedEvent.getEventTime());
             randomActive.save();
             try {
@@ -63,13 +63,16 @@ public interface IQuestAction {
             to.setStep(this.getMoveToStep());
             to.save();
         }
+        String ending = "";
         if (this.isWin() || this.isLose()) {
             if (this.isWin()) {
                 from.setWin(true);
                 to.setWin(true);
+                ending = "\n\nУдачное решение! Твоя награда за задание будет увеличена.";
             } else if (this.isLose()) {
                 from.setWin(false);
                 to.setWin(false);
+                ending = "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
             }
             from.getQuest().setEventTime(from.getQuest().getQuestEnum().getNextEventTime(from.getQuest()));
             to.getQuest().setEventTime(to.getQuest().getQuestEnum().getNextEventTime(to.getQuest()));
@@ -83,11 +86,11 @@ public interface IQuestAction {
             User fromUser = from.getQuest().getUser();
             User toUser = to.getQuest().getUser();
             BOT.sendMessage(ServingMessage.getTimedMessage(fromUser
-                    , this.getEventText() + String.format(this.getFromEndText(), toUser)));
+                    , this.getEventText() + "\n" + String.format(this.getFromEndText(), toUser) + ending));
             BOT.sendMessage(ServingMessage.getTimedMessage(toUser
-                    , String.format(this.getExplainText(), fromUser)
-                            + this.getEventText()
-                            + String.format(this.getToEndText(), fromUser)));
+                    , String.format(this.getExplainText(), fromUser) + "\n"
+                            + this.getEventText() + "\n"
+                            + String.format(this.getToEndText(), fromUser) + ending));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

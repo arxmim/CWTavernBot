@@ -33,6 +33,7 @@ public class QuestCommands implements Commands {
             IQuestStep iQuestStep = first.get();
             event.setStep(iQuestStep);
             event.setEventTime(new Date());
+            event.save();
             boolean actionTriggered = false;
             QuestEvent linkedEvent = event.getLinkedQuestEvent();
             if (iQuestStep instanceof ICrossQuestStep) {

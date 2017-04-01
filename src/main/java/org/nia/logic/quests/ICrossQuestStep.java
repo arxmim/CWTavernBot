@@ -13,12 +13,20 @@ public interface ICrossQuestStep extends IQuestStep {
 
     @Override
     default String getGoodText() {
+        return getGoodInactiveText();
+    }
+
+    default String getGoodInactiveText() {
         return "Твой коллега ничего не предпринял, так что ты выставил его крайним и смотался.";
+    }
+
+    default String getBadInactiveText() {
+        return "Ты ничего не предпринял и всё пошло наперекосяк.";
     }
 
     @Override
     default String getBadText() {
-        return "Ты ничего не предпринял и всё пошло наперекосяк.";
+        return getBadInactiveText();
     }
 
     @Override

@@ -1,13 +1,16 @@
 package org.nia.logic.commands;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nia.bots.CWTavernBot;
 import org.nia.logic.Location;
+import org.nia.logic.ServingMessage;
 import org.nia.logic.TournamentState;
 import org.nia.logic.TournamentType;
 import org.nia.logic.quests.QuestsEnum;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -133,6 +136,19 @@ public enum PersonalCommands implements Commands {
                 if (event != null) {
                     event.setWin(false);
                     event.save();
+                    QuestEvent linkedQuestEvent = event.getLinkedQuestEvent();
+                    if (linkedQuestEvent != null) {
+                        linkedQuestEvent.setWin(true);
+                        Quest linkedQuest = linkedQuestEvent.getQuest();
+                        linkedQuest.setEventTime(linkedQuest.getQuestEnum().getNextEventTime(linkedQuest));
+                        linkedQuest.save();
+                        linkedQuestEvent.save();
+                        try {
+                            CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTimedMessage(linkedQuest.getUser(), user + " сбежал. Ты свалил на него все проблемы и смог немного подзаработать."));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 quest.setReturnTime(new Date());
                 int reward = quest.getReward();

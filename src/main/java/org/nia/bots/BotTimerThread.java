@@ -2,6 +2,7 @@ package org.nia.bots;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.nia.logic.ServingMessage;
+import org.nia.logic.quests.ICrossQuestStep;
 import org.nia.logic.quests.IQuestEvent;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
@@ -34,18 +35,20 @@ public class BotTimerThread extends Thread {
                     if (usr.onQuest()) {
                         Quest quest = Quest.getCurrent(usr);
                         QuestEvent event = QuestEvent.getCurrent(quest);
-                        if (event != null && event.getEventTime().before(DateUtils.addMinutes(now, -15))) {
+                        if (event != null && event.getEventTime().before(DateUtils.addMinutes(now, -2))) {
                             QuestEvent linkedEvent = event.getLinkedQuestEvent();
+                            String badText = event.getStep().getBadText();
                             if (linkedEvent != null) {
+                                badText = ((ICrossQuestStep) event.getStep()).getBadInactiveText();
                                 Quest linkedQuest = linkedEvent.getQuest();
-                                String goodText = linkedEvent.getStep().getGoodText() + "\n\nУдачное решение! Твоя награда за задание будет увеличена.";
+                                String goodText = ((ICrossQuestStep) linkedEvent.getStep()).getGoodInactiveText() + "\n\nУдачное решение! Твоя награда за задание будет увеличена.";
                                 linkedEvent.setWin(true);
                                 linkedEvent.save();
                                 linkedQuest.setEventTime(linkedQuest.getQuestEnum().getNextEventTime(linkedQuest));
                                 linkedQuest.save();
                                 bot.sendMessage(ServingMessage.getTimedMessage(linkedQuest.getUser(), goodText));
                             }
-                            String badText = event.getStep().getBadText() + "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
+                            badText += "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
                             event.setWin(false);
                             event.save();
                             quest.setEventTime(quest.getQuestEnum().getNextEventTime(quest));
