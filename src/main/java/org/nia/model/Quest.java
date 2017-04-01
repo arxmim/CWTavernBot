@@ -120,7 +120,7 @@ public class Quest {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
                     "select publicID, userID, startTime, eventTime, goldEarned" +
-                            " from cwt_Quest where questName = ? and and returnTime is null and eventTime > SYSDATETIME()");
+                            " from cwt_Quest where questName = ? and returnTime is null and eventTime > SYSDATETIME()");
             preparedStatement.setString(1, questsEnum.name());
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

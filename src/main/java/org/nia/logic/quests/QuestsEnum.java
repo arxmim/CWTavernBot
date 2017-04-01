@@ -30,7 +30,7 @@ public enum QuestsEnum {
     POTATO(PotatoQuest.INSTANCE) {
 
         public Date getFirstEventTime() {
-        return DateUtils.addMinutes(new Date(), 3);
+        return DateUtils.addMinutes(new Date(), 0);
         }
     },
 //    SELL_FISH(SellFishQuest.INSTANCE)

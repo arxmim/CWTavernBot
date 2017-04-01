@@ -21,7 +21,7 @@ import java.util.Random;
  * @author Иван, 11.03.2017.
  */
 public class Tournament {
-    public static int REGISTRATION_TIME = 10;
+    public static int REGISTRATION_TIME = 15;
     private Integer publicID;
     private Date registrationDateTime;
     private TournamentType tournamentType;

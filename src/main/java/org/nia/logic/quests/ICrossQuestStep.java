@@ -30,6 +30,10 @@ public interface ICrossQuestStep extends IQuestStep {
         return false;
     }
 
+    default boolean isButtonWithUser() {
+        return false;
+    }
+
     List<IQuestAction> getActionList();
 
     default IQuestAction getProducedAction(QuestEvent event) {

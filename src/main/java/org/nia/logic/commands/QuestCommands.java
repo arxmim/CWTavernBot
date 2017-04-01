@@ -78,7 +78,7 @@ public class QuestCommands implements Commands {
         }
         final String formatParamFinal = formatParam;
         return event.getStep().getNext().stream().filter(qs -> {
-            if (qs instanceof ICrossQuestStep && ((ICrossQuestStep) qs).isWaitUser()) {
+            if (qs instanceof ICrossQuestStep && ((ICrossQuestStep) qs).isButtonWithUser()) {
                 return qs.getCommand(formatParamFinal).equals(text);
             } else {
                 return qs.getCommand("").equals(text);

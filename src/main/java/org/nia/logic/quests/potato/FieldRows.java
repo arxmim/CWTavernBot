@@ -78,6 +78,7 @@ public enum FieldRows implements ICrossQuestStep {
         this.badText = badText;
         this.actionList.add(interceptionAction);
         this.interceptText = interceptText;
+        this.waitUser = true;
     }
 
     FieldRows(String command, String text, List<IQuestStep> next) {

@@ -9,6 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author IANazarov
@@ -79,10 +80,12 @@ public class QuestEvent {
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setTimestamp(2, new Timestamp(eventTime.getTime()));
                 ResultSet resultSet = preparedStatement.executeQuery();
-                resultSet.next();
-                publicID = resultSet.getInt(1);
+                TimeUnit.SECONDS.sleep(1);
+                if (resultSet.next()) {
+                    publicID = resultSet.getInt(1);
+                }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             e.printStackTrace();
         }
     }

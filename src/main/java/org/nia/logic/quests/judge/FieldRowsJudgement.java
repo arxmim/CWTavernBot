@@ -13,7 +13,7 @@ import java.util.*;
  */
 public enum FieldRowsJudgement implements ICrossQuestStep {
 
-    ASK_NPC_FINAL("Спросить, готов ли сосед заплатить за работу", Arrays.asList(FieldRowsAction.ASK_NPC_FINAL_WIN, FieldRowsAction.ASK_NPC_FINAL_LOSE), false),
+    ASK_NPC_FINAL("Спросить, готов ли сосед заплатить за работу %s", Arrays.asList(FieldRowsAction.ASK_NPC_FINAL_WIN, FieldRowsAction.ASK_NPC_FINAL_LOSE), false),
     USER_HOW_ANSWER_BAD(Collections.singletonList(ASK_NPC_FINAL)),
     USER_HOW_ANSWER_GOOD(Collections.singletonList(ASK_NPC_FINAL)),
     ASK_USER_HOW("Спросить у %s", Collections.singletonList(FieldRowsAction.ASK_USER_HOW), true),
@@ -27,6 +27,7 @@ public enum FieldRowsJudgement implements ICrossQuestStep {
     private List<IQuestStep> next = new ArrayList<>();
     private String command = "";
     private List<IQuestAction> actionList = new ArrayList<>();
+    private boolean isButtonWithUser = false;
 
     FieldRowsJudgement(List<IQuestStep> next) {
         this.next.addAll(next);
@@ -35,14 +36,17 @@ public enum FieldRowsJudgement implements ICrossQuestStep {
     FieldRowsJudgement(String command, List<IQuestAction> actionList, List<IQuestStep> next) {
         this.command = command;
         this.next.addAll(next);
-        this.actionList = actionList;
+        this.actionList.addAll(actionList);
     }
 
     FieldRowsJudgement(String command, List<IQuestAction> actionList, boolean isWaitUser) {
         this.command = command;
-        this.actionList = actionList;
+        this.actionList.addAll(actionList);
         this.isWaitUser = isWaitUser;
+        this.isButtonWithUser = true;
     }
+
+
 
     @Override
     public List<IQuestStep> getNext() {
@@ -61,6 +65,11 @@ public enum FieldRowsJudgement implements ICrossQuestStep {
     @Override
     public boolean isWaitUser() {
         return isWaitUser;
+    }
+
+    @Override
+    public boolean isButtonWithUser() {
+        return isButtonWithUser;
     }
 
     @Override
