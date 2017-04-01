@@ -29,13 +29,13 @@ public enum QuestsEnum {
     JUDGE(JudgeQuest.INSTANCE),
     POTATO(PotatoQuest.INSTANCE) {
 
-        public Date getFirstEventTime() {
-        return DateUtils.addMinutes(new Date(), 1);
-        }
-
-        public Date getNextEventTime(Quest quest) { return DateUtils.addMinutes(new Date(), 1);}
+//        public Date getFirstEventTime() {
+//        return DateUtils.addMinutes(new Date(), 1);
+//        }
+//
+//        public Date getNextEventTime(Quest quest) { return DateUtils.addMinutes(new Date(), 1);}
     },
-//    SELL_FISH(SellFishQuest.INSTANCE)
+    SELL_FISH(SellFishQuest.INSTANCE)
     ;
 
     private IQuest quest;

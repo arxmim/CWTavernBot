@@ -27,19 +27,19 @@ public class PotatoQuest implements IQuest {
                 return FieldRows.valueOf(questStep);
             }
         },
-//        POTATO_GIANT_JUK(GiantJuk.INIT) {
-//            @Override
-//            public IQuestStep getQuestStep(String questStep) {
-//                return GiantJuk.valueOf(questStep);
-//            }
-//        },
-//        POTATO_ORCS(Orcs.INIT) {
-//            @Override
-//            public IQuestStep getQuestStep(String questStep) {
-//                return Orcs.valueOf(questStep);
-//            }
-//
-//        }
+        POTATO_GIANT_JUK(GiantJuk.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return GiantJuk.valueOf(questStep);
+            }
+        },
+        POTATO_ORCS(Orcs.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return Orcs.valueOf(questStep);
+            }
+
+        }
         ;
         private IQuestStep init;
 
