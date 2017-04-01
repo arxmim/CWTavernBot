@@ -1,5 +1,6 @@
 package org.nia.logic.quests.potato;
 
+import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public enum Orcs implements IQuestStep {
     }
 
     @Override
-    public String getCommand() {
+    public String getCommand(String formatParam) {
         return command;
     }
 
@@ -68,5 +69,10 @@ public enum Orcs implements IQuestStep {
     @Override
     public String getName() {
         return name();
+    }
+
+    @Override
+    public IQuestEvent getIQuest() {
+        return PotatoQuest.PotatoEvent.POTATO_ORCS;
     }
 }

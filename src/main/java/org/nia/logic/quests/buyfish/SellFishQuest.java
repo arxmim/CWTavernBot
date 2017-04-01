@@ -3,6 +3,7 @@ package org.nia.logic.quests.buyfish;
 import org.nia.logic.quests.IQuest;
 import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
+import org.nia.logic.quests.QuestsEnum;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +21,7 @@ public class SellFishQuest implements IQuest {
                 "теперь её надо продать, пока не испортилась.";
     }
 
-    private enum SellFishEvent implements IQuestEvent {
+    public enum SellFishEvent implements IQuestEvent {
         SELL_FISH_NOISY_MAN(NoisyMan.INIT) {
             @Override
             public IQuestStep getQuestStep(String questStep) {
@@ -65,6 +66,11 @@ public class SellFishQuest implements IQuest {
         @Override
         public String getName() {
             return name();
+        }
+
+        @Override
+        public QuestsEnum getQuestsEnum() {
+            return QuestsEnum.SELL_FISH;
         }
     }
 

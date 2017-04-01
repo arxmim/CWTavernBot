@@ -1,5 +1,6 @@
 package org.nia.logic.quests.buyfish;
 
+import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
 
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public enum NoisyMan implements IQuestStep {
     }
 
     @Override
-    public String getCommand() {
+    public String getCommand(String formatParam) {
         return command;
     }
 
@@ -82,5 +83,10 @@ public enum NoisyMan implements IQuestStep {
     @Override
     public String getName() {
         return name();
+    }
+
+    @Override
+    public IQuestEvent getIQuest() {
+        return SellFishQuest.SellFishEvent.SELL_FISH_NOISY_MAN;
     }
 }

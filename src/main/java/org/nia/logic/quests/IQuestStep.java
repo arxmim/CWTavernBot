@@ -1,5 +1,8 @@
 package org.nia.logic.quests;
 
+import org.nia.model.Quest;
+import org.nia.model.QuestEvent;
+
 import java.util.List;
 import java.util.Random;
 
@@ -8,16 +11,28 @@ import java.util.Random;
  */
 public interface IQuestStep {
 
+    IQuestEvent getIQuest();
 
-    public String getText();
+    String getText();
 
-    public abstract String getName();
+    String getName();
 
-    public abstract List<IQuestStep> getNext();
-    public abstract String getCommand();
-    public abstract String getGoodText();
-    public abstract String getBadText();
-    public default boolean isWin() {
-        return new Random().nextInt(101) > 20;
+    List<IQuestStep> getNext();
+
+    String getCommand(String formatParam);
+
+    String getGoodText();
+
+    String getBadText();
+
+    default void doWork(QuestEvent questEvent) {}
+
+    default boolean isWin(QuestEvent questEvent) {
+        return new Random().nextInt(101) < questEvent.getWinChance();
     }
+
+    default String getInterceptText() {
+        return "";
+    }
+
 }

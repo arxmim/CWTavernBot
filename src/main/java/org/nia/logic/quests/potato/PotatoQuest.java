@@ -3,6 +3,7 @@ package org.nia.logic.quests.potato;
 import org.nia.logic.quests.IQuest;
 import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
+import org.nia.logic.quests.QuestsEnum;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,26 +20,27 @@ public class PotatoQuest implements IQuest {
         return "Остап попросил тебя вскопать картошку. Делать нечего, ты берешь лопату и идешь совершать трудовой подвиг.";
     }
 
-    private enum PotatoEvent implements IQuestEvent {
+    public enum PotatoEvent implements IQuestEvent {
         POTATO_FIELD_ROWS(FieldRows.INIT) {
             @Override
             public IQuestStep getQuestStep(String questStep) {
                 return FieldRows.valueOf(questStep);
             }
         },
-        POTATO_GIANT_JUK(GiantJuk.INIT) {
-            @Override
-            public IQuestStep getQuestStep(String questStep) {
-                return GiantJuk.valueOf(questStep);
-            }
-        },
-        POTATO_ORCS(Orcs.INIT) {
-            @Override
-            public IQuestStep getQuestStep(String questStep) {
-                return Orcs.valueOf(questStep);
-            }
-
-        };
+//        POTATO_GIANT_JUK(GiantJuk.INIT) {
+//            @Override
+//            public IQuestStep getQuestStep(String questStep) {
+//                return GiantJuk.valueOf(questStep);
+//            }
+//        },
+//        POTATO_ORCS(Orcs.INIT) {
+//            @Override
+//            public IQuestStep getQuestStep(String questStep) {
+//                return Orcs.valueOf(questStep);
+//            }
+//
+//        }
+        ;
         private IQuestStep init;
 
         PotatoEvent(IQuestStep init) {
@@ -53,6 +55,11 @@ public class PotatoQuest implements IQuest {
         @Override
         public String getName() {
             return name();
+        }
+
+        @Override
+        public QuestsEnum getQuestsEnum() {
+            return QuestsEnum.POTATO;
         }
     }
 

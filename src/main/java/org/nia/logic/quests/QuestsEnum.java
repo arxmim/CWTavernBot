@@ -27,8 +27,14 @@ public enum QuestsEnum {
 //            "- Не пей мордор, орком станешь!")
 
     JUDGE(JudgeQuest.INSTANCE),
-    POTATO(PotatoQuest.INSTANCE),
-    SELL_FISH(SellFishQuest.INSTANCE);
+    POTATO(PotatoQuest.INSTANCE) {
+
+        public Date getFirstEventTime() {
+        return DateUtils.addMinutes(new Date(), 3);
+        }
+    },
+//    SELL_FISH(SellFishQuest.INSTANCE)
+    ;
 
     private IQuest quest;
 

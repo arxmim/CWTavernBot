@@ -8,6 +8,7 @@ import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.PersonalCommands;
 import org.nia.logic.commands.QuestCommands;
 import org.nia.logic.commands.TavernCommands;
+import org.nia.logic.quests.ICrossQuestStep;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 import org.nia.model.Tournament;
@@ -77,15 +78,6 @@ public class CWTavernBot extends TelegramLongPollingBot {
 
     private void handleIncomingMessage(Message message) throws TelegramApiException {
         SendMessage sendMessageRequest = null;
-//        if (message.getChat() != null) {
-//            BotLogger.info(LOGTAG, message.getChat().getTitle());
-//        }
-//        if (message.getFrom() != null) {
-//            BotLogger.info(LOGTAG, message.getFrom().getUserName());
-//        }
-//        if (!message.getChat().getTitle().equals("test_grp_cw_off")) {
-//            return;
-//        }
         if (isCommand(message.getText()) || message.isUserMessage()) {
             Tournament current = Tournament.getCurrent();
             if (current != null && current.isInProgress()) {
@@ -167,7 +159,11 @@ public class CWTavernBot extends TelegramLongPollingBot {
             } else {
                 event.getStep().getNext().forEach(iQuestStep -> {
                     KeyboardRow keyboardButtons = new KeyboardRow();
-                    keyboardButtons.add(iQuestStep.getCommand());
+                    if (iQuestStep instanceof ICrossQuestStep && ((ICrossQuestStep) iQuestStep).isWaitUser()) {
+                        keyboardButtons.add(iQuestStep.getCommand(event.getLinkedQuestEvent().getQuest().getUser().toString()));
+                    } else {
+                        keyboardButtons.add(iQuestStep.getCommand(""));
+                    }
                     keyboardRows.add(keyboardButtons);
                 });
             }

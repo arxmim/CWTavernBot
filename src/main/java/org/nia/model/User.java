@@ -599,14 +599,19 @@ public class User {
     public int getCon(DrinkPrefs drinkPrefs) {
         int constitution = 1;
         if (drinkPrefs != null) {
-            constitution += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
-                    .mapToInt(e -> e.getValue().getToBeThrown()).sum());
+            constitution += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream().mapToInt(e -> {
+                int res = e.getValue().getToBeThrown();
+                if (e.getKey() == DrinkType.MANDARINE) {
+                    res += e.getValue().getToDrink();
+                }
+                return res;
+            }).sum());
         }
         return constitution;
     }
 
     public int getKno() {
-        return (int) Math.sqrt(this.getDrinkedTotal()) /2;
+        return (int) Math.sqrt(this.getDrinkedTotal()) / 2;
     }
 
     public DrinkType getWanted() {

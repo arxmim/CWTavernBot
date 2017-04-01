@@ -18,8 +18,11 @@ public class QuestEvent {
     private Quest quest;
     private IQuestEvent iQuestEvent;
     private Date eventTime;
+    private int winChance = 80;
     private IQuestStep step;
     private Boolean win;
+    private Integer linkedQuestEventID;
+    private QuestEvent linkedQuestEvent;
 
     public void save() {
         try {
@@ -30,6 +33,8 @@ public class QuestEvent {
                         ", eventStep = ?" +
                         ", eventTime = ?" +
                         ", win = ?" +
+                        ", winChance = ?" +
+                        ", linkedQuestEventID = ?" +
                         " where PublicID = ?");
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, iQuestEvent.getName());
@@ -40,12 +45,20 @@ public class QuestEvent {
                 } else {
                     preparedStatement.setNull(5, Types.BIT);
                 }
-                preparedStatement.setInt(6, publicID);
+                preparedStatement.setInt(6, winChance);
+                if (linkedQuestEventID != null) {
+                    preparedStatement.setInt(7, linkedQuestEventID);
+                } else {
+                    preparedStatement.setNull(7, Types.INTEGER);
+                }
+                preparedStatement.setInt(8, publicID);
                 preparedStatement.execute();
             } else {
                 PreparedStatement preparedStatement = connectionDB.getPreparedStatement("INSERT INTO cwt_QuestEvent " +
-                        "(questID, eventName, eventStep, eventTime, win) " +
-                        "VALUES (?, ?, ?, ?, ?)");
+                        "(questID, eventName, eventStep, eventTime, win" +
+                        ", winChance, linkedQuestEventID) " +
+                        "VALUES (?, ?, ?, ?, ?" +
+                        ", ?, ?)");
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, iQuestEvent.getName());
                 preparedStatement.setString(3, step.getName());
@@ -54,6 +67,12 @@ public class QuestEvent {
                     preparedStatement.setBoolean(5, win);
                 } else {
                     preparedStatement.setNull(5, Types.BIT);
+                }
+                preparedStatement.setInt(6, winChance);
+                if (linkedQuestEventID != null) {
+                    preparedStatement.setInt(7, linkedQuestEventID);
+                } else {
+                    preparedStatement.setNull(7, Types.INTEGER);
                 }
                 preparedStatement.execute();
                 preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_QuestEvent where questID = ? and eventTime = ?");
@@ -73,7 +92,8 @@ public class QuestEvent {
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
-                    "select publicID, eventName, eventStep, eventTime from cwt_QuestEvent where questID = ? and win is null");
+                    "select publicID, eventName, eventStep, eventTime, winChance" +
+                            ", linkedQuestEventID from cwt_QuestEvent where questID = ? and win is null");
             preparedStatement.setInt(1, quest.getPublicID());
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -89,7 +109,40 @@ public class QuestEvent {
                 } catch (Exception ignored) {
                 }
                 res.eventTime = resultSet.getTimestamp(4);
+                res.winChance = resultSet.getInt(5);
+                res.linkedQuestEventID = resultSet.getInt(6);
                 res.win = null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static QuestEvent getByID(int publicID) {
+        QuestEvent res = null;
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
+                    "select questID, eventName, eventStep, eventTime, win" +
+                            ", winChance, linkedQuestEventID from cwt_QuestEvent where publicID = ?");
+            preparedStatement.setInt(1, publicID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                res = new QuestEvent();
+                res.quest = Quest.getByID(resultSet.getInt(1));
+                try {
+                    res.iQuestEvent = res.quest.getQuestEnum().getIQuest().getEvent(resultSet.getString(2));
+                } catch (Exception ignored) {
+                }
+                try {
+                    res.step = res.iQuestEvent.getQuestStep(resultSet.getString(3));
+                } catch (Exception ignored) {
+                }
+                res.eventTime = resultSet.getTimestamp(4);
+                res.win = resultSet.getBoolean(5);
+                res.winChance = resultSet.getInt(6);
+                res.linkedQuestEventID = resultSet.getInt(7);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,7 +155,8 @@ public class QuestEvent {
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
-                    "select publicID, eventName, eventStep, eventTime, win from cwt_QuestEvent where questID = ?");
+                    "select publicID, eventName, eventStep, eventTime, win" +
+                            ", winChance, linkedQuestEventID from cwt_QuestEvent where questID = ?");
             preparedStatement.setInt(1, quest.getPublicID());
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -118,7 +172,9 @@ public class QuestEvent {
                 } catch (Exception ignored) {
                 }
                 event.eventTime = resultSet.getTimestamp(4);
-                event.win =  resultSet.getBoolean(5);
+                event.win = resultSet.getBoolean(5);
+                event.winChance = resultSet.getInt(6);
+                event.linkedQuestEventID = resultSet.getInt(7);
                 res.add(event);
             }
         } catch (SQLException e) {
@@ -189,5 +245,33 @@ public class QuestEvent {
 
     public void setWin(Boolean win) {
         this.win = win;
+    }
+
+
+    public int getWinChance() {
+        return winChance;
+    }
+
+    public void setWinChance(int winChance) {
+        this.winChance = winChance;
+    }
+    public void incWinChance(int delta) {
+        this.winChance += delta;
+    }
+
+    public QuestEvent getLinkedQuestEvent() {
+        if (linkedQuestEvent == null) {
+            linkedQuestEvent = QuestEvent.getByID(linkedQuestEventID);
+        }
+        return linkedQuestEvent;
+    }
+
+    public void setLinkedQuestEvent(QuestEvent linkedQuest) {
+        if (linkedQuest == null) {
+            this.linkedQuestEventID = null;
+        } else {
+            this.linkedQuestEventID = linkedQuest.publicID;
+        }
+        this.linkedQuestEvent = null;
     }
 }

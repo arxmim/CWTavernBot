@@ -3,10 +3,12 @@ package org.nia.logic.quests.judge;
 import org.nia.logic.quests.IQuest;
 import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
+import org.nia.logic.quests.QuestsEnum;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * @author Иван, 28.03.2017.
@@ -22,7 +24,18 @@ public class JudgeQuest implements IQuest {
                 "задание будет увеличиваться или уменьшаться в зависимости от того, насколько успешно ты будешь вести дела.";
     }
 
-    private enum JudgeEvent implements IQuestEvent {
+    public enum JudgeEvent implements IQuestEvent {
+        JUDGE_FIELD_ROWS_JUDGEMENT(FieldRowsJudgement.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return FieldRowsJudgement.valueOf(questStep);
+            }
+
+            @Override
+            public boolean canBeRandomed() {
+                return false;
+            }
+        },
         JUDGE_STOLEN_HORSE(StolenHorse.INIT) {
             @Override
             public IQuestStep getQuestStep(String questStep) {
@@ -51,11 +64,18 @@ public class JudgeQuest implements IQuest {
         public String getName() {
             return name();
         }
+
+        @Override
+        public QuestsEnum getQuestsEnum() {
+            return QuestsEnum.JUDGE;
+        }
     }
 
     @Override
     public IQuestEvent getRandomEvent() {
-        List<JudgeEvent> events = Arrays.asList(JudgeEvent.values());
+        List<JudgeEvent> events = Arrays.stream(JudgeEvent.values())
+                .filter(IQuestEvent::canBeRandomed)
+                .collect(Collectors.toList());
         return events.get(new Random().nextInt(events.size()));
     }
 

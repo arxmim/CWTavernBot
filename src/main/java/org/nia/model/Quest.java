@@ -5,8 +5,10 @@ import org.nia.db.DatabaseManager;
 import org.nia.logic.quests.QuestsEnum;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -89,7 +91,8 @@ public class Quest {
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
-                    "select publicID, questName, startTime, eventTime, goldEarned from cwt_Quest where userID = ? and returnTime is null");
+                    "select publicID, questName, startTime, eventTime, goldEarned" +
+                            " from cwt_Quest where userID = ? and returnTime is null");
             preparedStatement.setInt(1, user.getUserID());
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -104,6 +107,64 @@ public class Quest {
                 res.eventTime = resultSet.getTimestamp(4);
                 res.returnTime = null;
                 res.goldEarned = resultSet.getInt(5);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static Quest getRandomActive(QuestsEnum questsEnum) {
+        List<Quest> qList = new ArrayList<>();
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
+                    "select publicID, userID, startTime, eventTime, goldEarned" +
+                            " from cwt_Quest where questName = ? and and returnTime is null and eventTime > SYSDATETIME()");
+            preparedStatement.setString(1, questsEnum.name());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Quest res = new Quest();
+                res.publicID = resultSet.getInt(1);
+                res.user = User.getByID(resultSet.getInt(2));
+                res.quest = questsEnum;
+                res.startTime = resultSet.getTimestamp(3);
+                res.eventTime = resultSet.getTimestamp(4);
+                res.returnTime = null;
+                res.goldEarned = resultSet.getInt(5);
+                qList.add(res);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        Quest res = null;
+        if (!qList.isEmpty()) {
+            res = qList.get(new Random().nextInt(qList.size()));
+        }
+        return res;
+    }
+
+    public static Quest getByID(int publicID) {
+        Quest res = null;
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
+                    "select userID, questName, startTime, eventTime, returnTime" +
+                            ", goldEarned from cwt_Quest where publicID = ?");
+            preparedStatement.setInt(1, publicID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                res = new Quest();
+                res.user = User.getByID(resultSet.getInt(1));
+                res.publicID = publicID;
+                try {
+                    res.quest = QuestsEnum.valueOf(resultSet.getString(2));
+                } catch (Exception ignored) {
+                }
+                res.startTime = resultSet.getTimestamp(3);
+                res.eventTime = resultSet.getTimestamp(4);
+                res.returnTime = resultSet.getTimestamp(5);
+                res.goldEarned = resultSet.getInt(6);
             }
         } catch (SQLException e) {
             e.printStackTrace();

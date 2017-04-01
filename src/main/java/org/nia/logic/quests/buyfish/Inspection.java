@@ -1,5 +1,6 @@
 package org.nia.logic.quests.buyfish;
 
+import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
 
 import java.util.ArrayList;
@@ -18,14 +19,14 @@ public enum Inspection implements IQuestStep {
             "ты продаешь детские игрушки и письменные принадлежности, чего не мог не заметить инспектор. Ты был " +
             "оштрафован!"),
     GIVE_MONEY("Дать взятку"
-                 , "Ты был очень обаятелен с инспектором:\n" +
+            , "Ты был очень обаятелен с инспектором:\n" +
             "- Лучше поделиться частью выручки с вами, инспектор, чем с этими гадами из налоговой!\nИнспектор ушел к " +
             "соседу, кляня коррупционеров из налоговой, которые не дают спокойно спать честным людям. Сосед, тоже " +
             "торгующий рыбой, не смог договориться с инспектором, у тебя стало на одного конкурента меньше, и ты " +
             "неплохо заработал."
-                 , "Твои медвежьи манеры не помогли договориться с инспектором. Тебя оштрафовали!"),
+            , "Твои медвежьи манеры не помогли договориться с инспектором. Тебя оштрафовали!"),
     INIT("", "К тебе подошел инспектор из РыбПотребНадзора.\n-Ваши документы на товар, пожалуйста!"
-                 , Arrays.asList(GIVE_DOCS, GIVE_MONEY));
+            , Arrays.asList(GIVE_DOCS, GIVE_MONEY));
     private List<IQuestStep> next = new ArrayList<>();
     private String text = "";
     private String command = "";
@@ -55,7 +56,7 @@ public enum Inspection implements IQuestStep {
     }
 
     @Override
-    public String getCommand() {
+    public String getCommand(String formatParam) {
         return command;
     }
 
@@ -73,4 +74,10 @@ public enum Inspection implements IQuestStep {
     public String getName() {
         return name();
     }
+
+    @Override
+    public IQuestEvent getIQuest() {
+        return SellFishQuest.SellFishEvent.SELL_FISH_INSPECTION;
+    }
+
 }
