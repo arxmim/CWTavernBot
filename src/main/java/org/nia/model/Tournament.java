@@ -170,7 +170,7 @@ public class Tournament {
         if (isAnnounced()) {
             tournamentState = TournamentState.REGISTRATION;
             save();
-            res.add("Регистрация на турнир " + tournamentType + " открыта на "+REGISTRATION_TIME+" минут! Жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
+            res.add("Регистрация на турнир " + tournamentType + " открыта на "+REGISTRATION_TIME+" минут! Приходи в @drinkstardust и жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
                     "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet");
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);

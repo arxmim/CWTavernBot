@@ -182,7 +182,11 @@ public enum PersonalCommands implements Commands {
                         drink += " (полный)";
                     }
                 }
-                res = "Ты находишься в таверне. У тебя в руках " + drink + ", а в кармане " + user.getGold() + Emoji.GOLD;
+                String eat = "нет еды";
+                if (user.getFood() != null) {
+                    eat = user.getFood().getName();
+                }
+                res = "Ты находишься в таверне. У тебя в руках " + drink + " и перед тобой на столе " +eat+".\nВ кармане " + user.getGold() + Emoji.GOLD;
             } else if (user.onQuest()) {
                 res = "Ты выполняешь поручение Остапа.\nВ кармане у тебя " + user.getGold() + Emoji.GOLD;
             }

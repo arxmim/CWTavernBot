@@ -41,15 +41,24 @@ public enum TournamentType {
             addStartPhrase("%s сделал серию вдохов и выдохов, чтобы стать чуть трезвее и приготовился к поединку.");
             addStartPhrase("%s многозначительно обозначил свою готовность к бою, оторвав от стула ножку.");
             addStartPhrase("%s обсудил с друзьями как ему быть и что делать и занял боевую позицию.");
-            addStartPhrase("Cказав, что инквизиция не пройдёт, %s размял кулаки и приготовился к драке.");
+            addStartPhrase("Сказав, что инквизиция не пройдёт, %s размял кулаки и приготовился к драке.");
             addStartPhrase("Без лишних слов и действий %s подтвердил свою готовность к драке кивком головы.");
             addStartPhrase("%s взял в обе руки по разному напитку и приготовился метать ими в противника.");
             addStartPhrase("%s прокричал: \"Пиво богу пива! Кружки для трона из кружек!\" и приготовился к драке.");
         }
 
         @Override
+        public void remindUser(User user) {
+            try {
+                CWTavernBot.INSTANCE.sendMessage(PersonalCommands.HELP.getPersonalMessage(user, getRule()));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
         public int evalFinalResult(TournamentUsers first, TournamentUsers second) {
-            return first.getScore() + new Random().nextInt(81);
+            return first.getScore() + new Random().nextInt(151);
         }
     },
     CHAIR_LEG("\"Ножка от стула\"") {

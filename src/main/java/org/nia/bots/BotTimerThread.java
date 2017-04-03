@@ -35,7 +35,7 @@ public class BotTimerThread extends Thread {
                     if (usr.onQuest()) {
                         Quest quest = Quest.getCurrent(usr);
                         QuestEvent event = QuestEvent.getCurrent(quest);
-                        if (event != null && event.getEventTime().before(DateUtils.addMinutes(now, -2))) {
+                        if (event != null && event.getEventTime().before(DateUtils.addMinutes(now, -30))) {
                             QuestEvent linkedEvent = event.getLinkedQuestEvent();
                             String badText = event.getStep().getBadText();
                             if (linkedEvent != null) {
