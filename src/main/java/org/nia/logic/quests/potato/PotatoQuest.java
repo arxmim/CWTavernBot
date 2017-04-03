@@ -38,7 +38,12 @@ public class PotatoQuest implements IQuest {
             public IQuestStep getQuestStep(String questStep) {
                 return Orcs.valueOf(questStep);
             }
-
+        },
+        POTATO_GOPNIK(Gopnik.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return Gopnik.valueOf(questStep);
+            }
         }
         ;
         private IQuestStep init;

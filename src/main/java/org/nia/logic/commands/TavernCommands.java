@@ -5,6 +5,7 @@ import org.nia.bots.CWTavernBot;
 import org.nia.logic.DrinkType;
 import org.nia.logic.Food;
 import org.nia.model.*;
+import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -79,6 +80,39 @@ public enum TavernCommands implements Commands {
                         return user + ", твоя ставка принята!";
                     }
                 }
+            }
+            return "";
+        }
+    },
+    GIVE_MONEY("/give ") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return Pattern.compile(text + "(\\d+)").matcher(message.getText()).find() && message.isReply();
+        }
+
+        @Override
+        public String apply(Message message) {
+            Matcher matcher = Pattern.compile(text + "(\\d+)").matcher(message.getText());
+            if (matcher.find()) {
+                User from = User.getFromMessage(message.getFrom());
+                User to = User.getFromMessage(message.getReplyToMessage().getFrom());
+                if (from.getUserID() == to.getUserID()) {
+                    return "";
+                }
+                int giveCount;
+                try {
+                    giveCount = Integer.valueOf(matcher.group(1));
+                } catch (Exception ex) {
+                    return "";
+                }
+                if (from.getGold() < giveCount) {
+                    return from + ", у тебя нет такой суммы.";
+                }
+                from.setGold(from.getGold() - giveCount);
+                to.setGold(to.getGold() + giveCount);
+                from.save();
+                to.save();
+                return from + " любезно поделился " + giveCount + Emoji.GOLD + " с " + to + ". Какой щедрый человек!";
             }
             return "";
         }
