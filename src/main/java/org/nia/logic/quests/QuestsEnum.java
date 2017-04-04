@@ -51,16 +51,16 @@ public enum QuestsEnum {
 
     public Date getFirstEventTime() {
 
-        return DateUtils.addMinutes(new Date(), 10 + new Random().nextInt(11));
+        return DateUtils.addMinutes(new Date(), 30 + new Random().nextInt(91));
 //        return DateUtils.addMinutes(new Date(),0);
     }
 
     public Date getNextEventTime(Quest quest) {
-        final int EVENT_INTERVAL = 1;
+        final int EVENT_INTERVAL = 2;
         int count = QuestEvent.getCount(quest);
         Date startTime = quest.getStartTime();
         startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);
-        return DateUtils.addMinutes(startTime, 10 + new Random().nextInt(11));
+        return DateUtils.addMinutes(startTime, 10 + new Random().nextInt(111));
 //        return DateUtils.addMinutes(new Date(), 1);
     }
 }
