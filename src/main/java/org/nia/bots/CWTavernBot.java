@@ -149,13 +149,13 @@ public class CWTavernBot extends TelegramLongPollingBot {
         } else if (user.onQuest()) {
             Quest quest = Quest.getCurrent(user);
             QuestEvent event = QuestEvent.getCurrent(quest);
-            if (event == null || event.getStep().getNext().isEmpty()) {
+            if (event == null || event.getStep().getNext(quest).isEmpty()) {
                 KeyboardRow keyboardButtons = new KeyboardRow();
                 keyboardButtons.add(PersonalCommands.MY_INFO.getText());
                 keyboardButtons.add(PersonalCommands.QUEST_RETURN.getText());
                 keyboardRows.add(keyboardButtons);
             } else {
-                event.getStep().getNext().forEach(iQuestStep -> {
+                event.getStep().getNext(quest).forEach(iQuestStep -> {
                     KeyboardRow keyboardButtons = new KeyboardRow();
                     if (iQuestStep instanceof ICrossQuestStep && ((ICrossQuestStep) iQuestStep).isButtonWithUser()) {
                         keyboardButtons.add(iQuestStep.getCommand(event.getLinkedQuestEvent().getQuest().getUser().toString()));

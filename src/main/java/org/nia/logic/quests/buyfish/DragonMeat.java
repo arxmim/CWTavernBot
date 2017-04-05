@@ -2,6 +2,7 @@ package org.nia.logic.quests.buyfish;
 
 import org.nia.logic.quests.IQuestEvent;
 import org.nia.logic.quests.IQuestStep;
+import org.nia.model.Quest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,12 +50,12 @@ public enum DragonMeat implements IQuestStep {
     }
 
     @Override
-    public String getText() {
+    public String getText(Quest quest) {
         return text;
     }
 
     @Override
-    public List<IQuestStep> getNext() {
+    public List<IQuestStep> getNext(Quest quest) {
         return next;
     }
 

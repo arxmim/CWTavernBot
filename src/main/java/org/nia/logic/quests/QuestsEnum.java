@@ -3,6 +3,7 @@ package org.nia.logic.quests;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.logic.quests.buyfish.SellFishQuest;
 import org.nia.logic.quests.judge.JudgeQuest;
+import org.nia.logic.quests.kitchen.KitchenQuest;
 import org.nia.logic.quests.potato.PotatoQuest;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
@@ -27,6 +28,7 @@ public enum QuestsEnum {
 //            "- Не пей мордор, орком станешь!")
 
     JUDGE(JudgeQuest.INSTANCE),
+    KITCHEN(KitchenQuest.INSTANCE),
     POTATO(PotatoQuest.INSTANCE) {
 
 //        public Date getFirstEventTime() {

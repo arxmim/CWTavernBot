@@ -65,5 +65,7 @@ public class DatabaseManager {
         connectionDB.executeQuery(DBStrings.createTournamentBetTable);
         connectionDB.executeQuery(DBStrings.createQuestTable);
         connectionDB.executeQuery(DBStrings.createQuestEventTable);
+        connectionDB.executeQuery(DBStrings.createQuestFactTable);
+        connectionDB.executeQuery(DBStrings.createQuestItemTable);
     }
 }

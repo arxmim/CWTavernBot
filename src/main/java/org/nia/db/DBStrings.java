@@ -74,10 +74,21 @@ class DBStrings {
             "create table cwt_QuestEvent (\n" +
             "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
             "QuestID INTEGER NOT NULL, \n" +
-            "WinChance INTEGER DEFAULT 70, \n" +
+            "WinChance INTEGER DEFAULT 80, \n" +
             "LinkedQuestEventID INTEGER, \n" +
             "eventName varchar(50), \n" +
             "eventTime DATETIME, \n" +
             "eventStep varchar(50), \n" +
             "win bit)";
+    static final String createQuestItemTable = "if not exists (select * from sysobjects where name='cwt_QuestItem' and xtype='U')\n" +
+            "create table cwt_QuestItem (\n" +
+            "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
+            "QuestID INTEGER NOT NULL, \n" +
+            "QuestItem varchar(50), \n" +
+            "ItemCount INTEGER)";
+    static final String createQuestFactTable = "if not exists (select * from sysobjects where name='cwt_QuestFact' and xtype='U')\n" +
+            "create table cwt_QuestFact (\n" +
+            "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
+            "QuestID INTEGER NOT NULL, \n" +
+            "QuestFact varchar(50))";
 }

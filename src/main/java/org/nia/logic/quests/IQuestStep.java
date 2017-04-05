@@ -13,11 +13,11 @@ public interface IQuestStep {
 
     IQuestEvent getIQuest();
 
-    String getText();
+    String getText(Quest quest);
 
     String getName();
 
-    List<IQuestStep> getNext();
+    List<IQuestStep> getNext(Quest quest);
 
     String getCommand(String formatParam);
 
@@ -28,7 +28,7 @@ public interface IQuestStep {
     default void doWork(QuestEvent questEvent) {}
 
     default boolean isWin(QuestEvent questEvent) {
-        return new Random().nextInt(101) < questEvent.getWinChance();
+        return new Random().nextInt(100) < questEvent.getWinChance();
     }
 
     default String getInterceptText() {

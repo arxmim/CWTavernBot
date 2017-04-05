@@ -47,7 +47,7 @@ public class QuestCommands implements Commands {
                 }
             }
             if (!actionTriggered) {
-                if (iQuestStep.getNext().isEmpty()) {
+                if (iQuestStep.getNext(quest).isEmpty()) {
                     iQuestStep.doWork(event);
                     boolean win = iQuestStep.isWin(event);
                     event.setWin(win);
@@ -59,7 +59,7 @@ public class QuestCommands implements Commands {
                     quest.setEventTime(quest.getQuestEnum().getNextEventTime(quest));
                     quest.save();
                 } else {
-                    res = iQuestStep.getText();
+                    res = iQuestStep.getText(quest);
                 }
             }
             event.save();
@@ -69,7 +69,7 @@ public class QuestCommands implements Commands {
 
     @Override
     public boolean isApplicable(Message message) {
-        return !(event == null || event.getStep().getNext().isEmpty()) && getNextStep(message.getText()).isPresent();
+        return !(event == null || event.getStep().getNext(quest).isEmpty()) && getNextStep(message.getText()).isPresent();
     }
 
     private Optional<IQuestStep> getNextStep(String text) {
@@ -78,7 +78,7 @@ public class QuestCommands implements Commands {
             formatParam = event.getLinkedQuestEvent().getQuest().getUser().toString();
         }
         final String formatParamFinal = formatParam;
-        return event.getStep().getNext().stream().filter(qs -> {
+        return event.getStep().getNext(quest).stream().filter(qs -> {
             if (qs instanceof ICrossQuestStep && ((ICrossQuestStep) qs).isButtonWithUser()) {
                 return qs.getCommand(formatParamFinal).equals(text);
             } else {

@@ -1,20 +1,25 @@
 package org.nia.logic.quests;
 
+import org.nia.model.Quest;
+
 /**
  * @author IANazarov
  */
 public interface IQuestEvent {
 
-    public String getName();
-    public IQuestStep getInit();
-    public default boolean canBeRandomed() {
+    String getName();
+
+    default void init(Quest quest) { }
+
+    IQuestStep getInit();
+    default boolean canBeRandomed() {
         return true;
     }
 
     IQuestStep getQuestStep(String questStep);
 
-    public default int getReward() {
+    default int getReward() {
         return 12;
     }
-    public QuestsEnum getQuestsEnum();
+    QuestsEnum getQuestsEnum();
 }

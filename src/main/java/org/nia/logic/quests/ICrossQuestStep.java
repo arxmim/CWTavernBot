@@ -1,5 +1,6 @@
 package org.nia.logic.quests;
 
+import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public interface ICrossQuestStep extends IQuestStep {
     }
 
     @Override
-    default String getText() {
+    default String getText(Quest quest) {
         return "";
     }
 
@@ -49,7 +50,7 @@ public interface ICrossQuestStep extends IQuestStep {
         if (actionList.isEmpty()) {
             return null;
         } else {
-            boolean isFinal = !isWaitUser() && getNext().isEmpty();
+            boolean isFinal = !isWaitUser() && getNext(event.getQuest()).isEmpty();
             if (!isFinal) {
                 return actionList.get(new Random().nextInt(actionList.size()));
             } else if (isWin(event)) {
