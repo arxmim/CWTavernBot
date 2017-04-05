@@ -6,8 +6,8 @@ import org.nia.bots.OficiantThread;
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
 import org.nia.logic.ServingMessage;
-import org.nia.logic.TournamentState;
-import org.nia.logic.TournamentType;
+import org.nia.logic.lists.TournamentState;
+import org.nia.logic.lists.TournamentType;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -15,7 +15,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author Иван, 11.03.2017.

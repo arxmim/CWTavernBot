@@ -2,8 +2,8 @@ package org.nia.logic.commands;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nia.bots.CWTavernBot;
-import org.nia.logic.DrinkType;
-import org.nia.logic.Food;
+import org.nia.logic.lists.DrinkType;
+import org.nia.logic.lists.Food;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;

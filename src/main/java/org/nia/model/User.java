@@ -3,9 +3,9 @@ package org.nia.model;
 import org.apache.commons.lang3.StringUtils;
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
-import org.nia.logic.DrinkType;
-import org.nia.logic.Food;
-import org.nia.logic.Location;
+import org.nia.logic.lists.DrinkType;
+import org.nia.logic.lists.Food;
+import org.nia.logic.lists.Location;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 

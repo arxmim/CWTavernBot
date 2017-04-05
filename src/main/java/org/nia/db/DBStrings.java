@@ -74,8 +74,8 @@ class DBStrings {
             "create table cwt_QuestEvent (\n" +
             "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +
             "QuestID INTEGER NOT NULL, \n" +
-            "WinChance INTEGER DEFAULT 70, \n" +//TODO
-            "LinkedQuestEventID INTEGER, \n" +//TODO
+            "WinChance INTEGER DEFAULT 70, \n" +
+            "LinkedQuestEventID INTEGER, \n" +
             "eventName varchar(50), \n" +
             "eventTime DATETIME, \n" +
             "eventStep varchar(50), \n" +

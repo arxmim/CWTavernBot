@@ -1,10 +1,11 @@
-package org.nia.logic;
+package org.nia.logic.lists;
 
 import org.nia.bots.CWTavernBot;
 import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.FightClubCommands;
 import org.nia.logic.commands.ArenaCommands;
 import org.nia.logic.commands.PersonalCommands;
+import org.nia.logic.lists.DrinkType;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;

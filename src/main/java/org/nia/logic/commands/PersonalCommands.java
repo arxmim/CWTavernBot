@@ -2,10 +2,10 @@ package org.nia.logic.commands;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nia.bots.CWTavernBot;
-import org.nia.logic.Location;
+import org.nia.logic.lists.Location;
 import org.nia.logic.ServingMessage;
-import org.nia.logic.TournamentState;
-import org.nia.logic.TournamentType;
+import org.nia.logic.lists.TournamentState;
+import org.nia.logic.lists.TournamentType;
 import org.nia.logic.quests.QuestsEnum;
 import org.nia.model.*;
 import org.nia.strings.Emoji;

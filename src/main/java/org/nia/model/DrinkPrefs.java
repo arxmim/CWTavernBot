@@ -2,7 +2,7 @@ package org.nia.model;
 
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
-import org.nia.logic.DrinkType;
+import org.nia.logic.lists.DrinkType;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

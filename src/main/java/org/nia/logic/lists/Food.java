@@ -1,6 +1,4 @@
-package org.nia.logic;
-
-import org.nia.strings.Emoji;
+package org.nia.logic.lists;
 
 import java.util.ArrayList;
 import java.util.List;

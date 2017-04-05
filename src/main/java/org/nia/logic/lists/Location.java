@@ -1,4 +1,4 @@
-package org.nia.logic;
+package org.nia.logic.lists;
 
 import org.nia.logic.quests.QuestsEnum;
 
