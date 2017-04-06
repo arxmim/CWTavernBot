@@ -396,6 +396,11 @@ public enum Cooking implements IQuestStep {
             all.forEach(qi-> sb.append(qi.getQuestItem().getDesc()).append(" - ").append(qi.getItemCount()).append(" ").append(qi.getQuestItem().getMeasure()).append("\n"));
             return sb.toString();
         }
+
+        @Override
+        public List<IQuestStep> getNext(Quest quest) {
+            return getNextFromStart(quest);
+        }
     },
     RETURN("Выложить все продукты и начать заново", "Ты выложил все продукты, теперь надо собирать заново."
             , Collections.emptyList()){
@@ -404,11 +409,21 @@ public enum Cooking implements IQuestStep {
             List<QuestItem> all = QuestItem.getAll(questEvent.getQuest());
             all.forEach(QuestItem::delete);
         }
+
+        @Override
+        public List<IQuestStep> getNext(Quest quest) {
+            return getNextFromStart(quest);
+        }
     },
     RECIPE("Напомнить рецепт", "", Collections.emptyList()) {
         @Override
         public String getText(Quest quest) {
             return INIT.getText(quest);
+        }
+
+        @Override
+        public List<IQuestStep> getNext(Quest quest) {
+            return getNextFromStart(quest);
         }
     },
     INIT("", "", Collections.emptyList()) {
@@ -485,7 +500,7 @@ public enum Cooking implements IQuestStep {
     }
 
     public List<IQuestStep> getNextFromStart(Quest quest) {
-        List<IQuestStep> cookings = Arrays.asList(DO, GO_CHEESE, GO_FRUIT, GO_VEDGETABLES, GO_SPICE, RECIPE);
+        List<IQuestStep> cookings = new ArrayList<>(Arrays.asList(DO, GO_CHEESE, GO_FRUIT, GO_VEDGETABLES, GO_SPICE, RECIPE));
         if (!QuestItem.getAll(quest).isEmpty()) {
             cookings.add(LOOK);
             cookings.add(RETURN);
@@ -510,7 +525,7 @@ public enum Cooking implements IQuestStep {
                 questItem1.save();
             } else {
                 questItem1.delete();
-                questItem0.setItemCount(questItem1.getItemCount() + count);
+                questItem0.setItemCount(questItem0.getItemCount() + count);
                 questItem0.save();
             }
         }

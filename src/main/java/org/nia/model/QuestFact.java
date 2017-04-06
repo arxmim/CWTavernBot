@@ -22,7 +22,7 @@ public class QuestFact {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             if (publicID != null) {
                 PreparedStatement preparedStatement = connectionDB.getPreparedStatement("update cwt_QuestFact set questID = ?" +
-                        ", questItem = ?" +
+                        ", questFact = ?" +
                         " where PublicID = ?");
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, questFact.name());
@@ -30,12 +30,12 @@ public class QuestFact {
                 preparedStatement.execute();
             } else {
                 PreparedStatement preparedStatement = connectionDB.getPreparedStatement("INSERT INTO cwt_QuestFact " +
-                        "(questID, questItem) " +
+                        "(questID, questFact) " +
                         "VALUES (?, ?)");
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, questFact.name());
                 preparedStatement.execute();
-                preparedStatement = connectionDB.getPreparedStatement("select TOP 1 publicID from cwt_QuestFact where questID = ? and questItem = ? order by publicID desc");
+                preparedStatement = connectionDB.getPreparedStatement("select TOP 1 publicID from cwt_QuestFact where questID = ? and questFact = ? order by publicID desc");
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, questFact.name());
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -66,7 +66,7 @@ public class QuestFact {
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
-                    "select publicID, questItem from cwt_QuestFact where questID = ?");
+                    "select publicID, questFact from cwt_QuestFact where questID = ?");
             preparedStatement.setInt(1, quest.getPublicID());
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

@@ -47,8 +47,8 @@ public class QuestCommands implements Commands {
                 }
             }
             if (!actionTriggered) {
+                iQuestStep.doWork(event);
                 if (iQuestStep.getNext(quest).isEmpty()) {
-                    iQuestStep.doWork(event);
                     boolean win = iQuestStep.isWin(event);
                     event.setWin(win);
                     if (win) {

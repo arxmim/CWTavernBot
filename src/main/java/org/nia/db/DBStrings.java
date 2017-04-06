@@ -25,8 +25,8 @@ class DBStrings {
             "gold integer NOT NULL DEFAULT 0, \n" +
             "visitTavern DATETIME, \n" +
             "location varchar(50) NOT NULL, \n" +
-            //"locationNextEventTime DATETIME, \n" + // TODO
-            "drinkedTotal INTEGER NOT NULL)";
+            "drinkedTotal INTEGER NOT NULL DEFAULT 0, \n" +
+            "drinkedWeek INTEGER NOT NULL)";
     static final String createUserPrefTable = "if not exists (select * from sysobjects where name='cwt_DrinkPrefs' and xtype='U')\n" +
             "create table cwt_DrinkPrefs (\n" +
             "PublicID INTEGER NOT NULL IDENTITY(1,1) PRIMARY KEY, \n" +

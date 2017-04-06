@@ -90,6 +90,6 @@ public class KitchenQuest implements IQuest {
 
     @Override
     public IQuestEvent getEvent(String event) {
-        return org.nia.logic.quests.potato.PotatoQuest.PotatoEvent.valueOf(event);
+        return KitchenEvent.valueOf(event);
     }
 }
