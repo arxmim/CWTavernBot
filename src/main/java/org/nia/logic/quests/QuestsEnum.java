@@ -27,28 +27,33 @@ public enum QuestsEnum {
 //            ", - спросил ты.\nБабуля сняла капюшон и ты понял что перед тобой стоит эльфийская Видящая. Она предупредила тебя напоследок:\n" +
 //            "- Не пей мордор, орком станешь!")
 
-    JUDGE(JudgeQuest.INSTANCE),
-    KITCHEN(KitchenQuest.INSTANCE),
-    POTATO(PotatoQuest.INSTANCE) {
+    JUDGE(JudgeQuest.INSTANCE, true),
+    KITCHEN(KitchenQuest.INSTANCE, true) {
 
 //        public Date getFirstEventTime() {
-//        return DateUtils.addMinutes(new Date(), 1);
+//        return DateUtils.addMinutes(new Date(), 0);
 //        }
 //
 //        public Date getNextEventTime(Quest quest) { return DateUtils.addMinutes(new Date(), 1);}
     },
-    SELL_FISH(SellFishQuest.INSTANCE)
+    POTATO(PotatoQuest.INSTANCE, true),
+    SELL_FISH(SellFishQuest.INSTANCE, true)
     ;
 
+    private boolean isRunnable;
     private IQuest quest;
 
-
-    QuestsEnum(IQuest quest) {
+    QuestsEnum(IQuest quest, boolean isRunnable) {
+        this.isRunnable = isRunnable;
         this.quest = quest;
     }
 
     public IQuest getIQuest() {
         return quest;
+    }
+
+    public boolean isRunnable() {
+        return isRunnable;
     }
 
     public Date getFirstEventTime() {

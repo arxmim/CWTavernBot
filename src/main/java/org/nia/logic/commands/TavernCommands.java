@@ -266,6 +266,11 @@ public enum TavernCommands implements Commands {
                             Quest currentQuest = Quest.getCurrent(victim);
                             QuestEvent questEvent = QuestEvent.getCurrent(currentQuest);
                             if (questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
+                                DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
+                                DrinkPrefs.incToBeThrown(victim, drinker.getDrinkType());
+                                drinker.setDrinkType(null);
+                                drinker.setAlkoCount(0);
+                                drinker.save();
                                 return RoofStairs.INIT.solve(drinker, questEvent, false);
                             }
                         }

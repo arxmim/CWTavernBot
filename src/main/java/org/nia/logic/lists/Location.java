@@ -16,7 +16,7 @@ public enum Location {
 
 
     public static QuestsEnum getRandomQuest() {
-        List<QuestsEnum> list = Arrays.stream(QuestsEnum.values()).collect(Collectors.toList());
+        List<QuestsEnum> list = Arrays.stream(QuestsEnum.values()).filter(QuestsEnum::isRunnable).collect(Collectors.toList());
         return list.get(new Random().nextInt(list.size()));
     }
 }

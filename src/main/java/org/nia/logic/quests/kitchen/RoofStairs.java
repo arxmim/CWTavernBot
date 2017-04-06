@@ -1,5 +1,6 @@
 package org.nia.logic.quests.kitchen;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.nia.bots.CWTavernBot;
 import org.nia.logic.ServingMessage;
 import org.nia.logic.quests.IQuestEvent;
@@ -11,21 +12,23 @@ import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author IANazarov
  */
 public enum RoofStairs implements IQuestStep {
 
-    JUMP("Отказаться"
+    JUMP("Прыгнуть"
             , "Ты успешно спрыгнул со своего насеста.\nБармен на всякий случай дал тебе денег на поход к лекарю, " +
             "и хотя ты совсем не пострадал, от денег ты не стал отказываться."
             , "Ты спрыгнул ровно на столик %s. Надо было смотреть куда прыгаешь! \nТы не только испортил людям " +
             "отдых, но еще и больно ударился, вдобавок тебе пришлось возмещать пострадавшему весь нанесенный ущерб.") {
+        @Override
+        public void doWork(QuestEvent questEvent) {
+            questEvent.setWinChance(20);
+        }
+
         @Override
         public String getGoodText(Quest quest) {
             try {
@@ -38,7 +41,14 @@ public enum RoofStairs implements IQuestStep {
 
         @Override
         public String getBadText(Quest quest) {
-            Optional<User> max = User.getAll().stream().max((c1, c2) -> Long.compare(c2.getLastDrinkTime().getTime(), c1.getLastDrinkTime().getTime()));
+            Optional<User> max = User.getAll().stream().max((c1, c2) -> {
+                if (c1.getLastDrinkTime() != null && c2.getLastDrinkTime() == null) return -1;
+                if (c1.getLastDrinkTime() == null && c2.getLastDrinkTime() != null) return 1;
+                if (c1.getLastDrinkTime() != null && c2.getLastDrinkTime() != null) {
+                    return Long.compare(c2.getLastDrinkTime().getTime(), c1.getLastDrinkTime().getTime());
+                };
+                return 0;
+            });
             String res = "посетителя";
             if (max.isPresent()) {
                 res = max.get().toString();
