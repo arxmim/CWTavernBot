@@ -223,7 +223,7 @@ public class Quest {
     public int getReward() {
         int INCREMENT = 0;
         int STEP_HOURS = 1;
-        int START_SUM = 5;
+        int START_SUM = 7;
         int MAX_PROGRESS_HOURS = 3;
         List<QuestEvent> all = QuestEvent.getAll(this);
         int sum = all.stream().mapToInt(e -> {

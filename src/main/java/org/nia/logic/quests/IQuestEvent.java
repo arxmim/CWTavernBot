@@ -19,7 +19,7 @@ public interface IQuestEvent {
     IQuestStep getQuestStep(String questStep);
 
     default int getReward() {
-        return 12;
+        return 7;
     }
     QuestsEnum getQuestsEnum();
 }

@@ -53,7 +53,7 @@ public enum QuestsEnum {
 
     public Date getFirstEventTime() {
 
-        return DateUtils.addMinutes(new Date(), 30 + new Random().nextInt(91));
+        return DateUtils.addMinutes(new Date(), 30 + new Random().nextInt(31));
 //        return DateUtils.addMinutes(new Date(),0);
     }
 
@@ -62,7 +62,7 @@ public enum QuestsEnum {
         int count = QuestEvent.getCount(quest);
         Date startTime = quest.getStartTime();
         startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);
-        return DateUtils.addMinutes(startTime, 10 + new Random().nextInt(111));
+        return DateUtils.addMinutes(startTime, 10 + new Random().nextInt(51));
 //        return DateUtils.addMinutes(new Date(), 1);
     }
 }
