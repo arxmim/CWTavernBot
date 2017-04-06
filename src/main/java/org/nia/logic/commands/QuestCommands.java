@@ -51,10 +51,11 @@ public class QuestCommands implements Commands {
                 if (iQuestStep.getNext(quest).isEmpty()) {
                     boolean win = iQuestStep.isWin(event);
                     event.setWin(win);
+                    iQuestStep.doFinal(event);
                     if (win) {
-                        res = iQuestStep.getGoodText() + "\n\nУдачное решение! Твоя награда за задание будет увеличена.";
+                        res = iQuestStep.getGoodText(quest) + "\n\nУдачное решение! Твоя награда за задание будет увеличена.";
                     } else {
-                        res = iQuestStep.getBadText() + "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
+                        res = iQuestStep.getBadText(quest) + "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
                     }
                     quest.setEventTime(quest.getQuestEnum().getNextEventTime(quest));
                     quest.save();

@@ -21,11 +21,12 @@ public interface IQuestStep {
 
     String getCommand(String formatParam);
 
-    String getGoodText();
+    String getGoodText(Quest quest);
 
-    String getBadText();
+    String getBadText(Quest quest);
 
     default void doWork(QuestEvent questEvent) {}
+    default void doFinal(QuestEvent questEvent) {}
 
     default boolean isWin(QuestEvent questEvent) {
         return new Random().nextInt(100) < questEvent.getWinChance();

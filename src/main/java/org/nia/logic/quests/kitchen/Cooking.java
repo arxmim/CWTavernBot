@@ -383,8 +383,6 @@ public enum Cooking implements IQuestStep {
                     questEvent.setWinChance(0);
                 }
             }
-            allFacts.forEach(QuestFact::delete);
-            allItems.forEach(QuestItem::delete);
         }
     },
     LOOK("Посмотреть, что набрал", "", Collections.emptyList()) {
@@ -393,7 +391,7 @@ public enum Cooking implements IQuestStep {
             List<QuestItem> all = QuestItem.getAll(quest);
             StringBuilder sb = new StringBuilder();
             sb.append("Ты набрал:\n\n");
-            all.forEach(qi-> sb.append(qi.getQuestItem().getDesc()).append(" - ").append(qi.getItemCount()).append(" ").append(qi.getQuestItem().getMeasure()).append("\n"));
+            all.forEach(qi -> sb.append(qi.getQuestItem().getDesc()).append(" - ").append(qi.getItemCount()).append(" ").append(qi.getQuestItem().getMeasure()).append("\n"));
             return sb.toString();
         }
 
@@ -403,7 +401,7 @@ public enum Cooking implements IQuestStep {
         }
     },
     RETURN("Выложить все продукты и начать заново", "Ты выложил все продукты, теперь надо собирать заново."
-            , Collections.emptyList()){
+            , Collections.emptyList()) {
         @Override
         public void doWork(QuestEvent questEvent) {
             List<QuestItem> all = QuestItem.getAll(questEvent.getQuest());
@@ -480,12 +478,12 @@ public enum Cooking implements IQuestStep {
     }
 
     @Override
-    public String getGoodText() {
+    public String getGoodText(Quest quest) {
         return goodText;
     }
 
     @Override
-    public String getBadText() {
+    public String getBadText(Quest quest) {
         return badText;
     }
 
@@ -510,7 +508,13 @@ public enum Cooking implements IQuestStep {
 
     private static void addItemCount(Quest quest, int count) {
         List<QuestItem> questItems = QuestItem.getAll(quest);
-        EQuestItem eQuestItem = questItems.stream().filter(qi -> qi.getItemCount() == 0).findFirst().get().getQuestItem();
+        EQuestItem eQuestItem;
+        Optional<QuestItem> itemOptional = questItems.stream().filter(qi -> qi.getItemCount() == 0).findFirst();
+        if (itemOptional.isPresent()) {
+            eQuestItem = itemOptional.get().getQuestItem();
+        } else {
+            return;
+        }
         List<QuestItem> collect = questItems.stream().filter(qi -> qi.getQuestItem() == eQuestItem).collect(Collectors.toList());
         if (collect.size() == 1) {
             QuestItem questItem = collect.get(0);
@@ -529,5 +533,13 @@ public enum Cooking implements IQuestStep {
                 questItem0.save();
             }
         }
+    }
+
+    @Override
+    public void doFinal(QuestEvent questEvent) {
+        List<QuestItem> allItems = QuestItem.getAll(questEvent.getQuest());
+        List<QuestFact> allFacts = QuestFact.getAll(questEvent.getQuest());
+        allFacts.forEach(QuestFact::delete);
+        allItems.forEach(QuestItem::delete);
     }
 }

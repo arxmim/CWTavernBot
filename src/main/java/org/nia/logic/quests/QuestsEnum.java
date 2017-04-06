@@ -58,7 +58,7 @@ public enum QuestsEnum {
     }
 
     public Date getNextEventTime(Quest quest) {
-        final int EVENT_INTERVAL = 2;
+        final int EVENT_INTERVAL = 1;
         int count = QuestEvent.getCount(quest);
         Date startTime = quest.getStartTime();
         startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);

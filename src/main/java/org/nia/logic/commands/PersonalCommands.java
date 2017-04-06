@@ -135,10 +135,12 @@ public enum PersonalCommands implements Commands {
                 QuestEvent event = QuestEvent.getCurrent(quest);
                 if (event != null) {
                     event.setWin(false);
+                    event.getStep().doFinal(event);
                     event.save();
                     QuestEvent linkedQuestEvent = event.getLinkedQuestEvent();
                     if (linkedQuestEvent != null) {
                         linkedQuestEvent.setWin(true);
+                        linkedQuestEvent.getStep().doFinal(linkedQuestEvent);
                         Quest linkedQuest = linkedQuestEvent.getQuest();
                         linkedQuest.setEventTime(linkedQuest.getQuestEnum().getNextEventTime(linkedQuest));
                         linkedQuest.save();

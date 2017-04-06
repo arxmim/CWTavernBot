@@ -37,12 +37,13 @@ public class BotTimerThread extends Thread {
                         QuestEvent event = QuestEvent.getCurrent(quest);
                         if (event != null && event.getEventTime().before(DateUtils.addMinutes(now, -30))) {
                             QuestEvent linkedEvent = event.getLinkedQuestEvent();
-                            String badText = event.getStep().getBadText();
+                            String badText = event.getStep().getBadText(quest);
                             if (linkedEvent != null) {
                                 badText = ((ICrossQuestStep) event.getStep()).getBadInactiveText();
                                 Quest linkedQuest = linkedEvent.getQuest();
                                 String goodText = ((ICrossQuestStep) linkedEvent.getStep()).getGoodInactiveText() + "\n\nУдачное решение! Твоя награда за задание будет увеличена.";
                                 linkedEvent.setWin(true);
+                                linkedEvent.getStep().doFinal(linkedEvent);
                                 linkedEvent.save();
                                 linkedQuest.setEventTime(linkedQuest.getQuestEnum().getNextEventTime(linkedQuest));
                                 linkedQuest.save();
@@ -50,6 +51,7 @@ public class BotTimerThread extends Thread {
                             }
                             badText += "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
                             event.setWin(false);
+                            event.getStep().doFinal(event);
                             event.save();
                             quest.setEventTime(quest.getQuestEnum().getNextEventTime(quest));
                             quest.save();

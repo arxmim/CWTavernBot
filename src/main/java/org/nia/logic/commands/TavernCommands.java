@@ -2,8 +2,11 @@ package org.nia.logic.commands;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nia.bots.CWTavernBot;
+import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.lists.Food;
+import org.nia.logic.quests.kitchen.KitchenQuest;
+import org.nia.logic.quests.kitchen.RoofStairs;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -113,6 +116,26 @@ public enum TavernCommands implements Commands {
                 from.save();
                 to.save();
                 return from + " любезно поделился " + giveCount + Emoji.GOLD + " с " + to + ". Какой щедрый человек!";
+            }
+            return "";
+        }
+    },
+    ASSIST("/assist") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && message.isReply();
+        }
+
+        @Override
+        public String apply(Message message) {
+            User helper = User.getFromMessage(message);
+            User helpTo = User.getFromMessage(message.getReplyToMessage());
+            if (helpTo.onQuest()) {
+                Quest currentQuest = Quest.getCurrent(helpTo);
+                QuestEvent questEvent = QuestEvent.getCurrent(currentQuest);
+                if (questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
+                    return RoofStairs.INIT.solve(helper, questEvent, true);
+                }
             }
             return "";
         }
@@ -237,7 +260,15 @@ public enum TavernCommands implements Commands {
                     } else if (message.getReplyToMessage().getFrom().getId().equals(message.getFrom().getId())) {
                         res = String.format(drinker.getDrinkType().getSelfThrowPhrase(), drinker);
                     } else {
+
                         User victim = User.getFromMessage(message.getReplyToMessage());
+                        if (victim.onQuest()) {
+                            Quest currentQuest = Quest.getCurrent(victim);
+                            QuestEvent questEvent = QuestEvent.getCurrent(currentQuest);
+                            if (questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
+                                return RoofStairs.INIT.solve(drinker, questEvent, false);
+                            }
+                        }
                         DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
                         DrinkPrefs.incToBeThrown(victim, drinker.getDrinkType());
                         if (drinker.getAlkoCount() > 0) {
@@ -268,7 +299,7 @@ public enum TavernCommands implements Commands {
             String name = StringUtils.substringAfter(message.getText(), text).trim();
             if (name.isEmpty()) {
                 User user = User.getFromMessage(message);
-                return user.getFightClubStats()+ "\n" + user.getPublicFightClubStats();
+                return user.getFightClubStats() + "\n" + user.getPublicFightClubStats();
             } else {
                 User user = User.getByNick(name);
                 return user.getFightClubStats() + "\n" + user.getPublicFightClubStats();

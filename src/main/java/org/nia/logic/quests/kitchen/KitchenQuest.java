@@ -31,6 +31,18 @@ public class KitchenQuest implements IQuest {
                 return Cooking.valueOf(questStep);
             }
         },
+        DRINK_WITH_GIRL(DrinkWithGirl.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return DrinkWithGirl.valueOf(questStep);
+            }
+        },
+        ROOF_STAIRS(RoofStairs.INIT) {
+            @Override
+            public IQuestStep getQuestStep(String questStep) {
+                return RoofStairs.valueOf(questStep);
+            }
+        },
 //        POTATO_GIANT_JUK(GiantJuk.INIT) {
 //            @Override
 //            public IQuestStep getQuestStep(String questStep) {

@@ -72,12 +72,12 @@ public enum NoisyMan implements IQuestStep {
     }
 
     @Override
-    public String getGoodText() {
+    public String getGoodText(Quest quest) {
         return goodText;
     }
 
     @Override
-    public String getBadText() {
+    public String getBadText(Quest quest) {
         return badText;
     }
 

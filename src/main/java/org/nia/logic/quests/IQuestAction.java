@@ -59,6 +59,8 @@ public interface IQuestAction {
 
     default void applyAction(QuestEvent from, QuestEvent to) {
         doWork(from, to);
+        from.getStep().doWork(from);
+        to.getStep().doWork(to);
         if (this.getMoveToStep() != null) {
             to.setStep(this.getMoveToStep());
             to.save();
@@ -74,6 +76,8 @@ public interface IQuestAction {
                 to.setWin(false);
                 ending = "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
             }
+            from.getStep().doFinal(from);
+            to.getStep().doFinal(to);
             from.getQuest().setEventTime(from.getQuest().getQuestEnum().getNextEventTime(from.getQuest()));
             to.getQuest().setEventTime(to.getQuest().getQuestEnum().getNextEventTime(to.getQuest()));
             from.save();

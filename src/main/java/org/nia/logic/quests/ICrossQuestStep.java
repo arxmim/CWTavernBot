@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public interface ICrossQuestStep extends IQuestStep {
 
     @Override
-    default String getGoodText() {
+    default String getGoodText(Quest quest) {
         return getGoodInactiveText();
     }
 
@@ -26,7 +26,7 @@ public interface ICrossQuestStep extends IQuestStep {
     }
 
     @Override
-    default String getBadText() {
+    default String getBadText(Quest quest) {
         return getBadInactiveText();
     }
 

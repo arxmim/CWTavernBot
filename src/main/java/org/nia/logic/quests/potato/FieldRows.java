@@ -113,12 +113,12 @@ public enum FieldRows implements ICrossQuestStep {
     }
 
     @Override
-    public String getGoodText() {
+    public String getGoodText(Quest quest) {
         return goodText;
     }
 
     @Override
-    public String getBadText() {
+    public String getBadText(Quest quest) {
         return badText;
     }
 
