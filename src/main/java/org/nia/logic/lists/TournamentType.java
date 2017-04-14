@@ -139,6 +139,10 @@ public enum TournamentType {
         return String.format(win.get(new Random().nextInt(win.size())), winner.getUser(), loser.getUser());
     }
 
+    public String getWinPhrase(User winner, User loser) {
+        return String.format(win.get(new Random().nextInt(win.size())), winner, loser);
+    }
+
     public String getStartPhrase() {
         return start.get(new Random().nextInt(start.size()));
     }

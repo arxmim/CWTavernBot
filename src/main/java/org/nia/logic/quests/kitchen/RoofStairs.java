@@ -42,10 +42,12 @@ public enum RoofStairs implements IQuestStep {
         @Override
         public String getBadText(Quest quest) {
             Optional<User> max = User.getAll().stream().max((c1, c2) -> {
-                if (c1.getLastDrinkTime() != null && c2.getLastDrinkTime() == null) return -1;
-                if (c1.getLastDrinkTime() == null && c2.getLastDrinkTime() != null) return 1;
+                if (c1.getUserID() == quest.getUser().getUserID()) return -1;
+                if (c2.getUserID() == quest.getUser().getUserID()) return 1;
+                if (c1.getLastDrinkTime() != null && c2.getLastDrinkTime() == null) return 1;
+                if (c1.getLastDrinkTime() == null && c2.getLastDrinkTime() != null) return -1;
                 if (c1.getLastDrinkTime() != null && c2.getLastDrinkTime() != null) {
-                    return Long.compare(c2.getLastDrinkTime().getTime(), c1.getLastDrinkTime().getTime());
+                    return Long.compare(c1.getLastDrinkTime().getTime(), c2.getLastDrinkTime().getTime());
                 };
                 return 0;
             });

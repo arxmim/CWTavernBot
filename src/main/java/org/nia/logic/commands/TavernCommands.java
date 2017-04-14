@@ -1,10 +1,12 @@
 package org.nia.logic.commands;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.nia.bots.CWTavernBot;
 import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.lists.Food;
+import org.nia.logic.lists.TournamentType;
 import org.nia.logic.quests.kitchen.KitchenQuest;
 import org.nia.logic.quests.kitchen.RoofStairs;
 import org.nia.model.*;
@@ -26,7 +28,12 @@ public enum TavernCommands implements Commands {
     BET("/bet ") {
         @Override
         public boolean isApplicable(Message message) {
-            if (Pattern.compile(text + "(\\d+)").matcher(message.getText()).find()) {
+            User user = User.getFromMessage(message);
+            String matchText = text;
+            if (user.getCurseTime() != null && user.getCurseTime().after(new Date())) {
+                matchText = "/" + StringUtils.reverse(matchText.trim().substring(1)) + " ";
+            }
+            if (Pattern.compile(matchText + "(\\d+)").matcher(message.getText()).find()) {
                 Tournament current = Tournament.getCurrent();
                 return current != null && current.isRegistration();
             }
@@ -35,7 +42,12 @@ public enum TavernCommands implements Commands {
 
         @Override
         public String apply(Message message) {
-            Matcher matcher = Pattern.compile(text + "(\\d+)").matcher(message.getText());
+            User user = User.getFromMessage(message);
+            String matchText = text;
+            if (user.getCurseTime() != null && user.getCurseTime().after(new Date())) {
+                matchText = "/" + StringUtils.reverse(matchText.trim().substring(1)) + " ";
+            }
+            Matcher matcher = Pattern.compile(matchText + "(\\d+)").matcher(message.getText());
             if (matcher.find()) {
                 int betCount;
                 try {
@@ -43,7 +55,6 @@ public enum TavernCommands implements Commands {
                 } catch (Exception ex) {
                     return "";
                 }
-                User user = User.getFromMessage(message.getFrom());
 //                if (betCount > 30) {
 //                    return user + ", мы тут не магнаты, такие большие ставки не принимаем. Попробуй поставить меньше 30 " + Emoji.GOLD;
 //                }
@@ -90,14 +101,23 @@ public enum TavernCommands implements Commands {
     GIVE_MONEY("/give ") {
         @Override
         public boolean isApplicable(Message message) {
-            return Pattern.compile(text + "(\\d+)").matcher(message.getText()).find() && message.isReply();
+            User user = User.getFromMessage(message);
+            String matchText = text;
+            if (user.getCurseTime() != null && user.getCurseTime().after(new Date())) {
+                matchText = "/" + StringUtils.reverse(matchText.trim().substring(1)) + " ";
+            }
+            return Pattern.compile(matchText + "(\\d+)").matcher(message.getText()).find() && message.isReply();
         }
 
         @Override
         public String apply(Message message) {
-            Matcher matcher = Pattern.compile(text + "(\\d+)").matcher(message.getText());
+            User from = User.getFromMessage(message);
+            String matchText = text;
+            if (from.getCurseTime() != null && from.getCurseTime().after(new Date())) {
+                matchText = "/" + StringUtils.reverse(matchText.trim().substring(1)) + " ";
+            }
+            Matcher matcher = Pattern.compile(matchText + "(\\d+)").matcher(message.getText());
             if (matcher.find()) {
-                User from = User.getFromMessage(message.getFrom());
                 User to = User.getFromMessage(message.getReplyToMessage().getFrom());
                 if (from.getUserID() == to.getUserID()) {
                     return "";
@@ -133,7 +153,7 @@ public enum TavernCommands implements Commands {
             if (helpTo.onQuest()) {
                 Quest currentQuest = Quest.getCurrent(helpTo);
                 QuestEvent questEvent = QuestEvent.getCurrent(currentQuest);
-                if (questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
+                if (questEvent != null && questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
                     return RoofStairs.INIT.solve(helper, questEvent, true);
                 }
             }
@@ -212,6 +232,21 @@ public enum TavernCommands implements Commands {
             return sb.toString();
         }
     },
+    GOGO("/gogo") {
+        @Override
+        public String apply(Message message) {
+            User.getAll().forEach(user -> {
+                try {
+                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTimedMessage(user, "У нас в таверне кое-что " +
+                            "новенькое! Поприветствуйте Остапа, дядю Лизы, он только приехал к нам, но уже успел " +
+                            "освоиться и завести кое-какие связи. У него можно взять работенку и заработать немного "  + Emoji.GOLD + "!"));
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            });
+            return "";
+        }
+    },
     BARMEN_TOP("/barmen_top") {
         @Override
         public boolean isApplicable(Message message) {
@@ -224,6 +259,43 @@ public enum TavernCommands implements Commands {
             sb.append("Количество налитых напитков и розданных закусок за всё время:\n");
             User.getBarmenTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getBrewCount()).append("\n"));
             return sb.toString();
+        }
+    },
+    DRAKA("/DRAKA") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && message.isReply();
+        }
+
+        @Override
+        public String apply(Message message) {
+            User current = User.getFromMessage(message.getFrom());
+            if (current.getFightTime() != null) {
+                long duration = TimeUnit.MINUTES.convert(DateUtils.addMinutes(current.getFightTime(), 10).getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
+                if (duration > 0) {
+                    return current + ", ты еще не отдышался после прошлой драки, подожди ещё " + duration + " минут";
+                }
+            }
+            User to = User.getFromMessage(message.getReplyToMessage());
+            if (to.getFightWithUser() != null && to.getFightWithUser().getUserID() == current.getUserID()) {
+                Random random = new Random();
+                to.setFightTime(new Date());
+                to.setFightWithUser(null);
+                to.save();
+                current.setFightTime(new Date());
+                current.save();
+                int curStat = current.getFightClubStatsSum() + random.nextInt(81);
+                int toStat = to.getFightClubStatsSum() + random.nextInt(81);
+                if (curStat >= toStat) {
+                    return TournamentType.FIGHT_CLUB.getWinPhrase(current, to);
+                } else {
+                    return TournamentType.FIGHT_CLUB.getWinPhrase(to, current);
+                }
+            } else {
+                current.setFightWithUser(to);
+                current.save();
+                return "Кажется, " + current + " хочет надрать задницу " + to + "! Посмотрим, ответит ли " + to + " на вызов.";
+            }
         }
     },
     MENU("/menu") {
@@ -265,7 +337,7 @@ public enum TavernCommands implements Commands {
                         if (victim.onQuest()) {
                             Quest currentQuest = Quest.getCurrent(victim);
                             QuestEvent questEvent = QuestEvent.getCurrent(currentQuest);
-                            if (questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
+                            if (questEvent != null && questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
                                 DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
                                 DrinkPrefs.incToBeThrown(victim, drinker.getDrinkType());
                                 drinker.setDrinkType(null);
@@ -314,32 +386,56 @@ public enum TavernCommands implements Commands {
     GIVE("") {
         @Override
         public boolean isApplicable(Message message) {
-            return Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent() ||
-                    Arrays.stream(Food.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent();
+            User user = User.getFromMessage(message);
+            if (user.getCurseTime() == null || user.getCurseTime().before(new Date())) {
+                return Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent() ||
+                        Arrays.stream(Food.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent();
+            } else {
+                return Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains("/" + StringUtils.reverse(dt.getCommand().substring(1)))).findFirst().isPresent() ||
+                        Arrays.stream(Food.values()).filter(dt -> message.getText().contains("/" + StringUtils.reverse(dt.getCommand().substring(1)))).findFirst().isPresent();
+            }
         }
 
         @Override
         public String apply(Message message) {
             User asker = User.getFromMessage(message);
-            Optional<DrinkType> first = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand() + "_all")).findFirst();
-            if (asker.isAdmin() && first.isPresent()) {
-                DrinkType drinkType = first.get();
-                User.getAll().forEach(user -> {
-                    if (user.getLastDrinkTime() != null) {
-                        long since = TimeUnit.MINUTES.convert(new Date().getTime() - user.getLastDrinkTime().getTime(), TimeUnit.MILLISECONDS);
-                        if (since < 60) {
-                            user.setDrinkType(drinkType);
-                            user.setLastDrinkTime(null);
-                            user.setAlkoCount(2);
-                            user.setWanted(null);
-                            user.save();
-                        }
-                    }
-                });
-                return "Всем кто недавно пил обновили напитки, " + drinkType.getName() + " для всех и каждому! Пейте, гости дорогие!";
+            DrinkType drinkType = null;
+            Food food = null;
+            if (asker.getCurseTime() == null || asker.getCurseTime().before(new Date())) {
+                Optional<DrinkType> drinkTypeOptional = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst();
+                Optional<Food> foodOptional = Arrays.stream(Food.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst();
+                if (drinkTypeOptional.isPresent()) {
+                    drinkType = drinkTypeOptional.get();
+                } else if (foodOptional.isPresent()) {
+                    food = foodOptional.get();
+                }
+            } else {
+                Optional<DrinkType> drinkTypeOptional = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains("/" + StringUtils.reverse(dt.getCommand().substring(1)))).findFirst();
+                Optional<Food> foodOptional = Arrays.stream(Food.values()).filter(dt -> message.getText().contains("/" + StringUtils.reverse(dt.getCommand().substring(1)))).findFirst();
+                if (drinkTypeOptional.isPresent()) {
+                    drinkType = drinkTypeOptional.get();
+                } else if (foodOptional.isPresent()) {
+                    food = foodOptional.get();
+                }
             }
-            Optional<DrinkType> drink = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst();
-            if (drink.isPresent()) {
+//            Optional<DrinkType> first = Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand() + "_all")).findFirst();
+//            if (asker.isAdmin() && first.isPresent()) {
+//                DrinkType drinkType = first.get();
+//                User.getAll().forEach(user -> {
+//                    if (user.getLastDrinkTime() != null) {
+//                        long since = TimeUnit.MINUTES.convert(new Date().getTime() - user.getLastDrinkTime().getTime(), TimeUnit.MILLISECONDS);
+//                        if (since < 60) {
+//                            user.setDrinkType(drinkType);
+//                            user.setLastDrinkTime(null);
+//                            user.setAlkoCount(2);
+//                            user.setWanted(null);
+//                            user.save();
+//                        }
+//                    }
+//                });
+//                return "Всем кто недавно пил обновили напитки, " + drinkType.getName() + " для всех и каждому! Пейте, гости дорогие!";
+//            }
+            if (drinkType != null) {
                 if (message.isReply() && asker.isBarmen()) {
                     if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
                         return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
@@ -348,7 +444,6 @@ public enum TavernCommands implements Commands {
                     if (fromMessage.getAlkoCount() == 2) {
                         return "У гостя и так налито, зачем ему еще наливать?";
                     }
-                    DrinkType drinkType = drink.get();
 //                    if (fromMessage.getWanted() == drinkType) {
                     asker.incBrewCount();
                     asker.incGold();
@@ -366,14 +461,11 @@ public enum TavernCommands implements Commands {
 //            if (!asker.IsVisitTavernToday()) {
 //                asker.setGold(asker.getGold()-30);
 //            }
-                DrinkType drinkType = drink.get();
                 asker.setWanted(drinkType);
                 asker.save();
                 return "";
             } else {
-                Optional<Food> eat = Arrays.stream(Food.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst();
-                if (eat.isPresent()) {
-                    Food food = eat.get();
+                if (food != null) {
                     if (message.isReply() && asker.isBarmen()) {
                         if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
                             return "Сам у себя заказываешь поесть? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
@@ -404,6 +496,33 @@ public enum TavernCommands implements Commands {
                 }
             }
             return "";
+        }
+    },
+    CURSE("/curse") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+        }
+
+        @Override
+        public String apply(Message message) {
+            User drinker = User.getFromMessage(message);
+            if (message.isReply()) {
+                drinker = User.getFromMessage(message.getReplyToMessage());
+            }
+            if (drinker.getCurseTime() != null && drinker.getCurseTime().after(new Date())) {
+                if (drinker.getUserID() == message.getFrom().getId()) {
+                    return drinker + ", вжух... не сработало!\n Похоже, ты не можешь расколдовать сам себя!";
+                }
+                drinker.setCurseTime(new Date());
+                drinker.save();
+                return drinker + ", вжух, и тебя расколдовали!";
+            } else {
+                drinker.setCurseTime(DateUtils.addMinutes(new Date(), 10));
+                drinker.save();
+                return drinker + ", вжух, и на ближайшие 10 минут тебя заколдовал бармен, придется использовать команды " +
+                        "задом наперед, чтобы все получилось.";
+            }
         }
     },
     EAT("/eat") {
@@ -456,6 +575,10 @@ public enum TavernCommands implements Commands {
                 res = String.format(drinker.getDrinkType().getDrinkRemainPhrase(), drinker);
             } else {
                 res = String.format(drinker.getDrinkType().getDrinkPartPhrase(), drinker);
+//                if (90 > new Random().nextInt(101)) {
+//                    drinker.setCurseTime(DateUtils.addMinutes(new Date(), 3));
+//                    res+="\n\nКажется, ты прикусил язык. Ближайшее время тебе надо писать все команды задом наперед, чтобы всё получилось!";
+//                }
             }
             drinker.save();
             return res;
@@ -469,7 +592,12 @@ public enum TavernCommands implements Commands {
 
     @Override
     public boolean isApplicable(Message message) {
-        return message.getText().contains(this.text);
+        User user = User.getFromMessage(message);
+        if (user.getCurseTime() == null || user.getCurseTime().before(new Date())) {
+            return message.getText().contains(this.text);
+        } else {
+            return message.getText().contains("/" + StringUtils.reverse(this.text.substring(1)));
+        }
     }
 
     @Override

@@ -221,10 +221,7 @@ public class Quest {
     }
 
     public int getReward() {
-        int INCREMENT = 0;
-        int STEP_HOURS = 1;
-        int START_SUM = 7;
-        int MAX_PROGRESS_HOURS = 3;
+        int START_SUM = 1;
         List<QuestEvent> all = QuestEvent.getAll(this);
         int sum = all.stream().mapToInt(e -> {
             if (e.getWin()) {
@@ -235,19 +232,10 @@ public class Quest {
         }).sum();
         Date returnTime = getReturnTime();
         Date startTime = getStartTime();
-        int duration = (int) TimeUnit.HOURS.convert(returnTime.getTime() - startTime.getTime(), TimeUnit.MILLISECONDS);
-        if (duration > 0) {
-            if (duration > MAX_PROGRESS_HOURS) {
-                int progressInterval = MAX_PROGRESS_HOURS / STEP_HOURS;
-                int constantInterval = (duration - MAX_PROGRESS_HOURS) / STEP_HOURS;
-                int finalProgressElement = START_SUM + (progressInterval - 1) * INCREMENT;
-                sum += (START_SUM + finalProgressElement) / 2 * progressInterval;
-                sum += constantInterval * finalProgressElement;
-            } else {
-                int progressInterval = duration / STEP_HOURS;
-                int finalProgressElement = START_SUM + (progressInterval - 1) * INCREMENT;
-                sum += (START_SUM + finalProgressElement) / 2 * progressInterval;
-            }
+        int duration = (int) TimeUnit.MINUTES.convert(returnTime.getTime() - startTime.getTime(), TimeUnit.MILLISECONDS);
+        if (duration > 10) {
+                int progressInterval = duration / 10;
+                sum += START_SUM * progressInterval;
         }
         if (sum < 0) {
             sum = 0;

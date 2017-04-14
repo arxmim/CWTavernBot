@@ -3,11 +3,11 @@ package org.nia.bots;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.PropertiesLoader;
-import org.nia.logic.lists.DrinkType;
 import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.PersonalCommands;
 import org.nia.logic.commands.QuestCommands;
 import org.nia.logic.commands.TavernCommands;
+import org.nia.logic.lists.DrinkType;
 import org.nia.logic.quests.ICrossQuestStep;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
@@ -37,6 +37,9 @@ public class CWTavernBot extends TelegramLongPollingBot {
         try {
             if (update.hasMessage()) {
                 Message message = update.getMessage();
+                if (new Date((long) message.getDate() * 1000).before(DateUtils.addMinutes(new Date(), -1))) {
+                    return;
+                }
                 if (message.hasText() || message.hasLocation()) {
                     handleIncomingMessage(message);
                 } else {
@@ -80,45 +83,33 @@ public class CWTavernBot extends TelegramLongPollingBot {
         SendMessage sendMessageRequest = null;
         org.nia.model.User user = org.nia.model.User.getFromMessage(message);
         if (isCommand(message.getText()) || message.isUserMessage()) {
+            List<Commands> commandsList = new ArrayList<>();
+            if (message.isUserMessage()) {
+                commandsList.addAll(Arrays.asList(PersonalCommands.values()));
+                if (user.onQuest()) {
+                    Quest quest = Quest.getCurrent(user);
+                    QuestEvent event = QuestEvent.getCurrent(quest);
+                    commandsList.add(new QuestCommands(user, quest, event));
+                }
+            }
             Tournament current = Tournament.getCurrent();
             if (current != null && current.isInProgress()) {
-                List<Commands> commandsList = new ArrayList<>();
                 if (user.inTavern()) {
                     commandsList.addAll(current.getType().getCommands());
-                }
-                if (message.isUserMessage()) {
-                    commandsList.addAll(Arrays.asList(PersonalCommands.values()));
-                }
-                for (Commands command : commandsList) {
-                    if (command.isApplicable(message)) {
-                        String answer = command.apply(message);
-                        if (!StringUtils.isEmpty(answer)) {
-                            sendMessageRequest = command.getMessage(message, answer);
-                        }
-                        break;
-                    }
+                    commandsList.add(TavernCommands.DRINK);
                 }
             } else {
-                List<Commands> commandsList = new ArrayList<>();
                 if (user.inTavern()) {
                     commandsList.addAll(Arrays.asList(TavernCommands.values()));
                 }
-                if (message.isUserMessage()) {
-                    commandsList.addAll(Arrays.asList(PersonalCommands.values()));
-                    if (user.onQuest()) {
-                        Quest quest = Quest.getCurrent(user);
-                        QuestEvent event = QuestEvent.getCurrent(quest);
-                        commandsList.add(new QuestCommands(user, quest, event));
+            }
+            for (Commands command : commandsList) {
+                if (command.isApplicable(message)) {
+                    String answer = command.apply(message);
+                    if (!StringUtils.isEmpty(answer)) {
+                        sendMessageRequest = command.getMessage(message, answer);
                     }
-                }
-                for (Commands command : commandsList) {
-                    if (command.isApplicable(message)) {
-                        String answer = command.apply(message);
-                        if (!StringUtils.isEmpty(answer)) {
-                            sendMessageRequest = command.getMessage(message, answer);
-                        }
-                        break;
-                    }
+                    break;
                 }
             }
             if (sendMessageRequest == null && message.isUserMessage() && user.inTavern()) {
@@ -186,9 +177,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
             } else {
                 KeyboardRow keyboardButtons = new KeyboardRow();
                 keyboardButtons.add(PersonalCommands.MY_INFO.getText());
-                if (user.isAdmin() || user.isBarmen()) {
-                    keyboardButtons.add(PersonalCommands.QUEST.getText());
-                }
+                keyboardButtons.add(PersonalCommands.QUEST.getText());
                 keyboardRows.add(keyboardButtons);
             }
         }

@@ -63,11 +63,11 @@ public enum QuestsEnum {
     }
 
     public Date getNextEventTime(Quest quest) {
-        final int EVENT_INTERVAL = 1;
-        int count = QuestEvent.getCount(quest);
-        Date startTime = quest.getStartTime();
-        startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);
-        return DateUtils.addMinutes(startTime, 10 + new Random().nextInt(51));
-//        return DateUtils.addMinutes(new Date(), 1);
+//        final int EVENT_INTERVAL = 1;
+//        int count = QuestEvent.getCount(quest);
+//        Date startTime = quest.getStartTime();
+//        startTime = DateUtils.addHours(startTime, EVENT_INTERVAL * count);
+//        return DateUtils.addMinutes(startTime, 10 + new Random().nextInt(51));
+        return DateUtils.addMinutes(new Date(), 20 + new Random().nextInt(41));
     }
 }

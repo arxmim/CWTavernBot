@@ -25,6 +25,8 @@ class DBStrings {
             "gold integer NOT NULL DEFAULT 0, \n" +
             "visitTavern DATETIME, \n" +
             "location varchar(50) NOT NULL, \n" +
+            "fightWithUserID INTEGER, \n" +
+            "fightTime DATETIME, \n" +
             "drinkedTotal INTEGER NOT NULL DEFAULT 0, \n" +
             "drinkedWeek INTEGER NOT NULL)";
     static final String createUserPrefTable = "if not exists (select * from sysobjects where name='cwt_DrinkPrefs' and xtype='U')\n" +

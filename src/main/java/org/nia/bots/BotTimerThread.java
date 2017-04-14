@@ -2,11 +2,15 @@ package org.nia.bots;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.nia.logic.ServingMessage;
+import org.nia.logic.lists.Location;
 import org.nia.logic.quests.ICrossQuestStep;
 import org.nia.logic.quests.IQuestEvent;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 import org.nia.model.User;
+import org.nia.strings.Emoji;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +51,15 @@ public class BotTimerThread extends Thread {
                                 linkedEvent.save();
                                 linkedQuest.setEventTime(linkedQuest.getQuestEnum().getNextEventTime(linkedQuest));
                                 linkedQuest.save();
-                                bot.sendMessage(ServingMessage.getTimedMessage(linkedQuest.getUser(), goodText));
+                                try {
+                                    bot.sendMessage(ServingMessage.getTimedMessage(linkedQuest.getUser(), goodText));
+                                } catch (TelegramApiRequestException e) {
+                                    if (!e.getErrorCode().equals(403)) {
+                                        e.printStackTrace();
+                                    }
+                                } catch (TelegramApiException e) {
+                                    e.printStackTrace();
+                                }
                             }
                             badText += "\n\nОчень жаль! Твоя награда за задание будет уменьшена.";
                             event.setWin(false);
@@ -55,23 +67,58 @@ public class BotTimerThread extends Thread {
                             event.save();
                             quest.setEventTime(quest.getQuestEnum().getNextEventTime(quest));
                             quest.save();
-                            bot.sendMessage(ServingMessage.getTimedMessage(usr, badText));
+                            try {
+                                bot.sendMessage(ServingMessage.getTimedMessage(usr, badText));
+                            } catch (TelegramApiRequestException e) {
+                                if (!e.getErrorCode().equals(403)) {
+                                    e.printStackTrace();
+                                }
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
+                            }
                         } else if (event == null && quest.getEventTime().before(new Date())) {
-                            IQuestEvent iQuestEvent = quest.getQuestEnum().getIQuest().getRandomEvent();
-                            event = new QuestEvent();
-                            event.setEventTime(quest.getEventTime());
-                            event.setQuest(quest);
-                            event.setStep(iQuestEvent.getInit());
-                            iQuestEvent.init(quest);
-                            event.setIQuestEvent(iQuestEvent);
-                            event.save();
-                            iQuestEvent.getInit().doWork(event);
-                            bot.sendMessage(ServingMessage.getTimedMessage(usr, iQuestEvent.getInit().getText(quest)));
+                            if (quest.getStartTime().before(org.apache.commons.lang3.time.DateUtils.addDays(new Date(), -2))) {
+                                quest.setReturnTime(new Date());
+                                int reward = quest.getReward();
+                                quest.setGoldEarned(reward);
+                                quest.save();
+                                usr.setLocation(Location.TAVERN);
+                                usr.setGold(usr.getGold() + reward);
+                                usr.save();
+                                try {
+                                    bot.sendMessage(ServingMessage.getTimedMessage(usr, "Ты пробыл на задании довольно долго, пора возвращаться. Ты заработав " + reward + Emoji.GOLD));
+                                } catch (TelegramApiRequestException e) {
+                                    if (!e.getErrorCode().equals(403)) {
+                                        e.printStackTrace();
+                                    }
+                                } catch (TelegramApiException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                IQuestEvent iQuestEvent = quest.getQuestEnum().getIQuest().getRandomEvent();
+                                event = new QuestEvent();
+                                event.setEventTime(quest.getEventTime());
+                                event.setQuest(quest);
+                                event.setStep(iQuestEvent.getInit());
+                                iQuestEvent.init(quest);
+                                event.setIQuestEvent(iQuestEvent);
+                                event.save();
+                                iQuestEvent.getInit().doWork(event);
+                                try {
+                                    bot.sendMessage(ServingMessage.getTimedMessage(usr, iQuestEvent.getInit().getText(quest)));
+                                } catch (TelegramApiRequestException e) {
+                                    if (!e.getErrorCode().equals(403)) {
+                                        e.printStackTrace();
+                                    }
+                                } catch (TelegramApiException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
                     }
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
