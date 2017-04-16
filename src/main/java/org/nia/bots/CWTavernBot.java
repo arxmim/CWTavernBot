@@ -37,7 +37,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
         try {
             if (update.hasMessage()) {
                 Message message = update.getMessage();
-                if (new Date((long) message.getDate() * 1000).before(DateUtils.addMinutes(new Date(), -1))) {
+                if (new Date((long) message.getDate() * 1000).before(DateUtils.addMinutes(new Date(), -3))) {
                     return;
                 }
                 if (message.hasText() || message.hasLocation()) {
