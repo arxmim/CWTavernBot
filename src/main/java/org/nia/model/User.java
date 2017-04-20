@@ -43,8 +43,9 @@ public class User {
     private Integer fightWithUserID;
     private User fightWithUser;
     private Date curseTime;
+    private String voteFor;
 
-    static User getByID(Integer userID) {
+    public static User getByID(Integer userID) {
         if (userID == null) {
             return null;
         }
@@ -55,7 +56,7 @@ public class User {
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
                     ", fightTime, location, food, wantedFood, foodCount" +
                     ", eatTotal, fightClubWins, brewCount, lastEatTime, drinkedWeek" +
-                    ", fightWithUserID, curseTime" +
+                    ", fightWithUserID, curseTime, voteFor" +
                     " from cwt_User where UserID = ?");
             preparedStatement.setInt(1, userID);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -99,6 +100,7 @@ public class User {
                     res.fightWithUserID = fightWithUserID;
                 }
                 res.curseTime = resultSet.getTimestamp(22);
+                res.voteFor = resultSet.getString(23);
 
             }
         } catch (SQLException e) {
@@ -132,6 +134,7 @@ public class User {
             res.fightClubWins = 0;
             res.brewCount = 0;
             res.drinkedWeek = 0;
+            res.voteFor = null;
             res.save();
         } else {
             res.nick = user.getUserName();
@@ -150,7 +153,7 @@ public class User {
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
                     ", fightTime, location, food, wantedFood, foodCount" +
                     ", eatTotal, fightClubWins, brewCount, lastEatTime, drinkedWeek" +
-                    ", fightWithUserID, curseTime" +
+                    ", fightWithUserID, curseTime, voteFor" +
                     " from cwt_User where nick = ?");
             preparedStatement.setString(1, nick);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -194,6 +197,7 @@ public class User {
                     res.fightWithUserID = fightWithUserID;
                 }
                 res.curseTime = resultSet.getTimestamp(22);
+                res.voteFor = resultSet.getString(23);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -210,7 +214,7 @@ public class User {
                             ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
                             ", gold, fightTime, location, food, wantedFood" +
                             ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
-                            ", drinkedWeek, fightWithUserID, curseTime from cwt_User");
+                            ", drinkedWeek, fightWithUserID, curseTime, voteFor from cwt_User");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -252,6 +256,7 @@ public class User {
                     user.fightWithUserID = fightWithUserID;
                 }
                 user.fightTime = resultSet.getTimestamp(23);
+                user.voteFor = resultSet.getString(24);
                 res.add(user);
 
             }
@@ -275,7 +280,7 @@ public class User {
                                 ", drinkedTotal = ?, drinkType = ?, wanted = ?, isAdmin = ?, gold = ?" +
                                 ", fightTime = ?, location = ?, food = ?, wantedFood = ?, foodCount = ?" +
                                 ", eatTotal = ?, fightClubWins = ?, brewCount = ?, lastEatTime = ?, drinkedWeek = ?" +
-                                ", fightWithUserID = ?, curseTime = ? where UserID = ?");
+                                ", fightWithUserID = ?, curseTime = ?, voteFor = ? where UserID = ?");
                 preparedStatement.setString(1, nick);
                 preparedStatement.setString(2, name);
                 preparedStatement.setBoolean(3, isBarmen);
@@ -334,7 +339,12 @@ public class User {
                 } else {
                     preparedStatement.setNull(22, Types.TIMESTAMP);
                 }
-                preparedStatement.setInt(23, userID);
+                if (voteFor != null) {
+                    preparedStatement.setString(23, voteFor);
+                } else {
+                    preparedStatement.setNull(23, Types.VARCHAR);
+                }
+                preparedStatement.setInt(24, userID);
                 preparedStatement.execute();
             } else {
                 preparedStatement = connectionDB.getPreparedStatement(
@@ -342,12 +352,12 @@ public class User {
                                 ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
                                 ", gold, fightTime, location, food, wantedFood" +
                                 ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
-                                ", drinkedWeek, fightWithUserID, curseTime) VALUES" +
+                                ", drinkedWeek, fightWithUserID, curseTime, voteFor) VALUES" +
                                 " (?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
-                                ", ?, ?, ?)");
+                                ", ?, ?, ?, ?)");
                 preparedStatement.setInt(1, userID);
                 preparedStatement.setString(2, nick);
                 preparedStatement.setString(3, name);
@@ -406,6 +416,11 @@ public class User {
                     preparedStatement.setTimestamp(23, new Timestamp(curseTime.getTime()));
                 } else {
                     preparedStatement.setNull(23, Types.TIMESTAMP);
+                }
+                if (voteFor != null) {
+                    preparedStatement.setString(24, voteFor);
+                } else {
+                    preparedStatement.setNull(24, Types.VARCHAR);
                 }
                 preparedStatement.execute();
             }
@@ -549,6 +564,33 @@ public class User {
         return res;
     }
 
+    public static int getVotersForCount(String vote) {
+        int res = 0;
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select count(1) from cwt_User where voteFor = ?");
+            preparedStatement.setString(1, vote);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                res = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static void flushVotesFor(String vote) {
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("update cwt_User set voteFor = null where voteFor = ?");
+            preparedStatement.setString(1, vote);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public int getFightClubStatsSum() {
         DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
         return getStr(drinkPrefs) + getAgi(drinkPrefs) + getCon(drinkPrefs) + getCha(drinkPrefs) + getKno();
@@ -583,25 +625,25 @@ public class User {
             res = "так мало, что даже стыдно";
         } else if (stat < 13) {
             res = "низко";
-        } else if (stat < 16) {
+        } else if (stat < 17) {
             res = "чуть ниже нормы";
-        } else if (stat < 20) {
+        } else if (stat < 21) {
             res = "нормально";
-        } else if (stat < 24) {
+        } else if (stat < 25) {
             res = "выше среднего";
-        } else if (stat < 28) {
+        } else if (stat < 29) {
             res = "высоко";
-        } else if (stat < 32) {
+        } else if (stat < 34) {
             res = "очень высоко";
-        } else if (stat < 36) {
+        } else if (stat < 38) {
             res = "практически нет равных";
-        } else if (stat < 40) {
+        } else if (stat < 43) {
             res = "нет равных";
-        } else if (stat < 45) {
+        } else if (stat < 48) {
             res = "почти как у бога";
-        } else if (stat < 50) {
-            res = "почти божественно";
         } else if (stat < 55) {
+            res = "почти божественно";
+        } else if (stat < 60) {
             res = "божественно";
         } else {
             res = "превосходит богов";
@@ -796,5 +838,13 @@ public class User {
 
     public void setCurseTime(Date curseTime) {
         this.curseTime = curseTime;
+    }
+
+    public String getVoteFor() {
+        return voteFor;
+    }
+
+    public void setVoteFor(String voteFor) {
+        this.voteFor = voteFor;
     }
 }

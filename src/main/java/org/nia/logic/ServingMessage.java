@@ -12,13 +12,11 @@ import java.util.List;
  * @author Иван, 09.03.2017.
  */
 public class ServingMessage {
-    private static long chatID = -1001100805125L;
-    private static long chatID_test = -213390213;
-    private static long chatID_test_with_barmens = -1001083996255L;
+    private static long tavernChatID = -1001100805125L;
 
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatID);
+        sendMessage.setChatId(tavernChatID);
         sendMessage.enableHtml(true);
         StringBuilder sb = new StringBuilder();
         sb.append("А вот и я! ");
@@ -59,7 +57,7 @@ public class ServingMessage {
 
     public static SendMessage getTournamentMessage(String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatID);
+        sendMessage.setChatId(tavernChatID);
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 
