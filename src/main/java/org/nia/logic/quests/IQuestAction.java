@@ -86,11 +86,15 @@ public interface IQuestAction {
             to.getQuest().save();
         }
         CWTavernBot BOT = CWTavernBot.INSTANCE;
+        User fromUser = from.getQuest().getUser();
+        User toUser = to.getQuest().getUser();
         try {
-            User fromUser = from.getQuest().getUser();
-            User toUser = to.getQuest().getUser();
             BOT.sendMessage(ServingMessage.getTimedMessage(fromUser
                     , this.getEventText() + "\n" + String.format(this.getFromEndText(), toUser) + ending));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+        try {
             BOT.sendMessage(ServingMessage.getTimedMessage(toUser
                     , String.format(this.getExplainText(), fromUser) + "\n"
                             + this.getEventText() + "\n"

@@ -232,21 +232,6 @@ public enum TavernCommands implements Commands {
             return sb.toString();
         }
     },
-    GOGO("/gogo") {
-        @Override
-        public String apply(Message message) {
-            User.getAll().forEach(user -> {
-                try {
-                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTimedMessage(user, "У нас в таверне кое-что " +
-                            "новенькое! Поприветствуйте Остапа, дядю Лизы, он только приехал к нам, но уже успел " +
-                            "освоиться и завести кое-какие связи. У него можно взять работенку и заработать немного "  + Emoji.GOLD + "!"));
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            });
-            return "";
-        }
-    },
     BARMEN_TOP("/barmen_top") {
         @Override
         public boolean isApplicable(Message message) {

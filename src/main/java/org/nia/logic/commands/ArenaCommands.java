@@ -287,8 +287,8 @@ public enum ArenaCommands implements Commands {
         };//str
 
         private List<String> sameWeaponPhrase = new ArrayList<>();
-        int fullWin = 20;
-        int halfWin = 10;
+        int fullWin = 30;
+        int halfWin = 15;
         String readyPhrase;
         int number;
         String name;
