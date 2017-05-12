@@ -3,7 +3,6 @@ package org.nia.logic.commands;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.bots.CWTavernBot;
-import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.lists.Food;
 import org.nia.logic.lists.TournamentType;

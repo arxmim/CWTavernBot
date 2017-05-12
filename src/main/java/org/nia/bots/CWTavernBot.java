@@ -9,10 +9,7 @@ import org.nia.logic.commands.QuestCommands;
 import org.nia.logic.commands.TavernCommands;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.quests.ICrossQuestStep;
-import org.nia.model.Quest;
-import org.nia.model.QuestEvent;
-import org.nia.model.Tournament;
-import org.nia.model.TournamentUsers;
+import org.nia.model.*;
 import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
@@ -82,6 +79,17 @@ public class CWTavernBot extends TelegramLongPollingBot {
             String text = callbackQuery.getMessage().getText();
             if (text.contains("Количество болельщиков: ")) {
                 TournamentUsers tUser = TournamentUsers.getCurrentByUserID(Integer.valueOf(callbackQuery.getData()));
+                if (tUser == null) {
+                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+                    answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+                    answerCallbackQuery.setText("Боец уже отвоевал!");
+                    try {
+                        answerCallbackQuery(answerCallbackQuery);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
                 org.nia.model.User voteFor = tUser.getUser();
                 if (!tUser.InFight()) {
                     AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -136,6 +144,8 @@ public class CWTavernBot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                 }
+            } else if (callbackQuery.getData().startsWith("@votingBot")) {
+                Voting.processVote(callbackQuery, user);
             }
         }
     }
