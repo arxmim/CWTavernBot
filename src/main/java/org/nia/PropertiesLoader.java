@@ -28,6 +28,8 @@ public class PropertiesLoader {
         return properties.getProperty("jdbcDriver");
     }
     public String getConnectionString() {
-        return properties.getProperty("JDBC_DATABASE_URL");
+        String jdbc_database_url = properties.getProperty("JDBC_DATABASE_URL");
+        System.out.println(jdbc_database_url);
+        return jdbc_database_url;
     }
 }
