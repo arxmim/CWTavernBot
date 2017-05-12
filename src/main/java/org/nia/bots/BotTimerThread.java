@@ -1,6 +1,6 @@
 package org.nia.bots;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.Location;
 import org.nia.logic.quests.ICrossQuestStep;

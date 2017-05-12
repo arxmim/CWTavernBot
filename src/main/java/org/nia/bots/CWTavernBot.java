@@ -1,6 +1,6 @@
 package org.nia.bots;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.PropertiesLoader;
 import org.nia.logic.commands.Commands;
