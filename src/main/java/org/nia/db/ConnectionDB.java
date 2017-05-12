@@ -22,9 +22,9 @@ public class ConnectionDB {
     private Connection openConnection() {
         Connection connection = null;
         try {
-            Class.forName(JDBC_DRIVER).newInstance();
+//            Class.forName(JDBC_DRIVER).newInstance();
             connection = DriverManager.getConnection(LINK_DB);
-        } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+        } catch (SQLException /*| ClassNotFoundException | IllegalAccessException | InstantiationException */e) {
             BotLogger.error(LOGTAG, e);
         }
 

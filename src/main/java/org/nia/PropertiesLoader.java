@@ -16,6 +16,7 @@ public class PropertiesLoader {
             properties.load(new FileInputStream("target/classes/credentials.properties"));
         } catch (IOException e) {
             e.printStackTrace();
+            properties = System.getProperties();
         }
     }
 
@@ -27,6 +28,6 @@ public class PropertiesLoader {
         return properties.getProperty("jdbcDriver");
     }
     public String getConnectionString() {
-        return properties.getProperty("connectionString");
+        return properties.getProperty("JDBC_DATABASE_URL");
     }
 }
