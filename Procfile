@@ -1,1 +1,1 @@
-sh target/bin/main
+main: sh target/bin/main
