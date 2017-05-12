@@ -32,6 +32,7 @@ public class Main {
         }
 
         try {
+            System.out.println("ololol");
             ApiContextInitializer.init();
             TelegramBotsApi telegramBotsApi = createTelegramBotsApi();
             try {
