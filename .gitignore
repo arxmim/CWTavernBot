@@ -62,6 +62,7 @@ $RECYCLE.BIN/
 .idea/compiler.xml
 .idea/copyright/profiles_settings.xml
 *.xml
+!*.cfg.xml
 !pom.xml
 CWTavernBot.iml
 *.log
