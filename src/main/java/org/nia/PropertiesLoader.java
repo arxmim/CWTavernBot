@@ -29,6 +29,7 @@ public class PropertiesLoader {
     }
     public String getConnectionString() {
         System.out.println("env=" + System.getenv("JDBC_DATABASE_URL"));
+        System.out.println("env=" + System.getenv("DATABASE_URL"));
         return System.getenv("JDBC_DATABASE_URL");
     }
 }
