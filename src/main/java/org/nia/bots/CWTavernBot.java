@@ -91,7 +91,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     return;
                 }
                 org.nia.model.User voteFor = tUser.getUser();
-                if (!tUser.InFight()) {
+                if (!tUser.isInFight()) {
                     AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
                     answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
                     answerCallbackQuery.setText("Боец уже отвоевал!");
@@ -239,7 +239,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
             }
         } else if (user.inTavern()) {
             TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(user.getUserID());
-            if (currentByUserID != null && currentByUserID.InFight() && currentByUserID.getScore() == 0) {
+            if (currentByUserID != null && currentByUserID.isInFight() && currentByUserID.getScore() == 0) {
                 List<String> buttons = currentByUserID.getTournament().getType().getCommandButtons();
                 KeyboardRow keyboardButtons = new KeyboardRow();
                 int i = 0;

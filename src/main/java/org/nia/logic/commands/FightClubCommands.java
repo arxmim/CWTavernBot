@@ -25,7 +25,7 @@ public enum FightClubCommands implements Commands {
                 return false;
             }
             TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(message.getFrom().getId());
-            return currentByUserID != null && currentByUserID.InFight() && currentByUserID.getScore() == 0;
+            return currentByUserID != null && currentByUserID.isInFight() && currentByUserID.getScore() == 0;
         }
 
         @Override

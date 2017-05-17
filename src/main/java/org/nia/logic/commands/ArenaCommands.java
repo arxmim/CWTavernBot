@@ -23,7 +23,7 @@ public enum ArenaCommands implements Commands {
         @Override
         public boolean isApplicable(Message message) {
             TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(message.getFrom().getId());
-            return currentByUserID != null && currentByUserID.InFight() && Weapon.getByName(message.getText()) != null;
+            return currentByUserID != null && currentByUserID.isInFight() && Weapon.getByName(message.getText()) != null;
         }
 
         @Override
