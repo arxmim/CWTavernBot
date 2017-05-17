@@ -15,7 +15,8 @@ public class PropertiesLoader {
     }
 
     public String getBotToken() {
-        return properties.getProperty("botToken");
+        System.out.println("botToken=" + System.getenv("botToken"));
+        return System.getenv("botToken");
     }
 
     public String getJDBCDriverClassName() {
