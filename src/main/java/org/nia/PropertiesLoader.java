@@ -11,17 +11,11 @@ public class PropertiesLoader {
     Properties properties;
     public static PropertiesLoader INSTANCE = new PropertiesLoader();
     private PropertiesLoader() {
-        properties = new Properties();
-        try {
-            properties.load(new FileInputStream("target/classes/credentials.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            properties = System.getProperties();
-        }
+        properties = System.getProperties();
     }
 
     public String getBotToken() {
-        return properties.getProperty("token");
+        return properties.getProperty("botToken");
     }
 
     public String getJDBCDriverClassName() {
