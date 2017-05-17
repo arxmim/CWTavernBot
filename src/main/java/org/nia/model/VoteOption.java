@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.nia.db.HibernateConfig;
 
@@ -18,7 +17,7 @@ import java.util.List;
 @Entity(name = "cwt_VoteOption")
 @Getter
 @Setter
-public class VoteOption {
+public class VoteOption extends AbstractEntity {
     @Column
     @Id
     @GeneratedValue
@@ -29,42 +28,12 @@ public class VoteOption {
     @JoinColumn(name = "votingID")
     Voting voting;
 
-    @SuppressWarnings("unchecked")
     public static List<VoteOption> getAll(Integer votingID) {
         List<VoteOption> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_VoteOption WHERE voting = " + votingID);
+            Query<VoteOption> query = session.createQuery("FROM cwt_VoteOption WHERE voting = " + votingID, VoteOption.class);
             res = query.list();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public static VoteOption getByID(Integer publicID) {
-        VoteOption res = null;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            res = session.get(VoteOption.class, publicID);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
-    @SuppressWarnings("unchecked")
-    public boolean save() {
-        boolean res = false;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.saveOrUpdate(this);
-            tx.commit();
-            session.refresh(this);
-            res = true;
         } catch (Exception ex) {
             ex.printStackTrace();
         }

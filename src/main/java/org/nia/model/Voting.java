@@ -123,7 +123,7 @@ public class Voting {
             return;
         }
         String strOption = StringUtils.substringAfter(callbackQuery.getData(), "@votingBot");
-        VoteOption option = VoteOption.getByID(Integer.valueOf(strOption));
+        VoteOption option = VoteOption.getByID(VoteOption.class, Integer.valueOf(strOption));
         List<VoteUser> byUser = VoteUser.getByUser(user.getUserID(), option.getVoting().publicID);
         if (byUser.size() > 1) {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();

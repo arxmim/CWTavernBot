@@ -560,11 +560,10 @@ public class User {
         return res;
     }
 
-    public static void flushVotesFor(String vote) {
+    public static void flushVotes() {
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("update cwt_User set voteFor = null where voteFor = ?");
-            preparedStatement.setString(1, vote);
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("update cwt_User set voteFor = null");
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,128 +1,78 @@
 package org.nia.model;
 
-import org.nia.db.ConnectionDB;
-import org.nia.db.DatabaseManager;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+import org.nia.db.HibernateConfig;
 import org.nia.logic.lists.items.EQuestItem;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Иван, 06.04.2017.
  */
+@Entity(name = "cwt_QuestItem")
+@Getter
+@Setter
 public class QuestItem {
-
+    @Id
+    @Column()
+    @GeneratedValue
     private Integer publicID;
+    @ManyToOne
+    @JoinColumn(name = "questID")
     private Quest quest;
+    @Enumerated(EnumType.STRING)
     private EQuestItem questItem;
+    @Column
     private int itemCount;
 
 
-    public void save() {
-        try {
-            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            if (publicID != null) {
-                PreparedStatement preparedStatement = connectionDB.getPreparedStatement("update cwt_QuestItem set questID = ?" +
-                        ", questItem = ?" +
-                        ", itemCount = ?" +
-                        " where PublicID = ?");
-                preparedStatement.setInt(1, quest.getPublicID());
-                preparedStatement.setString(2, questItem.name());
-                preparedStatement.setInt(3, itemCount);
-                preparedStatement.setInt(4, publicID);
-                preparedStatement.execute();
-            } else {
-                PreparedStatement preparedStatement = connectionDB.getPreparedStatement("INSERT INTO cwt_QuestItem " +
-                        "(questID, questItem, itemCount) " +
-                        "VALUES (?, ?, ?)");
-                preparedStatement.setInt(1, quest.getPublicID());
-                preparedStatement.setString(2, questItem.name());
-                preparedStatement.setInt(3, itemCount);
-                preparedStatement.execute();
-                preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_QuestItem where questID = ? and questItem = ? order by publicID desc limit 1");
-                preparedStatement.setInt(1, quest.getPublicID());
-                preparedStatement.setString(2, questItem.name());
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (!resultSet.next()) {
-                    resultSet = preparedStatement.executeQuery();
-                }
-                publicID = resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public static List<QuestItem> getAll(Quest quest) {
-        List<QuestItem> res = new ArrayList<>();
-        try {
-            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
-                    "select publicID, questItem, itemCount from cwt_QuestItem where questID = ?");
-            preparedStatement.setInt(1, quest.getPublicID());
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                QuestItem questItem = new QuestItem();
-                questItem.publicID = resultSet.getInt(1);
-                questItem.quest = quest;
-                try {
-                    questItem.questItem = EQuestItem.valueOf(resultSet.getString(2));
-                } catch (Exception ignored) {
-                }
-                questItem.itemCount = resultSet.getInt(3);
-                res.add(questItem);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public boolean save() {
+        boolean res = false;
+        SessionFactory factory = HibernateConfig.getSessionFactory();
+        try (Session session = factory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            session.saveOrUpdate(this);
+            tx.commit();
+            session.refresh(this);
+            res = true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return res;
     }
 
-    public void delete() {
-        try {
-            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
-                    "delete from cwt_QuestItem where publicID = ?");
-            preparedStatement.setInt(1, publicID);
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+    @SuppressWarnings("unchecked")
+    public static List<QuestItem> getAll(Quest quest) {
+        List<QuestItem> res = new ArrayList<>();
+        SessionFactory factory = HibernateConfig.getSessionFactory();
+        try (Session session = factory.openSession()) {
+            Query query = session.createQuery("FROM cwt_QuestItem WHERE quest = " + quest.getPublicID());
+            res = query.list();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+        return res;
     }
 
-    public Integer getPublicID() {
-        return publicID;
-    }
-
-    public void setPublicID(Integer publicID) {
-        this.publicID = publicID;
-    }
-
-    public Quest getQuest() {
-        return quest;
-    }
-
-    public void setQuest(Quest quest) {
-        this.quest = quest;
-    }
-
-    public EQuestItem getQuestItem() {
-        return questItem;
-    }
-
-    public void setQuestItem(EQuestItem questItem) {
-        this.questItem = questItem;
-    }
-
-    public int getItemCount() {
-        return itemCount;
-    }
-
-    public void setItemCount(int itemCount) {
-        this.itemCount = itemCount;
+    public boolean delete() {
+        boolean res = false;
+        SessionFactory factory = HibernateConfig.getSessionFactory();
+        try (Session session = factory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            session.delete(this);
+            tx.commit();
+            res = true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return res;
     }
 }
