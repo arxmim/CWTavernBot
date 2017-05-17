@@ -198,7 +198,7 @@ public class TournamentUsers {
             Tournament current = Tournament.getCurrent();
             if (current != null) {
                 ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-                PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select publicID, round, position, score, inFight, lose from cwt_TournamentUsers where TournamentID = ? and userID = ? order by inFight desc limit 1");
+                PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select PublicID, round, position, score, inFight, lose from cwt_TournamentUsers where TournamentID = ? and userID = ? limit 1");
                 preparedStatement.setInt(1, current.getPublicID());
                 preparedStatement.setInt(2, userID);
                 ResultSet resultSet = preparedStatement.executeQuery();
