@@ -35,7 +35,7 @@ public class QuestFact {
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, questFact.name());
                 preparedStatement.execute();
-                preparedStatement = connectionDB.getPreparedStatement("select TOP 1 publicID from cwt_QuestFact where questID = ? and questFact = ? order by publicID desc");
+                preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_QuestFact where questID = ? and questFact = ? order by publicID desc limit 1");
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, questFact.name());
                 ResultSet resultSet = preparedStatement.executeQuery();

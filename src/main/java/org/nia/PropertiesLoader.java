@@ -11,22 +11,19 @@ public class PropertiesLoader {
     Properties properties;
     public static PropertiesLoader INSTANCE = new PropertiesLoader();
     private PropertiesLoader() {
-        properties = new Properties();
-        try {
-            properties.load(new FileInputStream("target/classes/credentials.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        properties = System.getProperties();
     }
 
     public String getBotToken() {
-        return properties.getProperty("token");
+        System.out.println("botToken=" + System.getenv("botToken"));
+        return System.getenv("botToken");
     }
 
     public String getJDBCDriverClassName() {
         return properties.getProperty("jdbcDriver");
     }
     public String getConnectionString() {
-        return properties.getProperty("connectionString");
+        System.out.println("env=" + System.getenv("JDBC_DATABASE_URL"));
+        return System.getenv("JDBC_DATABASE_URL");
     }
 }

@@ -105,8 +105,8 @@ public class Tournament {
         Tournament res = null;
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select top 1 PublicID, registrationDateTime, tournamentType, tournamentState, maxUsers, round " +
-                    "from cwt_Tournament where tournamentState in ('" + TournamentState.REGISTRATION.name() + "', '" + TournamentState.PROGRESS + "')");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select PublicID, registrationDateTime, tournamentType, tournamentState, maxUsers, round " +
+                    "from cwt_Tournament where tournamentState in ('" + TournamentState.REGISTRATION.name() + "', '" + TournamentState.PROGRESS + "') limit 1");
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 res = new Tournament();
@@ -117,8 +117,8 @@ public class Tournament {
                 res.maxUsers = resultSet.getInt(5);
                 res.round = resultSet.getInt(6);
             } else {
-                preparedStatement = connectionDB.getPreparedStatement("select top 1 PublicID, registrationDateTime, tournamentType, tournamentState, maxUsers, round " +
-                        "from cwt_Tournament where tournamentState ='" + TournamentState.ANOUNCE.name() + "' order by registrationDateTime");
+                preparedStatement = connectionDB.getPreparedStatement("select PublicID, registrationDateTime, tournamentType, tournamentState, maxUsers, round " +
+                        "from cwt_Tournament where tournamentState ='" + TournamentState.ANOUNCE.name() + "' order by registrationDateTime limit 1");
                 resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
                     res = new Tournament();

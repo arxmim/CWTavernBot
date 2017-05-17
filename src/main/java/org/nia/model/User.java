@@ -474,7 +474,7 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, drinkedTotal from cwt_User order by drinkedTotal desc");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, drinkedTotal from cwt_User order by drinkedTotal desc limit 12");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -493,7 +493,7 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, drinkedWeek from cwt_User order by drinkedWeek desc");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, drinkedWeek from cwt_User order by drinkedWeek desc limit 12");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -512,7 +512,7 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, brewCount from cwt_User where brewCount > 0 order by brewCount desc");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, brewCount from cwt_User where brewCount > 0 order by brewCount desc limit 12");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -531,7 +531,7 @@ public class User {
         List<User> res = new ArrayList<>();
         try {
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select top 12 nick, name, fightClubWins from cwt_User order by fightClubWins desc");
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select nick, name, fightClubWins from cwt_User order by fightClubWins desc limit 12");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();

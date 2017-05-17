@@ -42,7 +42,7 @@ public class QuestItem {
                 preparedStatement.setString(2, questItem.name());
                 preparedStatement.setInt(3, itemCount);
                 preparedStatement.execute();
-                preparedStatement = connectionDB.getPreparedStatement("select TOP 1 publicID from cwt_QuestItem where questID = ? and questItem = ? order by publicID desc");
+                preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_QuestItem where questID = ? and questItem = ? order by publicID desc limit 1");
                 preparedStatement.setInt(1, quest.getPublicID());
                 preparedStatement.setString(2, questItem.name());
                 ResultSet resultSet = preparedStatement.executeQuery();

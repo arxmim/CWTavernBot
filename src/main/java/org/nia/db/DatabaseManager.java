@@ -58,14 +58,14 @@ public class DatabaseManager {
     }
 
     private void createNewTables() throws SQLException {
-        connectionDB.executeQuery(DBStrings.createUserTable);
-        connectionDB.executeQuery(DBStrings.createUserPrefTable);
-        connectionDB.executeQuery(DBStrings.createTournamentTable);
-        connectionDB.executeQuery(DBStrings.createTournamentUsersTable);
-        connectionDB.executeQuery(DBStrings.createTournamentBetTable);
-        connectionDB.executeQuery(DBStrings.createQuestTable);
-        connectionDB.executeQuery(DBStrings.createQuestEventTable);
-        connectionDB.executeQuery(DBStrings.createQuestFactTable);
-        connectionDB.executeQuery(DBStrings.createQuestItemTable);
+//        connectionDB.executeQuery(DBStrings.createUserTable);
+//        connectionDB.executeQuery(DBStrings.createUserPrefTable);
+//        connectionDB.executeQuery(DBStrings.createTournamentTable);
+//        connectionDB.executeQuery(DBStrings.createTournamentUsersTable);
+//        connectionDB.executeQuery(DBStrings.createTournamentBetTable);
+//        connectionDB.executeQuery(DBStrings.createQuestTable);
+//        connectionDB.executeQuery(DBStrings.createQuestEventTable);
+//        connectionDB.executeQuery(DBStrings.createQuestFactTable);
+//        connectionDB.executeQuery(DBStrings.createQuestItemTable);
     }
 }

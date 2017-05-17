@@ -76,7 +76,7 @@ public class QuestEvent {
                     preparedStatement.setNull(7, Types.INTEGER);
                 }
                 preparedStatement.execute();
-                preparedStatement = connectionDB.getPreparedStatement("select TOP 1 publicID from cwt_QuestEvent where questID = ? order by publicID desc");
+                preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_QuestEvent where questID = ? order by publicID desc limit 1");
                 preparedStatement.setInt(1, quest.getPublicID());
                 ResultSet resultSet = preparedStatement.executeQuery();
                 while (!resultSet.next()) {
