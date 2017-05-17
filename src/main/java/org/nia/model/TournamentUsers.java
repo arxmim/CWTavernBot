@@ -27,9 +27,6 @@ public class TournamentUsers {
 
     public static String register(Tournament tournament, User user) {
         try {
-//            if (user.getDrinkedTotal() > 30) {
-//                return user + ", прости, ты слишком пьян, дай мандаринам подраться на их свадьбе";
-//            }
             ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
             PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select 1 from cwt_TournamentUsers where userID = ? and TournamentID = ?");
             preparedStatement.setInt(1, user.getUserID());
@@ -80,6 +77,9 @@ public class TournamentUsers {
     }
 
     public void setInFight(boolean inFight) {
+        if (!inFight) {
+            User.flushVotesFor(String.valueOf(user.getUserID()));
+        }
         this.inFight = inFight;
     }
 
@@ -140,8 +140,14 @@ public class TournamentUsers {
             preparedStatement.setInt(1, tournament.getPublicID());
             preparedStatement.setInt(2, round);
             ResultSet resultSet = preparedStatement.executeQuery();
+            int i = 0;
             while (resultSet.next()) {
+                i++;
                 sb.append(resultSet.getInt(2)).append(" - ").append(User.getByID(resultSet.getInt(1))).append("\n");
+                if (i % 2 == 0) {
+                    sb.append("\n");
+                }
+
             }
         } catch (SQLException e) {
             e.printStackTrace();

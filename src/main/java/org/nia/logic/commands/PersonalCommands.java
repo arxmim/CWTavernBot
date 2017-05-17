@@ -1,10 +1,9 @@
 package org.nia.logic.commands;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.nia.bots.CWTavernBot;
-import org.nia.logic.lists.Location;
 import org.nia.logic.ServingMessage;
+import org.nia.logic.lists.Location;
 import org.nia.logic.lists.TournamentState;
 import org.nia.logic.lists.TournamentType;
 import org.nia.logic.quests.QuestsEnum;
@@ -46,6 +45,76 @@ public enum PersonalCommands implements Commands {
                     "/drink - выпить свой напиток\n\n" +
                     "Чтобы получить напиток, надо попросить его у бармена в чате таверны, либо ввести команду " +
                     "напитка и тогда официантка выдаст его когда будет делать обход посетителей (обход происходит несколько раз в час)";
+        }
+    },
+    CREATE_VOTING("/create_voting ") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message.getFrom()).isAdmin();
+        }
+
+        @Override
+        public String apply(Message message) {
+            String text = StringUtils.substringAfter(message.getText(), this.getText());
+            Voting voting = new Voting();
+            voting.setText(text);
+            voting.save();
+            return "Голосование создано.\nДля добавления вариантов введите /add_vote_option [id голосования] [вариант]\n" + voting;
+        }
+    },
+    ADD_VOTE_OPTION("/add_vote_option ") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message.getFrom()).isAdmin();
+        }
+
+        @Override
+        public String apply(Message message) {
+            Pattern pattern = Pattern.compile("/add_vote_option (\\d+) (.*)");
+            Matcher matcher = pattern.matcher(message.getText());
+            if (matcher.find()) {
+                String votingID = matcher.group(1);
+                String voteOption = matcher.group(2);
+                try {
+                    Voting voting = Voting.getByID(Integer.valueOf(votingID));
+                    if (voting == null) {
+                        return "Неверно указан ID голосования";
+                    } else {
+                        VoteOption option = new VoteOption();
+                        option.setText(voteOption);
+                        option.setVoting(voting);
+                        option.save();
+                        return "Вариант \"" + voteOption + "\" добавлен в голосование " + votingID;
+                    }
+                } catch (Exception ex){
+                    ex.printStackTrace();
+                    return "Что-то пошло не так";
+                }
+            } else {
+                return "Неверно введена команда. Правильный формат /add_vote_option [id голосования] [вариант]";
+            }
+        }
+    },
+    RUN_VOTING("/run_voting ") {
+        @Override
+        public boolean isApplicable(Message message) {
+            return super.isApplicable(message) && User.getFromMessage(message.getFrom()).isAdmin();
+        }
+
+        @Override
+        public String apply(Message message) {
+            String votingID = StringUtils.substringAfter(message.getText(), this.getText());
+            try {
+                Voting voting = Voting.getByID(Integer.valueOf(votingID));
+                if (voting == null) {
+                    return "Неверно указан ID голосования";
+                }
+                voting.start(User.getFromMessage(message.getFrom()));
+                return "";
+            } catch (Exception ex){
+                ex.printStackTrace();
+                return "Что-то пошло не так";
+            }
         }
     },
     CREATE_TOURNAMENT("/create_tournament") {
@@ -96,7 +165,7 @@ public enum PersonalCommands implements Commands {
             if (user == null) {
                 return "Этот посетитель еще не обращался к тавернщику";
             } else {
-                user.setIsBarmen(!user.isBarmen());
+                user.setBarmen(!user.isBarmen());
                 user.save();
                 if (user.isBarmen()) {
                     return "Пользователю " + nick + " дан барменский фартук";
@@ -190,13 +259,13 @@ public enum PersonalCommands implements Commands {
                 if (user.getFood() != null) {
                     eat = user.getFood().getName();
                 }
-                res = "Ты находишься в таверне. У тебя в руках " + drink + " и перед тобой на столе " +eat+".\nВ кармане " + user.getGold() + Emoji.GOLD;
+                res = "Ты находишься в таверне. У тебя в руках " + drink + " и перед тобой на столе " + eat + ".\nВ кармане " + user.getGold() + Emoji.GOLD;
             } else if (user.onQuest()) {
                 res = "Ты выполняешь поручение Остапа.\nВ кармане у тебя " + user.getGold() + Emoji.GOLD;
             }
             if (user.getCurseTime() != null && user.getCurseTime().after(new Date())) {
                 long duration = TimeUnit.MINUTES.convert(user.getCurseTime().getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
-                res += "\nТы закодован еще на " +  duration + " минут.";
+                res += "\nТы закодован еще на " + duration + " минут.";
             }
             res += "\n\n" + user.getFightClubStats()
                     + "\n\n " + Emoji.DRINK + "Выпито напитков в таверне за эту неделю/всего: " + user.getDrinkedWeek() / 2 + "/" + user.getDrinkedTotal() / 2

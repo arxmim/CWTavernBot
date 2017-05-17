@@ -1,11 +1,10 @@
 package org.nia.logic.lists;
 
 import org.nia.bots.CWTavernBot;
+import org.nia.logic.commands.ArenaCommands;
 import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.FightClubCommands;
-import org.nia.logic.commands.ArenaCommands;
 import org.nia.logic.commands.PersonalCommands;
-import org.nia.logic.lists.DrinkType;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -59,7 +58,9 @@ public enum TournamentType {
 
         @Override
         public int evalFinalResult(TournamentUsers first, TournamentUsers second) {
-            return first.getScore() + new Random().nextInt(151);
+            String voteFor = first.getUser().toString();
+            int voteCount = User.getVotersForCount(voteFor);
+            return first.getScore() + new Random().nextInt(151) + voteCount;
         }
     },
     CHAIR_LEG("\"Ножка от стула\"") {
@@ -97,9 +98,11 @@ public enum TournamentType {
 
         @Override
         public int evalFinalResult(TournamentUsers first, TournamentUsers second) {
+            String voteFor = first.getUser().toString();
+            int voteCount = User.getVotersForCount(voteFor);
             ArenaCommands.Weapon winWep = ArenaCommands.Weapon.getByNumber(first.getScore());
             ArenaCommands.Weapon loseWep = ArenaCommands.Weapon.getByNumber(second.getScore());
-            return winWep.against(loseWep) + winWep.getStat(first.getUser());
+            return winWep.against(loseWep) + winWep.getStat(first.getUser()) + voteCount;
         }
     };
 

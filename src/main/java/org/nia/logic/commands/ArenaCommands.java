@@ -1,12 +1,14 @@
 package org.nia.logic.commands;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.nia.bots.CWTavernBot;
 import org.nia.logic.ServingMessage;
 import org.nia.model.DrinkPrefs;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
@@ -33,7 +35,9 @@ public enum ArenaCommands implements Commands {
             currentByUserID.save();
 
             try {
-                CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(String.format(currentByUserID.getTournament().getType().getStartPhrase(), user)));
+                SendMessage sendMessage = ServingMessage.getTournamentMessage(String.format(currentByUserID.getTournament().getType().getStartPhrase() + "\nКоличество болельщиков: 0", user));
+                setKeyboard(currentByUserID.getUser(), sendMessage);
+                CWTavernBot.INSTANCE.sendMessage(sendMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -54,6 +58,19 @@ public enum ArenaCommands implements Commands {
         }
     };
     protected String text;
+
+    protected void setKeyboard(User user, SendMessage sendMessage) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("AVE_" + user.toString().replace("@", "").toUpperCase());
+        button.setCallbackData(String.valueOf(user.getUserID()));
+        row.add(button);
+        keyboard.add(row);
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+    }
 
     ArenaCommands(String text) {
         this.text = text;
@@ -270,8 +287,8 @@ public enum ArenaCommands implements Commands {
         };//str
 
         private List<String> sameWeaponPhrase = new ArrayList<>();
-        int fullWin = 20;
-        int halfWin = 10;
+        int fullWin = 30;
+        int halfWin = 15;
         String readyPhrase;
         int number;
         String name;

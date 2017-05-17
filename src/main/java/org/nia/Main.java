@@ -4,6 +4,7 @@ import org.nia.bots.BotTimerThread;
 import org.nia.bots.CWTavernBot;
 import org.nia.bots.OficiantThread;
 import org.nia.db.DatabaseManager;
+import org.nia.db.HibernateConfig;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -41,6 +42,7 @@ public class Main {
                 ExecutorService executorService = Executors.newFixedThreadPool(5);
                 executorService.submit(new OficiantThread(CWTavernBot.INSTANCE));
                 executorService.submit(new BotTimerThread(CWTavernBot.INSTANCE));
+                HibernateConfig.getSessionFactory();
             } catch (TelegramApiException e) {
                 BotLogger.error(LOGTAG, e);
             }

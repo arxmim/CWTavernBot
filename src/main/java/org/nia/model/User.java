@@ -1,5 +1,7 @@
 package org.nia.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.nia.db.ConnectionDB;
 import org.nia.db.DatabaseManager;
@@ -9,6 +11,7 @@ import org.nia.logic.lists.Location;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 
+import javax.persistence.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,33 +21,61 @@ import java.util.List;
 /**
  * @author IANazarov
  */
+@Entity(name = "cwt_User")
+@Getter
+@Setter
 public class User {
+    @Id
+    @Column()
     private int userID;
+    @Column()
     private String nick;
+    @Column(nullable = false)
     private String name;
+    @Column()
     private Date lastDrinkTime;
+    @Column()
     private Date lastEatTime;
+    @Enumerated(EnumType.STRING)
     private DrinkType drinkType;
+    @Enumerated(EnumType.STRING)
     private DrinkType wanted;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private boolean isBarmen;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private boolean isAdmin;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private int gold;
+    @Enumerated(EnumType.STRING)
     private Food food;
+    @Enumerated(EnumType.STRING)
     private Food wantedFood;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private int foodCount;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private int eatTotal;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private int alkoCount;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private int drinkedTotal;
+    @Column(nullable = false, columnDefinition = "DEFAULT 0")
     private int drinkedWeek;
+    @Column()
     private int fightClubWins;
+    @Column()
     private int brewCount;
+    @Column()
     private Date fightTime;
+    @Enumerated(EnumType.STRING)
     private Location location;
+    @Column()
     private Integer fightWithUserID;
-    private User fightWithUser;
+    @Column()
     private Date curseTime;
+    @Column()
+    private String voteFor;
 
-    static User getByID(Integer userID) {
+    public static User getByID(Integer userID) {
         if (userID == null) {
             return null;
         }
@@ -55,7 +86,7 @@ public class User {
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
                     ", fightTime, location, food, wantedFood, foodCount" +
                     ", eatTotal, fightClubWins, brewCount, lastEatTime, drinkedWeek" +
-                    ", fightWithUserID, curseTime" +
+                    ", fightWithUserID, curseTime, voteFor" +
                     " from cwt_User where UserID = ?");
             preparedStatement.setInt(1, userID);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -99,6 +130,7 @@ public class User {
                     res.fightWithUserID = fightWithUserID;
                 }
                 res.curseTime = resultSet.getTimestamp(22);
+                res.voteFor = resultSet.getString(23);
 
             }
         } catch (SQLException e) {
@@ -132,6 +164,7 @@ public class User {
             res.fightClubWins = 0;
             res.brewCount = 0;
             res.drinkedWeek = 0;
+            res.voteFor = null;
             res.save();
         } else {
             res.nick = user.getUserName();
@@ -150,7 +183,7 @@ public class User {
                     ", drinkedTotal, drinkType, wanted, isAdmin, gold" +
                     ", fightTime, location, food, wantedFood, foodCount" +
                     ", eatTotal, fightClubWins, brewCount, lastEatTime, drinkedWeek" +
-                    ", fightWithUserID, curseTime" +
+                    ", fightWithUserID, curseTime, voteFor" +
                     " from cwt_User where nick = ?");
             preparedStatement.setString(1, nick);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -194,6 +227,7 @@ public class User {
                     res.fightWithUserID = fightWithUserID;
                 }
                 res.curseTime = resultSet.getTimestamp(22);
+                res.voteFor = resultSet.getString(23);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -210,7 +244,7 @@ public class User {
                             ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
                             ", gold, fightTime, location, food, wantedFood" +
                             ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
-                            ", drinkedWeek, fightWithUserID, curseTime from cwt_User");
+                            ", drinkedWeek, fightWithUserID, curseTime, voteFor from cwt_User");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -252,6 +286,7 @@ public class User {
                     user.fightWithUserID = fightWithUserID;
                 }
                 user.fightTime = resultSet.getTimestamp(23);
+                user.voteFor = resultSet.getString(24);
                 res.add(user);
 
             }
@@ -275,7 +310,7 @@ public class User {
                                 ", drinkedTotal = ?, drinkType = ?, wanted = ?, isAdmin = ?, gold = ?" +
                                 ", fightTime = ?, location = ?, food = ?, wantedFood = ?, foodCount = ?" +
                                 ", eatTotal = ?, fightClubWins = ?, brewCount = ?, lastEatTime = ?, drinkedWeek = ?" +
-                                ", fightWithUserID = ?, curseTime = ? where UserID = ?");
+                                ", fightWithUserID = ?, curseTime = ?, voteFor = ? where UserID = ?");
                 preparedStatement.setString(1, nick);
                 preparedStatement.setString(2, name);
                 preparedStatement.setBoolean(3, isBarmen);
@@ -334,7 +369,12 @@ public class User {
                 } else {
                     preparedStatement.setNull(22, Types.TIMESTAMP);
                 }
-                preparedStatement.setInt(23, userID);
+                if (voteFor != null) {
+                    preparedStatement.setString(23, voteFor);
+                } else {
+                    preparedStatement.setNull(23, Types.VARCHAR);
+                }
+                preparedStatement.setInt(24, userID);
                 preparedStatement.execute();
             } else {
                 preparedStatement = connectionDB.getPreparedStatement(
@@ -342,12 +382,12 @@ public class User {
                                 ", lastDrinkTime, drinkedTotal, drinkType, wanted, isAdmin" +
                                 ", gold, fightTime, location, food, wantedFood" +
                                 ", foodCount, eatTotal, fightClubWins, brewCount, lastEatTime" +
-                                ", drinkedWeek, fightWithUserID, curseTime) VALUES" +
+                                ", drinkedWeek, fightWithUserID, curseTime, voteFor) VALUES" +
                                 " (?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
                                 ", ?, ?, ?, ?, ?" +
-                                ", ?, ?, ?)");
+                                ", ?, ?, ?, ?)");
                 preparedStatement.setInt(1, userID);
                 preparedStatement.setString(2, nick);
                 preparedStatement.setString(3, name);
@@ -407,6 +447,11 @@ public class User {
                 } else {
                     preparedStatement.setNull(23, Types.TIMESTAMP);
                 }
+                if (voteFor != null) {
+                    preparedStatement.setString(24, voteFor);
+                } else {
+                    preparedStatement.setNull(24, Types.VARCHAR);
+                }
                 preparedStatement.execute();
             }
             res = true;
@@ -416,30 +461,6 @@ public class User {
         return res;
     }
 
-    public void setIsBarmen(boolean isBarmen) {
-        this.isBarmen = isBarmen;
-    }
-
-    public boolean isBarmen() {
-        return isBarmen;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public String getNick() {
-        return nick;
-    }
-
-    public void setAlkoCount(int alkoCount) {
-        this.alkoCount = alkoCount;
-    }
-
-    public int getAlkoCount() {
-        return alkoCount;
-    }
-
     @Override
     public String toString() {
         if (!StringUtils.isEmpty(nick)) {
@@ -447,30 +468,6 @@ public class User {
         } else {
             return name;
         }
-    }
-
-    public void setDrinkedTotal(int drinkedTotal) {
-        this.drinkedTotal = drinkedTotal;
-    }
-
-    public void setLastDrinkTime(Date lastDrinkTime) {
-        this.lastDrinkTime = lastDrinkTime;
-    }
-
-    public Date getLastDrinkTime() {
-        return lastDrinkTime;
-    }
-
-    public int getDrinkedTotal() {
-        return drinkedTotal;
-    }
-
-    public DrinkType getDrinkType() {
-        return drinkType;
-    }
-
-    public void setDrinkType(DrinkType drinkType) {
-        this.drinkType = drinkType;
     }
 
     public static List<User> getTop() {
@@ -549,6 +546,33 @@ public class User {
         return res;
     }
 
+    public static int getVotersForCount(String vote) {
+        int res = 0;
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("Select count(1) from cwt_User where voteFor = ?");
+            preparedStatement.setString(1, vote);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                res = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static void flushVotesFor(String vote) {
+        try {
+            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
+            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("update cwt_User set voteFor = null where voteFor = ?");
+            preparedStatement.setString(1, vote);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public int getFightClubStatsSum() {
         DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
         return getStr(drinkPrefs) + getAgi(drinkPrefs) + getCon(drinkPrefs) + getCha(drinkPrefs) + getKno();
@@ -583,25 +607,25 @@ public class User {
             res = "так мало, что даже стыдно";
         } else if (stat < 13) {
             res = "низко";
-        } else if (stat < 16) {
+        } else if (stat < 17) {
             res = "чуть ниже нормы";
-        } else if (stat < 20) {
+        } else if (stat < 21) {
             res = "нормально";
-        } else if (stat < 24) {
+        } else if (stat < 25) {
             res = "выше среднего";
-        } else if (stat < 28) {
+        } else if (stat < 29) {
             res = "высоко";
-        } else if (stat < 32) {
+        } else if (stat < 34) {
             res = "очень высоко";
-        } else if (stat < 36) {
+        } else if (stat < 38) {
             res = "практически нет равных";
-        } else if (stat < 40) {
+        } else if (stat < 43) {
             res = "нет равных";
-        } else if (stat < 45) {
+        } else if (stat < 48) {
             res = "почти как у бога";
-        } else if (stat < 50) {
-            res = "почти божественно";
         } else if (stat < 55) {
+            res = "почти божественно";
+        } else if (stat < 60) {
             res = "божественно";
         } else {
             res = "превосходит богов";
@@ -658,84 +682,8 @@ public class User {
         return (int) Math.sqrt(this.getDrinkedTotal()) / 2;
     }
 
-    public DrinkType getWanted() {
-        return wanted;
-    }
-
-    public void setWanted(DrinkType wanted) {
-        this.wanted = wanted;
-    }
-
-    public int getUserID() {
-        return userID;
-    }
-
-    public int getGold() {
-        return gold;
-    }
-
-    public void setGold(int gold) {
-        this.gold = gold;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public boolean inTavern() {
-        return location == Location.TAVERN;
-    }
-
-    public boolean onQuest() {
-        return location == Location.QUEST;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public void setFoodCount(int foodCount) {
-        this.foodCount = foodCount;
-    }
-
-    public void setFood(Food food) {
-        this.food = food;
-    }
-
-    public void setWantedFood(Food wantedFood) {
-        this.wantedFood = wantedFood;
-    }
-
-    public int getFoodCount() {
-        return foodCount;
-    }
-
-    public void setEatTotal(int eatTotal) {
-        this.eatTotal = eatTotal;
-    }
-
-    public int getEatTotal() {
-        return eatTotal;
-    }
-
-    public Food getFood() {
-        return food;
-    }
-
-    public Food getWantedFood() {
-        return wantedFood;
-    }
-
     void incFightClubWins() {
         fightClubWins++;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getFightClubWins() {
-        return fightClubWins;
     }
 
     public void incBrewCount() {
@@ -746,35 +694,11 @@ public class User {
         gold++;
     }
 
-    public Date getLastEatTime() {
-        return lastEatTime;
-    }
-
-    public void setLastEatTime(Date lastEatTime) {
-        this.lastEatTime = lastEatTime;
-    }
-
-    public int getDrinkedWeek() {
-        return drinkedWeek;
-    }
-
-    public void setDrinkedWeek(int drinkedWeek) {
-        this.drinkedWeek = drinkedWeek;
-    }
-
-    public int getBrewCount() {
-        return brewCount;
-    }
-
     public User getFightWithUser() {
-        if (fightWithUser == null) {
-            fightWithUser = User.getByID(fightWithUserID);
-        }
-        return fightWithUser;
+        return User.getByID(fightWithUserID);
     }
 
     public void setFightWithUser(User fightWithUser) {
-        this.fightWithUser = fightWithUser;
         if (fightWithUser == null) {
             fightWithUserID = null;
         } else {
@@ -782,19 +706,11 @@ public class User {
         }
     }
 
-    public Date getFightTime() {
-        return fightTime;
+    public boolean inTavern() {
+        return location == Location.TAVERN;
     }
 
-    public void setFightTime(Date fightTime) {
-        this.fightTime = fightTime;
-    }
-
-    public Date getCurseTime() {
-        return curseTime;
-    }
-
-    public void setCurseTime(Date curseTime) {
-        this.curseTime = curseTime;
+    public boolean onQuest() {
+        return location == Location.QUEST;
     }
 }

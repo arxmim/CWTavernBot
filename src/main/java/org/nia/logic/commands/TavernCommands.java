@@ -3,7 +3,6 @@ package org.nia.logic.commands;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.bots.CWTavernBot;
-import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.lists.Food;
 import org.nia.logic.lists.TournamentType;
@@ -230,21 +229,6 @@ public enum TavernCommands implements Commands {
             sb.append("Количество побед в бойцовском клубе за всё время:\n");
             User.getBkTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getFightClubWins()).append("\n"));
             return sb.toString();
-        }
-    },
-    GOGO("/gogo") {
-        @Override
-        public String apply(Message message) {
-            User.getAll().forEach(user -> {
-                try {
-                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTimedMessage(user, "У нас в таверне кое-что " +
-                            "новенькое! Поприветствуйте Остапа, дядю Лизы, он только приехал к нам, но уже успел " +
-                            "освоиться и завести кое-какие связи. У него можно взять работенку и заработать немного "  + Emoji.GOLD + "!"));
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            });
-            return "";
         }
     },
     BARMEN_TOP("/barmen_top") {

@@ -9,14 +9,16 @@ import org.nia.logic.commands.QuestCommands;
 import org.nia.logic.commands.TavernCommands;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.quests.ICrossQuestStep;
-import org.nia.model.Quest;
-import org.nia.model.QuestEvent;
-import org.nia.model.Tournament;
-import org.nia.model.TournamentUsers;
+import org.nia.model.*;
+import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -60,6 +62,8 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     }
                     BotLogger.info(LOGTAG, "no text");
                 }
+            } else if (update.hasCallbackQuery()) {
+                handleIncomingCallback(update.getCallbackQuery());
             } else {
                 BotLogger.info(LOGTAG, "no message");
             }
@@ -67,6 +71,83 @@ public class CWTavernBot extends TelegramLongPollingBot {
             BotLogger.error(LOGTAG, e);
         }
 
+    }
+
+    private void handleIncomingCallback(CallbackQuery callbackQuery) {
+        if (callbackQuery.getMessage() != null && Objects.equals(callbackQuery.getMessage().getFrom().getUserName(), CWTavernBot.BOT_NAME)) {
+            org.nia.model.User user = org.nia.model.User.getFromMessage(callbackQuery.getFrom());
+            String text = callbackQuery.getMessage().getText();
+            if (text.contains("Количество болельщиков: ")) {
+                TournamentUsers tUser = TournamentUsers.getCurrentByUserID(Integer.valueOf(callbackQuery.getData()));
+                if (tUser == null) {
+                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+                    answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+                    answerCallbackQuery.setText("Боец уже отвоевал!");
+                    try {
+                        answerCallbackQuery(answerCallbackQuery);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+                org.nia.model.User voteFor = tUser.getUser();
+                if (!tUser.InFight()) {
+                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+                    answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+                    answerCallbackQuery.setText("Боец уже отвоевал!");
+                    try {
+                        answerCallbackQuery(answerCallbackQuery);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+                if (user != null && user.getVoteFor() != null) {
+                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+                    answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+                    answerCallbackQuery.setText("Ты уже проголосовал!");
+                    try {
+                        answerCallbackQuery(answerCallbackQuery);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+                if (user != null && user.getVoteFor() == null) {
+                    user.setVoteFor(callbackQuery.getData());
+                    user.save();
+                    Integer count = Integer.valueOf(StringUtils.substringAfter(text, "Количество болельщиков: "));
+                    count++;
+                    EditMessageText editMessageText = new EditMessageText();
+                    editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
+                    editMessageText.setChatId(callbackQuery.getMessage().getChatId());
+                    InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+                    List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+                    List<InlineKeyboardButton> row = new ArrayList<>();
+                    InlineKeyboardButton button = new InlineKeyboardButton();
+                    button.setText("AVE_" + voteFor.toString().replace("@", "").toUpperCase());
+                    button.setCallbackData(String.valueOf(voteFor.getUserID()));
+                    row.add(button);
+                    keyboard.add(row);
+                    inlineKeyboardMarkup.setKeyboard(keyboard);
+                    editMessageText.setReplyMarkup(inlineKeyboardMarkup);
+                    String resText = StringUtils.substringBefore(text, "Количество болельщиков: ");
+                    resText += "Количество болельщиков: " + count;
+                    editMessageText.setText(resText);
+                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+                    answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+                    answerCallbackQuery.setText("Голос принят!");
+                    try {
+                        answerCallbackQuery(answerCallbackQuery);
+                        editMessageText(editMessageText);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else if (callbackQuery.getData().startsWith("@votingBot")) {
+                Voting.processVote(callbackQuery, user);
+            }
+        }
     }
 
     @Override
