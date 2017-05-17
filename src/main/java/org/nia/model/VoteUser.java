@@ -80,6 +80,7 @@ public class VoteUser {
             Transaction tx = session.beginTransaction();
             session.saveOrUpdate(this);
             tx.commit();
+            session.refresh(this);
             res = true;
         } catch (Exception ex) {
             ex.printStackTrace();

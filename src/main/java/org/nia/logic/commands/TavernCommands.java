@@ -9,6 +9,7 @@ import org.nia.logic.lists.TournamentType;
 import org.nia.logic.quests.kitchen.KitchenQuest;
 import org.nia.logic.quests.kitchen.RoofStairs;
 import org.nia.model.*;
+import org.nia.model.User.DrinkPrefs;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;

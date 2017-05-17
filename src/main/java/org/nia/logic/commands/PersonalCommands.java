@@ -8,6 +8,7 @@ import org.nia.logic.lists.TournamentState;
 import org.nia.logic.lists.TournamentType;
 import org.nia.logic.quests.QuestsEnum;
 import org.nia.model.*;
+import org.nia.model.User.DrinkPrefs;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -86,7 +87,7 @@ public enum PersonalCommands implements Commands {
                         option.save();
                         return "Вариант \"" + voteOption + "\" добавлен в голосование " + votingID;
                     }
-                } catch (Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
                     return "Что-то пошло не так";
                 }
@@ -111,7 +112,7 @@ public enum PersonalCommands implements Commands {
                 }
                 voting.start(User.getFromMessage(message.getFrom()));
                 return "";
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 return "Что-то пошло не так";
             }
@@ -186,7 +187,7 @@ public enum PersonalCommands implements Commands {
                 quest.setStartTime(new Date());
                 quest.setUser(user);
                 quest.setEventTime(randomQuest.getFirstEventTime());
-                quest.setQuest(randomQuest);
+                quest.setQuestEnum(randomQuest);
                 quest.setGoldEarned(0);
                 quest.setReturnTime(null);
                 quest.save();
@@ -279,7 +280,7 @@ public enum PersonalCommands implements Commands {
             String name = StringUtils.substringAfter(message.getText(), text).trim();
             if (name.isEmpty()) {
                 User user = User.getFromMessage(message.getFrom());
-                DrinkPrefs prefs = DrinkPrefs.getByUser(user);
+                DrinkPrefs prefs = new DrinkPrefs(user);
                 StringBuilder sb = new StringBuilder();
                 sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
                 prefs.getPrefMap().entrySet().forEach(e -> sb.append(e.getKey().getCommand())
@@ -289,7 +290,7 @@ public enum PersonalCommands implements Commands {
                 return sb.toString();
             } else {
                 User user = User.getByNick(name);
-                DrinkPrefs prefs = DrinkPrefs.getByUser(user);
+                DrinkPrefs prefs = new DrinkPrefs(user);
                 StringBuilder sb = new StringBuilder();
                 sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
                 prefs.getPrefMap().entrySet().forEach(e -> sb.append(e.getKey().getCommand())

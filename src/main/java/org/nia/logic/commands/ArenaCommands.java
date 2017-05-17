@@ -2,7 +2,7 @@ package org.nia.logic.commands;
 
 import org.nia.bots.CWTavernBot;
 import org.nia.logic.ServingMessage;
-import org.nia.model.DrinkPrefs;
+import org.nia.model.User.DrinkPrefs;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -163,7 +163,7 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
+                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
                 return user.getAgi(drinkPrefs);
             }
         },//agi
@@ -202,7 +202,7 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
+                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
                 return user.getCon(drinkPrefs);
             }
         }, //con
@@ -241,7 +241,7 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
+                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
                 return user.getCha(drinkPrefs);
             }
         },// cha
@@ -255,7 +255,7 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(user);
+                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
                 return user.getStr(drinkPrefs);
             }
 

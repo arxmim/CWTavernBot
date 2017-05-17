@@ -13,10 +13,8 @@ import org.telegram.telegrambots.api.objects.Message;
 
 import javax.persistence.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author IANazarov
@@ -574,20 +572,20 @@ public class User {
     }
 
     public int getFightClubStatsSum() {
-        DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
+        DrinkPrefs drinkPrefs = new DrinkPrefs(this);
         return getStr(drinkPrefs) + getAgi(drinkPrefs) + getCon(drinkPrefs) + getCha(drinkPrefs) + getKno();
 
     }
 
     public String getFightClubStats() {
-        DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
+        DrinkPrefs drinkPrefs = new DrinkPrefs(this);
         return "Твои характеристики:\n" + Emoji.STR + "Сила: " + getStr(drinkPrefs)
                 + "\n" + Emoji.AGI + "Ловкость: " + getAgi(drinkPrefs) + "\n" + Emoji.CHA + "Обаяние: " + getCha(drinkPrefs)
                 + "\n" + Emoji.CON + "Стойкость: " + getCon(drinkPrefs) + "\n" + Emoji.KNO + "Знание таверны: " + getKno();
     }
 
     public String getPublicFightClubStats() {
-        DrinkPrefs drinkPrefs = DrinkPrefs.getByUser(this);
+        DrinkPrefs drinkPrefs = new DrinkPrefs(this);
         return "Твои характеристики:\n" + Emoji.STR + "Сила: " + roundStatToString(getStr(drinkPrefs))
                 + "\n" + Emoji.AGI + "Ловкость: " + roundStatToString(getAgi(drinkPrefs))
                 + "\n" + Emoji.CHA + "Обаяние: " + roundStatToString(getCha(drinkPrefs))
@@ -712,5 +710,88 @@ public class User {
 
     public boolean onQuest() {
         return location == Location.QUEST;
+    }
+
+    public static class DrinkPrefs {
+
+        private HashMap<DrinkType, Pref> prefMap;
+
+        public DrinkPrefs(User usr) {
+            this(DrinkPref.getByUser(usr));
+        }
+
+        private DrinkPrefs(List<DrinkPref> prefs) {
+            prefMap = new HashMap<>();
+            prefs.forEach(pref -> prefMap.put(pref.getDrinkType(), new Pref(pref.getToDrink(), pref.getToThrow(), pref.getToBeThrown())));
+        }
+        public static void incDrink(User usr, DrinkType dt, Integer count) {
+            DrinkPrefs prefs = new DrinkPrefs(usr);
+            Pref pref = prefs.getByDrinkType(dt);
+            pref.incToDrink(count);
+            pref.pref.save();
+        }
+
+        public static void incThrow(User usr, DrinkType dt) {
+            DrinkPrefs prefs = new DrinkPrefs(usr);
+            Pref pref = prefs.getByDrinkType(dt);
+            pref.incToThrow();
+            pref.pref.save();
+        }
+
+        public static void incToBeThrown(User usr, DrinkType dt) {
+            DrinkPrefs prefs = new DrinkPrefs(usr);
+            Pref pref = prefs.getByDrinkType(dt);
+            pref.incToBeThrown();
+            pref.pref.save();
+        }
+        public Pref getByDrinkType(DrinkType dt) {
+            Pref pref = prefMap.get(dt);
+            if (pref == null) {
+                pref = new Pref(0, 0, 0);
+                prefMap.put(dt, pref);
+            }
+            return pref;
+        }
+        public HashMap<DrinkType, Pref> getPrefMap() {
+            return prefMap;
+        }
+
+
+        public static class Pref {
+            private DrinkPref pref;
+            private int toDrink;
+            private int toThrow;
+            private int toBeThrown;
+
+            public Pref(int toDrink, int toThrow, int toBeThrown) {
+                this.toDrink = toDrink;
+                this.toThrow = toThrow;
+                this.toBeThrown = toBeThrown;
+            }
+
+            public int getToDrink() {
+                return toDrink / 2;
+            }
+
+            public void incToDrink(int plus) {
+                this.toDrink += plus;
+            }
+
+            public int getToThrow() {
+                return toThrow;
+            }
+
+            public void incToThrow() {
+                this.toThrow++;
+            }
+
+            public int getToBeThrown() {
+                return toBeThrown;
+            }
+
+            public void incToBeThrown() {
+                this.toBeThrown++;
+            }
+        }
     }
 }
