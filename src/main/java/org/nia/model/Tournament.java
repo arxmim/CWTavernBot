@@ -42,7 +42,7 @@ public class Tournament extends AbstractEntity {
     @Column(nullable = false)
     private int maxUsers;
     @ManyToOne
-    @JoinColumn(name = "winner")
+    @JoinColumn(name = "winner", table = "cwt_User")
     private User winner;
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int round = 0;
@@ -55,13 +55,13 @@ public class Tournament extends AbstractEntity {
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
             Query query = session.createQuery("FROM Tournament WHERE state in (:states)");
-            query.setParameterList("states", Arrays.asList(TournamentState.REGISTRATION.name(), TournamentState.PROGRESS.name()));
+            query.setParameterList("states", Arrays.asList(TournamentState.REGISTRATION, TournamentState.PROGRESS));
             query.setMaxResults(1);
             List list = query.list();
             if (!list.isEmpty()) {
                 res = (Tournament) list.get(0);
             } else {
-                query = session.createQuery("FROM Tournament WHERE state =" + TournamentState.ANOUNCE.name() + " order by registrationDateTime");
+                query = session.createQuery("FROM Tournament WHERE state =" + TournamentState.ANOUNCE + " order by registrationDateTime");
                 query.setMaxResults(1);
                 list = query.list();
                 if (!list.isEmpty()) {
