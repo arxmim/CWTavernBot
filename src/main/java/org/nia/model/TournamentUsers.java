@@ -29,20 +29,20 @@ public class TournamentUsers extends AbstractEntity {
     @GeneratedValue
     private int publicID;
     @ManyToOne
-    @JoinColumn(name = "TournamentID")
+    @JoinColumn(name = "TournamentID", nullable = false)
     private Tournament tournament;
     @ManyToOne
-    @JoinColumn(name = "userID")
+    @JoinColumn(name = "userID", nullable = false)
     private User user;
-    @Column()
+    @Column(nullable = false)
     private int position;
-    @Column()
+    @Column(columnDefinition = "INT DEFAULT 1")
     private int round = 1;
-    @Column()
+    @Column(columnDefinition = "INT DEFAULT 0")
     private int score = 0;
-    @Column()
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean inFight = false;
-    @Column()
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean lose = false;
 
     public static String register(Tournament tournament, User user) {

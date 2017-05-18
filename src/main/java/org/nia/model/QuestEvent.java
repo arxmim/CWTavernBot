@@ -28,11 +28,11 @@ public class QuestEvent {
     @GeneratedValue
     private Integer publicID;
     @ManyToOne
-    @JoinColumn(name = "userID")
+    @JoinColumn(name = "userID", nullable = false)
     private Quest quest;
     @Column
     private Date eventTime;
-    @Column
+    @Column(columnDefinition = "INT DEFAULT 80")
     private int winChance = 80;
     @Column
     private Boolean win;

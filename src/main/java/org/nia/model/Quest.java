@@ -29,19 +29,19 @@ public class Quest {
     @GeneratedValue
     private Integer publicID;
     @ManyToOne
-    @JoinColumn(name = "userID")
+    @JoinColumn(name = "userID", nullable = false)
     private User user;
     @Column(name = "questName")
     @Enumerated(EnumType.STRING)
     private QuestsEnum questEnum;
-    @Column()
+    @Column(nullable = false)
     private Date startTime;
     @Column()
     private Date eventTime;
     @Column()
     private Date returnTime;
-    @Column()
-    private int goldEarned;
+    @Column(columnDefinition = "INT DEFAULT 0")
+    private int goldEarned = 0;
 
     public boolean save() {
         boolean res = false;

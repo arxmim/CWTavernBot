@@ -26,7 +26,7 @@ public class QuestItem {
     @GeneratedValue
     private Integer publicID;
     @ManyToOne
-    @JoinColumn(name = "questID")
+    @JoinColumn(name = "questID", nullable = false)
     private Quest quest;
     @Enumerated(EnumType.STRING)
     private EQuestItem questItem;

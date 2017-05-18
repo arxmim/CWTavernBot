@@ -28,13 +28,13 @@ public class TournamentBet extends AbstractEntity {
     @GeneratedValue
     private Integer publicID;
     @ManyToOne
-    @JoinColumn(name = "TournamentID")
+    @JoinColumn(name = "TournamentID", nullable = false)
     private Tournament tournament;
     @ManyToOne
-    @JoinColumn(name = "fromID")
+    @JoinColumn(name = "fromID", nullable = false)
     private User from;
     @ManyToOne
-    @JoinColumn(name = "toID")
+    @JoinColumn(name = "toID", nullable = false)
     private TournamentUsers to;
     @Column()
     private int sum;
