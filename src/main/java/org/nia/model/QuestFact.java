@@ -16,9 +16,10 @@ import java.util.List;
 /**
  * @author Иван, 06.04.2017.
  */
-@Entity(name = "cwt_QuestFact")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_QuestFact")
 public class QuestFact {
     @Id
     @Column()
@@ -65,7 +66,7 @@ public class QuestFact {
         List<QuestFact> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_QuestFact WHERE quest = " + quest.getPublicID());
+            Query query = session.createQuery("FROM QuestFact WHERE quest = " + quest.getPublicID());
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -17,10 +17,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,9 +26,10 @@ import java.util.List;
 /**
  * @author Иван, 08.05.2017.
  */
-@Entity(name = "cwt_Voting")
+@Entity
 @Setter
 @Getter
+@Table(name = "cwt_Voting")
 public class Voting {
     @Column
     @Id

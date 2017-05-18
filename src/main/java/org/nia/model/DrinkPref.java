@@ -16,9 +16,10 @@ import java.util.List;
 /**
  * @author Иван, 11.03.2017.
  */
-@Entity(name = "cwt_DrinkPrefs")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_DrinkPrefs")
 public class DrinkPref {
     @Id
     @Column()
@@ -42,7 +43,7 @@ public class DrinkPref {
         int userID = usr.getUserID();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_DrinkPrefs WHERE User = " + userID);
+            Query query = session.createQuery("FROM DrinkPref WHERE User = " + userID);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

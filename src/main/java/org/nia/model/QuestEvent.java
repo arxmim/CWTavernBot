@@ -18,9 +18,10 @@ import java.util.List;
 /**
  * @author IANazarov
  */
-@Entity(name = "cwt_QuestEvent")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_QuestEvent")
 public class QuestEvent {
     @Id
     @Column()
@@ -61,7 +62,7 @@ public class QuestEvent {
         QuestEvent res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_QuestEvent WHERE returnTime is null and quest = " + quest.getPublicID());
+            Query query = session.createQuery("FROM QuestEvent WHERE returnTime is null and quest = " + quest.getPublicID());
             List list = query.list();
             if (!list.isEmpty()) {
                 res = (QuestEvent) list.get(0);
@@ -88,7 +89,7 @@ public class QuestEvent {
         List<QuestEvent> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_QuestEvent WHERE quest = " + quest.getPublicID());
+            Query query = session.createQuery("FROM QuestEvent WHERE quest = " + quest.getPublicID());
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

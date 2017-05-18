@@ -24,9 +24,10 @@ import java.util.List;
 /**
  * @author Иван, 11.03.2017.
  */
-@Entity(name = "cwt_Tournament")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_Tournament")
 public class Tournament extends AbstractEntity {
     @Id
     @Column()
@@ -53,14 +54,14 @@ public class Tournament extends AbstractEntity {
         Tournament res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_Tournament WHERE state in (:states)");
+            Query query = session.createQuery("FROM Tournament WHERE state in (:states)");
             query.setParameterList("states", Arrays.asList(TournamentState.REGISTRATION.name(), TournamentState.PROGRESS.name()));
             query.setMaxResults(1);
             List list = query.list();
             if (!list.isEmpty()) {
                 res = (Tournament) list.get(0);
             } else {
-                query = session.createQuery("FROM cwt_Tournament WHERE state =" + TournamentState.ANOUNCE.name() + " order by registrationDateTime");
+                query = session.createQuery("FROM Tournament WHERE state =" + TournamentState.ANOUNCE.name() + " order by registrationDateTime");
                 query.setMaxResults(1);
                 list = query.list();
                 if (!list.isEmpty()) {

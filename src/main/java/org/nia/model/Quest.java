@@ -19,9 +19,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author IANazarov
  */
-@Entity(name = "cwt_Quest")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_Quest")
 public class Quest {
     @Id
     @Column()
@@ -61,7 +62,7 @@ public class Quest {
         Quest res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_Quest WHERE returnTime is null and user = " + user.getUserID());
+            Query query = session.createQuery("FROM Quest WHERE returnTime is null and user = " + user.getUserID());
             List list = query.list();
             if (!list.isEmpty()) {
                 res = (Quest) list.get(0);
@@ -77,7 +78,7 @@ public class Quest {
         List<Quest> qList = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_Quest WHERE returnTime is null and eventTime > current_date and questName = " + questsEnum.name());
+            Query query = session.createQuery("FROM Quest WHERE returnTime is null and eventTime > current_date and questName = " + questsEnum.name());
             qList = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

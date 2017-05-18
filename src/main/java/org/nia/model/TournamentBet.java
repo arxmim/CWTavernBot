@@ -18,9 +18,10 @@ import java.util.stream.Stream;
 /**
  * @author Иван, 18.03.2017.
  */
-@Entity(name = "cwt_TournamentBet")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_TournamentBet")
 public class TournamentBet extends AbstractEntity {
     @Id
     @Column()
@@ -45,7 +46,7 @@ public class TournamentBet extends AbstractEntity {
         try (Session session = factory.openSession()) {
             Tournament current = Tournament.getCurrent();
             if (current != null) {
-                Query query = session.createQuery("FROM cwt_TournamentBet WHERE Tournament = " + current.getPublicID() + " and from = " + user.getUserID());
+                Query query = session.createQuery("FROM TournamentBet WHERE Tournament = " + current.getPublicID() + " and from = " + user.getUserID());
                 res = query.list();
             }
         } catch (Exception ex) {
@@ -87,7 +88,7 @@ public class TournamentBet extends AbstractEntity {
         List<TournamentBet> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_TournamentBet WHERE Tournament = " + tournament.getPublicID());
+            Query query = session.createQuery("FROM TournamentBet WHERE Tournament = " + tournament.getPublicID());
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

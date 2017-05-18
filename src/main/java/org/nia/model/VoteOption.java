@@ -14,9 +14,10 @@ import java.util.List;
 /**
  * @author Иван, 08.05.2017.
  */
-@Entity(name = "cwt_VoteOption")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_VoteOption")
 public class VoteOption extends AbstractEntity {
     @Column
     @Id
@@ -32,7 +33,7 @@ public class VoteOption extends AbstractEntity {
         List<VoteOption> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<VoteOption> query = session.createQuery("FROM cwt_VoteOption WHERE voting = " + votingID, VoteOption.class);
+            Query<VoteOption> query = session.createQuery("FROM VoteOption WHERE voting = " + votingID, VoteOption.class);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

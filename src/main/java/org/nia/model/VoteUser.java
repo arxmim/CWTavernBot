@@ -15,9 +15,10 @@ import java.util.List;
 /**
  * @author Иван, 08.05.2017.
  */
-@Entity(name = "cwt_VoteUser")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_VoteUser")
 public class VoteUser {
     @Column
     @Id
@@ -38,7 +39,7 @@ public class VoteUser {
         List<VoteUser> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_VoteUser WHERE voting = " + votingID);
+            Query query = session.createQuery("FROM VoteUser WHERE voting = " + votingID);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -51,7 +52,7 @@ public class VoteUser {
         List<VoteUser> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM cwt_VoteUser WHERE user = " + userID + " AND voting = " + votingID);
+            Query query = session.createQuery("FROM VoteUser WHERE user = " + userID + " AND voting = " + votingID);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -19,9 +19,10 @@ import java.util.Date;
 /**
  * @author IANazarov
  */
-@Entity(name = "cwt_User")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_User")
 public class User {
     @Id
     @Column()

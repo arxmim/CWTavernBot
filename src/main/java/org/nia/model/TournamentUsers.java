@@ -19,9 +19,10 @@ import java.util.stream.Collectors;
 /**
  * @author Иван, 11.03.2017.
  */
-@Entity(name = "cwt_TournamentUsers")
+@Entity
 @Getter
 @Setter
+@Table(name = "cwt_TournamentUsers")
 public class TournamentUsers extends AbstractEntity {
     @Id
     @Column()
@@ -47,7 +48,7 @@ public class TournamentUsers extends AbstractEntity {
     public static String register(Tournament tournament, User user) {
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<TournamentUsers> query = session.createQuery("FROM cwt_TournamentBet WHERE Tournament = " + tournament.getPublicID(), TournamentUsers.class);
+            Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers WHERE Tournament = " + tournament.getPublicID(), TournamentUsers.class);
             query.setMaxResults(1);
             List<TournamentUsers> list = query.list();
             if (list.stream().filter(tu -> tu.getUser().getUserID() == user.getUserID()).findFirst().isPresent()) {
@@ -90,7 +91,7 @@ public class TournamentUsers extends AbstractEntity {
         StringBuilder sb = new StringBuilder();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<TournamentUsers> query = session.createQuery("FROM cwt_TournamentUsers " +
+            Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers " +
                     "WHERE Tournament = " + tournament.getPublicID() + " " +
                     "and round = " + round + " order by position", TournamentUsers.class);
             int i = 0;
@@ -111,7 +112,7 @@ public class TournamentUsers extends AbstractEntity {
         Pair<TournamentUsers, TournamentUsers> res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<TournamentUsers> query = session.createQuery("FROM cwt_TournamentUsers " +
+            Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers " +
                     "WHERE lose = false and Tournament = " + tournament.getPublicID() +
                     "  order by inFight desc, round, position", TournamentUsers.class);
             query.setMaxResults(2);
@@ -133,7 +134,7 @@ public class TournamentUsers extends AbstractEntity {
         try (Session session = factory.openSession()) {
             Tournament current = Tournament.getCurrent();
             if (current != null) {
-                Query<TournamentUsers> query = session.createQuery("FROM cwt_TournamentUsers " +
+                Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers " +
                         "WHERE Tournament = " + current.getPublicID() +
                         " and User = " + userID, TournamentUsers.class);
                 query.setMaxResults(1);
