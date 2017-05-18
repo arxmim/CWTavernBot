@@ -19,7 +19,7 @@
             false
         </property>
         <property name="hibernate.hbm2ddl.auto">
-            create-only
+            create-drop
         </property>
         <mapping class="org.nia.model.Voting"/>
         <mapping class="org.nia.model.VoteUser"/>
