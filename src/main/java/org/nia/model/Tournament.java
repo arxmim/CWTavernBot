@@ -42,7 +42,7 @@ public class Tournament extends AbstractEntity {
     @Column(nullable = false)
     private int maxUsers;
     @ManyToOne
-    @JoinColumn(name = "winner", table = "cwt_User")
+    @JoinColumn(name = "winner")
     private User winner;
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int round = 0;
