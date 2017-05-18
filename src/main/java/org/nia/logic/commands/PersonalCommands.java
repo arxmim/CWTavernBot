@@ -152,6 +152,25 @@ public enum PersonalCommands implements Commands {
             }
         }
     },
+    SET_ADMIN("/secret_set_admin ") {
+
+        @Override
+        public String apply(Message message) {
+            String nick = StringUtils.substringAfter(message.getText(), text);
+            User user = User.getByNick(nick);
+            if (user == null) {
+                return "Этот посетитель еще не обращался к тавернщику";
+            } else {
+                user.setAdmin(!user.isAdmin());
+                user.save();
+                if (user.isAdmin()) {
+                    return "Пользователь " + nick + " теперь админ";
+                } else {
+                    return "Пользователь " + nick + " больше не админ";
+                }
+            }
+        }
+    },
     SET_BARMEN("/set_barmen ") {
         @Override
         public boolean isApplicable(Message message) {
