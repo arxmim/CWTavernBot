@@ -10,29 +10,24 @@
         <property name="hibernate.connection.driver_class">
             org.postgresql.Driver
         </property>
-
-        <!--&lt;!&ndash; Assume test is the database name &ndash;&gt;
-        <property name="hibernate.connection.url">
-            jdbc:sqlserver://localhost;DatabaseName=Home;User=rd;Password=rd11;
-        </property>-->
-        <property name="hibernate.id.new_generator_mappings">
-            false
-        </property>
+        <!--<property name="hibernate.id.new_generator_mappings">-->
+            <!--false-->
+        <!--</property>-->
         <property name="hibernate.hbm2ddl.auto">
             create-drop
         </property>
-        <mapping class="org.nia.model.Voting"/>
-        <mapping class="org.nia.model.VoteUser"/>
-        <mapping class="org.nia.model.VoteOption"/>
         <mapping class="org.nia.model.User"/>
-        <mapping class="org.nia.model.DrinkPref"/>
-        <mapping class="org.nia.model.Quest"/>
-        <mapping class="org.nia.model.QuestEvent"/>
-        <mapping class="org.nia.model.QuestFact"/>
-        <mapping class="org.nia.model.QuestItem"/>
-        <mapping class="org.nia.model.Tournament"/>
-        <mapping class="org.nia.model.TournamentUsers"/>
-        <mapping class="org.nia.model.TournamentBet"/>
+        <!--<mapping class="org.nia.model.Voting"/>-->
+        <!--<mapping class="org.nia.model.VoteUser"/>-->
+        <!--<mapping class="org.nia.model.VoteOption"/>-->
+        <!--<mapping class="org.nia.model.DrinkPref"/>-->
+        <!--<mapping class="org.nia.model.Quest"/>-->
+        <!--<mapping class="org.nia.model.QuestEvent"/>-->
+        <!--<mapping class="org.nia.model.QuestFact"/>-->
+        <!--<mapping class="org.nia.model.QuestItem"/>-->
+        <!--<mapping class="org.nia.model.Tournament"/>-->
+        <!--<mapping class="org.nia.model.TournamentUsers"/>-->
+        <!--<mapping class="org.nia.model.TournamentBet"/>-->
 
 
     </session-factory>
