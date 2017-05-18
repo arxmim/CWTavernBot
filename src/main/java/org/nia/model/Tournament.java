@@ -44,7 +44,7 @@ public class Tournament extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "winner")
     private User winner;
-    @Column(nullable = false, columnDefinition = " DEFAULT 0")
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int round = 0;
 
     @Transient
