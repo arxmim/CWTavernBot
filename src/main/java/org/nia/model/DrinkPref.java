@@ -26,7 +26,7 @@ public class DrinkPref {
     @GeneratedValue
     private int publicID;
     @ManyToOne
-    @JoinColumn(name = "userID", table = "cwt_User")
+    @JoinColumn(name = "userID")
     private User user;
     @Enumerated(EnumType.STRING)
     private DrinkType drinkType;
