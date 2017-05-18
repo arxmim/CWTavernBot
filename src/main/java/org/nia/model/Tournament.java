@@ -33,18 +33,18 @@ public class Tournament extends AbstractEntity {
     @Column()
     @GeneratedValue
     private Integer publicID;
-    @Column()
+    @Column(nullable = false)
     private Date registrationDateTime;
     @Enumerated(EnumType.STRING)
     private TournamentType type;
     @Enumerated(EnumType.STRING)
     private TournamentState state;
-    @Column()
+    @Column(nullable = false)
     private int maxUsers;
     @ManyToOne
     @JoinColumn(name = "winner")
     private User winner;
-    @Column()
+    @Column(nullable = false, columnDefinition = " DEFAULT 0")
     private int round = 0;
 
     @Transient

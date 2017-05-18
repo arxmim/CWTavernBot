@@ -39,25 +39,25 @@ public class User {
     private DrinkType drinkType;
     @Enumerated(EnumType.STRING)
     private DrinkType wanted;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT FALSE")
     private boolean isBarmen;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT FALSE")
     private boolean isAdmin;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT 0")
     private int gold;
     @Enumerated(EnumType.STRING)
     private Food food;
     @Enumerated(EnumType.STRING)
     private Food wantedFood;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT 0")
     private int foodCount;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT 0")
     private int eatTotal;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT 0")
     private int alkoCount;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT 0")
     private int drinkedTotal;
-    @Column(nullable = false, columnDefinition = "DEFAULT 0")
+    @Column(nullable = false, columnDefinition = " DEFAULT 0")
     private int drinkedWeek;
     @Column()
     private int fightClubWins;
