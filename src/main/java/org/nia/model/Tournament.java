@@ -61,7 +61,8 @@ public class Tournament extends AbstractEntity {
             if (!list.isEmpty()) {
                 res = (Tournament) list.get(0);
             } else {
-                query = session.createQuery("FROM Tournament WHERE state =" + TournamentState.ANOUNCE + " order by registrationDateTime");
+                query = session.createQuery("FROM Tournament WHERE state =:state order by registrationDateTime");
+                query.setParameter("state", TournamentState.ANOUNCE);
                 query.setMaxResults(1);
                 list = query.list();
                 if (!list.isEmpty()) {
