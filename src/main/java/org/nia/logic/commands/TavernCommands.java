@@ -9,7 +9,6 @@ import org.nia.logic.lists.TournamentType;
 import org.nia.logic.quests.kitchen.KitchenQuest;
 import org.nia.logic.quests.kitchen.RoofStairs;
 import org.nia.model.*;
-import org.nia.model.User.DrinkPrefs;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
@@ -306,8 +305,8 @@ public enum TavernCommands implements Commands {
                     if ("CWTavernBot".equals(message.getReplyToMessage().getFrom().getUserName())) {
                         User bot = User.getByNick("CWTavernBot");
                         try {
-                            DrinkPrefs.incThrow(bot, DrinkType.AVE_WHITE);
-                            DrinkPrefs.incToBeThrown(drinker, DrinkType.AVE_WHITE);
+                            bot.incThrow(DrinkType.AVE_WHITE);
+                            drinker.incToBeThrown(DrinkType.AVE_WHITE);
                             SendMessage msg1 = getMessage(message, "Ха, еще один дурак нашелся! У меня черный пояс по метанию жбанов! /throw");
                             CWTavernBot.INSTANCE.sendMessage(msg1);
                             res = "Вот тебе жбаном по лицу, гадкий " + drinker + ". И стакан я у тебя отберу!";
@@ -323,16 +322,16 @@ public enum TavernCommands implements Commands {
                             Quest currentQuest = Quest.getCurrent(victim);
                             QuestEvent questEvent = QuestEvent.getCurrent(currentQuest);
                             if (questEvent != null && questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
-                                DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
-                                DrinkPrefs.incToBeThrown(victim, drinker.getDrinkType());
+                                drinker.incThrow(drinker.getDrinkType());
+                                victim.incToBeThrown(drinker.getDrinkType());
                                 drinker.setDrinkType(null);
                                 drinker.setAlkoCount(0);
                                 drinker.save();
                                 return RoofStairs.INIT.solve(drinker, questEvent, false);
                             }
                         }
-                        DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
-                        DrinkPrefs.incToBeThrown(victim, drinker.getDrinkType());
+                        drinker.incThrow(drinker.getDrinkType());
+                        victim.incToBeThrown(drinker.getDrinkType());
                         if (drinker.getAlkoCount() > 0) {
                             res = String.format(drinker.getDrinkType().getThrowTargetFullPhrase(), drinker, victim);
                         } else {
@@ -340,7 +339,7 @@ public enum TavernCommands implements Commands {
                         }
                     }
                 } else {
-                    DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
+                    drinker.incThrow(drinker.getDrinkType());
                     res = String.format(drinker.getDrinkType().getThrowNonePhrase(), drinker);
                 }
                 drinker.setDrinkType(null);
@@ -422,9 +421,9 @@ public enum TavernCommands implements Commands {
 //            }
             if (drinkType != null) {
                 if (message.isReply() && asker.isBarmen()) {
-                    if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
-                        return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
-                    }
+//                    if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
+//                        return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
+//                    }
                     User fromMessage = User.getFromMessage(message.getReplyToMessage());
                     if (fromMessage.getAlkoCount() == 2) {
                         return "У гостя и так налито, зачем ему еще наливать?";
@@ -548,7 +547,7 @@ public enum TavernCommands implements Commands {
                 }
             }
             int drinked = new Random().nextInt(drinker.getAlkoCount()) + 1;
-            DrinkPrefs.incDrink(drinker, drinker.getDrinkType(), drinked);
+            drinker.incDrink(drinker.getDrinkType(), drinked);
             drinker.setDrinkedTotal(drinker.getDrinkedTotal() + drinked);
             drinker.setDrinkedWeek(drinker.getDrinkedWeek() + drinked);
             drinker.setLastDrinkTime(new Date());

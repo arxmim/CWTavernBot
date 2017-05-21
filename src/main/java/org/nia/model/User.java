@@ -13,8 +13,10 @@ import org.telegram.telegrambots.api.objects.Message;
 
 import javax.persistence.*;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author IANazarov
@@ -572,24 +574,24 @@ public class User {
     }
 
     public int getFightClubStatsSum() {
-        DrinkPrefs drinkPrefs = new DrinkPrefs(this);
-        return getStr(drinkPrefs) + getAgi(drinkPrefs) + getCon(drinkPrefs) + getCha(drinkPrefs) + getKno();
+        List<DrinkPref> prefs = DrinkPref.getByUser(this);
+        return getStr(prefs) + getAgi(prefs) + getCon(prefs) + getCha(prefs) + getKno();
 
     }
 
     public String getFightClubStats() {
-        DrinkPrefs drinkPrefs = new DrinkPrefs(this);
-        return "Твои характеристики:\n" + Emoji.STR + "Сила: " + getStr(drinkPrefs)
-                + "\n" + Emoji.AGI + "Ловкость: " + getAgi(drinkPrefs) + "\n" + Emoji.CHA + "Обаяние: " + getCha(drinkPrefs)
-                + "\n" + Emoji.CON + "Стойкость: " + getCon(drinkPrefs) + "\n" + Emoji.KNO + "Знание таверны: " + getKno();
+        List<DrinkPref> prefs = DrinkPref.getByUser(this);
+        return "Твои характеристики:\n" + Emoji.STR + "Сила: " + getStr(prefs)
+                + "\n" + Emoji.AGI + "Ловкость: " + getAgi(prefs) + "\n" + Emoji.CHA + "Обаяние: " + getCha(prefs)
+                + "\n" + Emoji.CON + "Стойкость: " + getCon(prefs) + "\n" + Emoji.KNO + "Знание таверны: " + getKno();
     }
 
     public String getPublicFightClubStats() {
-        DrinkPrefs drinkPrefs = new DrinkPrefs(this);
-        return "Твои характеристики:\n" + Emoji.STR + "Сила: " + roundStatToString(getStr(drinkPrefs))
-                + "\n" + Emoji.AGI + "Ловкость: " + roundStatToString(getAgi(drinkPrefs))
-                + "\n" + Emoji.CHA + "Обаяние: " + roundStatToString(getCha(drinkPrefs))
-                + "\n" + Emoji.CON + "Стойкость: " + roundStatToString(getCon(drinkPrefs))
+        List<DrinkPref> prefs = DrinkPref.getByUser(this);
+        return "Твои характеристики:\n" + Emoji.STR + "Сила: " + roundStatToString(getStr(prefs))
+                + "\n" + Emoji.AGI + "Ловкость: " + roundStatToString(getAgi(prefs))
+                + "\n" + Emoji.CHA + "Обаяние: " + roundStatToString(getCha(prefs))
+                + "\n" + Emoji.CON + "Стойкость: " + roundStatToString(getCon(prefs))
                 + "\n" + Emoji.KNO + "Знание таверны: " + roundStatToString(getKno());
     }
 
@@ -631,48 +633,35 @@ public class User {
         return res;
     }
 
-    public int getStr(DrinkPrefs drinkPrefs) {
-        int strength = 1;
-        if (drinkPrefs != null) {
-            strength += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
+    public int getStr(List<DrinkPref> prefs) {
+        return 1 + (int) Math.sqrt(prefs.stream()
                     .filter(e -> Arrays.asList(DrinkType.AVE_WHITE, DrinkType.BEER, DrinkType.GHOST)
-                            .contains(e.getKey()))
-                    .mapToInt(e -> e.getValue().getToDrink()).sum());
-        }
-        return strength;
+                            .contains(e.getDrinkType()))
+                    .mapToInt(DrinkPref::getToDrinkNormalized).sum());
     }
 
-    public int getAgi(DrinkPrefs drinkPrefs) {
-        int agility = 1;
-        if (drinkPrefs != null) {
-            agility += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
-                    .mapToInt(e -> e.getValue().getToThrow()).sum());
-        }
-        return agility;
+    public int getAgi(List<DrinkPref> prefs) {
+        return 1 + (int) Math.sqrt(prefs.stream().mapToInt(DrinkPref::getToThrow).sum());
     }
 
-    public int getCha(DrinkPrefs drinkPrefs) {
+    public int getCha(List<DrinkPref> prefs) {
         int charism = 1;
-        if (drinkPrefs != null) {
-            charism += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream()
-                    .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
-                            .contains(e.getKey()))
-                    .mapToInt(e -> e.getValue().getToDrink()).sum());
-        }
+        charism += (int) Math.sqrt(prefs.stream()
+                .filter(e -> Arrays.asList(DrinkType.CHLEN, DrinkType.RED_POWER, DrinkType.MORDOR)
+                        .contains(e.getDrinkType()))
+                .mapToInt(DrinkPref::getToDrinkNormalized).sum());
         return charism;
     }
 
-    public int getCon(DrinkPrefs drinkPrefs) {
+    public int getCon(List<DrinkPref> prefs) {
         int constitution = 1;
-        if (drinkPrefs != null) {
-            constitution += (int) Math.sqrt(drinkPrefs.getPrefMap().entrySet().stream().mapToInt(e -> {
-                int res = e.getValue().getToBeThrown();
-                if (e.getKey() == DrinkType.MANDARINE) {
-                    res += e.getValue().getToDrink();
-                }
-                return res;
-            }).sum());
-        }
+        constitution += (int) Math.sqrt(prefs.stream().mapToInt(e -> {
+            int res = e.getToBeThrown();
+            if (e.getDrinkType() == DrinkType.MANDARINE) {
+                res += e.getToDrinkNormalized();
+            }
+            return res;
+        }).sum());
         return constitution;
     }
 
@@ -704,94 +693,35 @@ public class User {
         }
     }
 
+    public void incDrink(DrinkType dt, Integer count) {
+        DrinkPref pref = DrinkPref.getByUserAndDrinkType(this, dt);
+        if (pref != null) {
+            pref.incToDrink(count);
+            pref.save();
+        }
+    }
+
+    public void incThrow(DrinkType dt) {
+        DrinkPref pref = DrinkPref.getByUserAndDrinkType(this, dt);
+        if (pref != null) {
+            pref.incToThrow();
+            pref.save();
+        }
+    }
+
+    public void incToBeThrown(DrinkType dt) {
+        DrinkPref pref = DrinkPref.getByUserAndDrinkType(this, dt);
+        if (pref != null) {
+            pref.incToBeThrown();
+            pref.save();
+        }
+    }
+
     public boolean inTavern() {
         return location == Location.TAVERN;
     }
 
     public boolean onQuest() {
         return location == Location.QUEST;
-    }
-
-    public static class DrinkPrefs {
-
-        private HashMap<DrinkType, Pref> prefMap;
-
-        public DrinkPrefs(User usr) {
-            this(DrinkPref.getByUser(usr));
-        }
-
-        private DrinkPrefs(List<DrinkPref> prefs) {
-            prefMap = new HashMap<>();
-            prefs.forEach(pref -> prefMap.put(pref.getDrinkType(), new Pref(pref.getToDrink(), pref.getToThrow(), pref.getToBeThrown())));
-        }
-        public static void incDrink(User usr, DrinkType dt, Integer count) {
-            DrinkPrefs prefs = new DrinkPrefs(usr);
-            Pref pref = prefs.getByDrinkType(dt);
-            pref.incToDrink(count);
-            pref.pref.save();
-        }
-
-        public static void incThrow(User usr, DrinkType dt) {
-            DrinkPrefs prefs = new DrinkPrefs(usr);
-            Pref pref = prefs.getByDrinkType(dt);
-            pref.incToThrow();
-            pref.pref.save();
-        }
-
-        public static void incToBeThrown(User usr, DrinkType dt) {
-            DrinkPrefs prefs = new DrinkPrefs(usr);
-            Pref pref = prefs.getByDrinkType(dt);
-            pref.incToBeThrown();
-            pref.pref.save();
-        }
-        public Pref getByDrinkType(DrinkType dt) {
-            Pref pref = prefMap.get(dt);
-            if (pref == null) {
-                pref = new Pref(0, 0, 0);
-                prefMap.put(dt, pref);
-            }
-            return pref;
-        }
-        public HashMap<DrinkType, Pref> getPrefMap() {
-            return prefMap;
-        }
-
-
-        public static class Pref {
-            private DrinkPref pref;
-            private int toDrink;
-            private int toThrow;
-            private int toBeThrown;
-
-            public Pref(int toDrink, int toThrow, int toBeThrown) {
-                this.toDrink = toDrink;
-                this.toThrow = toThrow;
-                this.toBeThrown = toBeThrown;
-            }
-
-            public int getToDrink() {
-                return toDrink / 2;
-            }
-
-            public void incToDrink(int plus) {
-                this.toDrink += plus;
-            }
-
-            public int getToThrow() {
-                return toThrow;
-            }
-
-            public void incToThrow() {
-                this.toThrow++;
-            }
-
-            public int getToBeThrown() {
-                return toBeThrown;
-            }
-
-            public void incToBeThrown() {
-                this.toBeThrown++;
-            }
-        }
     }
 }

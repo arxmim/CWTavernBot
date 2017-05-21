@@ -8,7 +8,6 @@ import org.nia.logic.lists.TournamentState;
 import org.nia.logic.lists.TournamentType;
 import org.nia.logic.quests.QuestsEnum;
 import org.nia.model.*;
-import org.nia.model.User.DrinkPrefs;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -16,6 +15,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -297,27 +297,20 @@ public enum PersonalCommands implements Commands {
         @Override
         public String apply(Message message) {
             String name = StringUtils.substringAfter(message.getText(), text).trim();
+            User user;
             if (name.isEmpty()) {
-                User user = User.getFromMessage(message.getFrom());
-                DrinkPrefs prefs = new DrinkPrefs(user);
-                StringBuilder sb = new StringBuilder();
-                sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
-                prefs.getPrefMap().entrySet().forEach(e -> sb.append(e.getKey().getCommand())
-                        .append(": ").append(e.getValue().getToDrink())
-                        .append(", ").append(e.getValue().getToThrow())
-                        .append(", ").append(e.getValue().getToBeThrown()).append("\n\n"));
-                return sb.toString();
+                user = User.getFromMessage(message.getFrom());
             } else {
-                User user = User.getByNick(name);
-                DrinkPrefs prefs = new DrinkPrefs(user);
-                StringBuilder sb = new StringBuilder();
-                sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
-                prefs.getPrefMap().entrySet().forEach(e -> sb.append(e.getKey().getCommand())
-                        .append(": ").append(e.getValue().getToDrink())
-                        .append(", ").append(e.getValue().getToThrow())
-                        .append(", ").append(e.getValue().getToBeThrown()).append("\n\n"));
-                return sb.toString();
+                user = User.getByNick(name);
             }
+            List<DrinkPref> prefs = DrinkPref.getByUser(user);
+            StringBuilder sb = new StringBuilder();
+            sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
+            prefs.forEach(e -> sb.append(e.getDrinkType().getCommand())
+                    .append(": ").append(e.getToDrinkNormalized())
+                    .append(", ").append(e.getToThrow())
+                    .append(", ").append(e.getToBeThrown()).append("\n\n"));
+            return sb.toString();
         }
     },
     //    GO("/gogogo") {

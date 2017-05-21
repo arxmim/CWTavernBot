@@ -37,14 +37,41 @@ public class DrinkPref {
     @Column
     private int toBeThrown;
 
-    @SuppressWarnings("unchecked")
-    static List<DrinkPref> getByUser(User usr) {
+    public DrinkPref() {
+    }
+
+    private DrinkPref(User user, DrinkType drinkType, int toDrink, int toThrow, int toBeThrown) {
+        this.user = user;
+        this.drinkType = drinkType;
+        this.toDrink = toDrink;
+        this.toThrow = toThrow;
+        this.toBeThrown = toBeThrown;
+    }
+
+    public static List<DrinkPref> getByUser(User usr) {
         List<DrinkPref> res = Collections.emptyList();
-        int userID = usr.getUserID();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM DrinkPref WHERE User = " + userID);
+            Query<DrinkPref> query = session.createQuery("FROM DrinkPref WHERE user.userID = " + usr.getUserID(), DrinkPref.class);
             res = query.list();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+
+    static DrinkPref getByUserAndDrinkType(User usr, DrinkType drinkType) {
+        DrinkPref res = null;
+        SessionFactory factory = HibernateConfig.getSessionFactory();
+        try (Session session = factory.openSession()) {
+            Query<DrinkPref> query = session.createQuery("FROM DrinkPref WHERE user.userID = " + usr.getUserID() + " and drinkType=:drinkType", DrinkPref.class);
+            query.setParameter("drinkType", drinkType);
+            List<DrinkPref> list = query.list();
+            if (!list.isEmpty()) {
+                res = list.get(0);
+            } else {
+                res = new DrinkPref(usr, drinkType, 0, 0, 0);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -64,5 +91,21 @@ public class DrinkPref {
             ex.printStackTrace();
         }
         return res;
+    }
+
+    public int getToDrinkNormalized() {
+        return toDrink / 2;
+    }
+
+    void incToDrink(int plus) {
+        this.toDrink += plus;
+    }
+
+    void incToThrow() {
+        this.toThrow++;
+    }
+
+    void incToBeThrown() {
+        this.toBeThrown++;
     }
 }

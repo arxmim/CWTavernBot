@@ -2,7 +2,7 @@ package org.nia.logic.commands;
 
 import org.nia.bots.CWTavernBot;
 import org.nia.logic.ServingMessage;
-import org.nia.model.User.DrinkPrefs;
+import org.nia.model.DrinkPref;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -163,8 +163,8 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
-                return user.getAgi(drinkPrefs);
+                List<DrinkPref> prefs = DrinkPref.getByUser(user);
+                return user.getAgi(prefs);
             }
         },//agi
         ARM(3, "Кулаки") {
@@ -202,8 +202,8 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
-                return user.getCon(drinkPrefs);
+                List<DrinkPref> prefs = DrinkPref.getByUser(user);
+                return user.getCon(prefs);
             }
         }, //con
         CAPOEIRA(4, "Капоэйра") {
@@ -241,8 +241,8 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
-                return user.getCha(drinkPrefs);
+                List<DrinkPref> prefs = DrinkPref.getByUser(user);
+                return user.getCha(prefs);
             }
         },// cha
         MUG(5, "Метать жбаны") {
@@ -255,8 +255,8 @@ public enum ArenaCommands implements Commands {
 
             @Override
             public int getStat(User user) {
-                DrinkPrefs drinkPrefs = new DrinkPrefs(user);
-                return user.getStr(drinkPrefs);
+                List<DrinkPref> prefs = DrinkPref.getByUser(user);
+                return user.getStr(prefs);
             }
 
             @Override
