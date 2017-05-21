@@ -3,7 +3,6 @@ package org.nia;
 import org.nia.bots.BotTimerThread;
 import org.nia.bots.CWTavernBot;
 import org.nia.bots.OficiantThread;
-import org.nia.db.DatabaseManager;
 import org.nia.db.HibernateConfig;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -37,7 +36,6 @@ public class Main {
             TelegramBotsApi telegramBotsApi = createTelegramBotsApi();
             try {
                 // Register long polling bots. They work regardless type of TelegramBotsApi we are creating
-                DatabaseManager.getInstance();
                 telegramBotsApi.registerBot(CWTavernBot.INSTANCE);
                 ExecutorService executorService = Executors.newFixedThreadPool(5);
                 executorService.submit(new OficiantThread(CWTavernBot.INSTANCE));

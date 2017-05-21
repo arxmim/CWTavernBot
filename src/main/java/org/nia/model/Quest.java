@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.nia.db.HibernateConfig;
 import org.nia.logic.quests.QuestsEnum;
@@ -23,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Getter
 @Setter
 @Table(name = "cwt_Quest")
-public class Quest {
+public class Quest extends AbstractEntity {
     @Id
     @Column()
     @GeneratedValue
@@ -43,29 +42,14 @@ public class Quest {
     @Column(columnDefinition = "INT DEFAULT 0")
     private int goldEarned = 0;
 
-    public boolean save() {
-        boolean res = false;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.saveOrUpdate(this);
-            tx.commit();
-            session.refresh(this);
-            res = true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
     public static Quest getCurrent(User user) {
         Quest res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM Quest WHERE returnTime is null and user = " + user.getUserID());
-            List list = query.list();
+            Query<Quest> query = session.createQuery("FROM Quest WHERE returnTime is null and user.userID = " + user.getUserID(), Quest.class);
+            List<Quest> list = query.list();
             if (!list.isEmpty()) {
-                res = (Quest) list.get(0);
+                res = list.get(0);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -73,12 +57,12 @@ public class Quest {
         return res;
     }
 
-    @SuppressWarnings("unchecked")
     public static Quest getRandomActive(QuestsEnum questsEnum) {
         List<Quest> qList = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM Quest WHERE returnTime is null and eventTime > current_date and questName = " + questsEnum.name());
+            Query<Quest> query = session.createQuery("FROM Quest WHERE returnTime is null and eventTime > current_date and questName = :questName", Quest.class);
+            query.setParameter("questName", questsEnum);
             qList = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -86,17 +70,6 @@ public class Quest {
         Quest res = null;
         if (!qList.isEmpty()) {
             res = qList.get(new Random().nextInt(qList.size()));
-        }
-        return res;
-    }
-
-    public static Quest getByID(int publicID) {
-        Quest res = null;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            res = session.get(Quest.class, publicID);
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
         return res;
     }

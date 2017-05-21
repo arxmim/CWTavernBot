@@ -30,7 +30,7 @@ import java.util.List;
 @Setter
 @Getter
 @Table(name = "cwt_Voting")
-public class Voting {
+public class Voting extends AbstractEntity {
     @Column
     @Id
     @GeneratedValue
@@ -39,34 +39,6 @@ public class Voting {
     private String text;
     @Column
     private Date startTime;
-
-    @SuppressWarnings("unchecked")
-    public static Voting getByID(Integer publicID) {
-        Voting res = null;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            res = session.get(Voting.class, publicID);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
-    @SuppressWarnings("unchecked")
-    public boolean save() {
-        boolean res = false;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.saveOrUpdate(this);
-            tx.commit();
-            session.refresh(this);
-            res = true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
 
     public void start(User user) {
         SessionFactory factory = HibernateConfig.getSessionFactory();

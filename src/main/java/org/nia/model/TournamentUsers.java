@@ -48,7 +48,7 @@ public class TournamentUsers extends AbstractEntity {
     public static String register(Tournament tournament, User user) {
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers WHERE Tournament = " + tournament.getPublicID(), TournamentUsers.class);
+            Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers WHERE tournament.publicID = " + tournament.getPublicID(), TournamentUsers.class);
             query.setMaxResults(1);
             List<TournamentUsers> list = query.list();
             if (list.stream().filter(tu -> tu.getUser().getUserID() == user.getUserID()).findFirst().isPresent()) {
@@ -92,7 +92,7 @@ public class TournamentUsers extends AbstractEntity {
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
             Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers " +
-                    "WHERE Tournament = " + tournament.getPublicID() + " " +
+                    "WHERE tournament.publicID = " + tournament.getPublicID() + " " +
                     "and round = " + round + " order by position", TournamentUsers.class);
             int i = 0;
             for (TournamentUsers tournamentUsers : query.list()) {
@@ -113,7 +113,7 @@ public class TournamentUsers extends AbstractEntity {
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
             Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers " +
-                    "WHERE lose = false and Tournament = " + tournament.getPublicID() +
+                    "WHERE lose = false and tournament.publicID = " + tournament.getPublicID() +
                     "  order by inFight desc, round, position", TournamentUsers.class);
             query.setMaxResults(2);
             List<TournamentUsers> usersList = query.list();
@@ -135,8 +135,8 @@ public class TournamentUsers extends AbstractEntity {
             Tournament current = Tournament.getCurrent();
             if (current != null) {
                 Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers " +
-                        "WHERE Tournament = " + current.getPublicID() +
-                        " and User = " + userID, TournamentUsers.class);
+                        "WHERE tournament.publicID = " + current.getPublicID() +
+                        " and user.userID = " + userID, TournamentUsers.class);
                 query.setMaxResults(1);
                 List<TournamentUsers> list = query.list();
                 if (!list.isEmpty()) {

@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.nia.db.HibernateConfig;
 import org.nia.logic.quests.IQuestEvent;
@@ -22,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "cwt_QuestEvent")
-public class QuestEvent {
+public class QuestEvent extends AbstractEntity {
     @Id
     @Column()
     @GeneratedValue
@@ -43,29 +42,14 @@ public class QuestEvent {
     @Column
     private String eventStep;
 
-    public boolean save() {
-        boolean res = false;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.saveOrUpdate(this);
-            tx.commit();
-            session.refresh(this);
-            res = true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
     public static QuestEvent getCurrent(Quest quest) {
         QuestEvent res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM QuestEvent WHERE returnTime is null and quest = " + quest.getPublicID());
-            List list = query.list();
+            Query<QuestEvent> query = session.createQuery("FROM QuestEvent WHERE win is null and quest.publicID = " + quest.getPublicID(), QuestEvent.class);
+            List<QuestEvent> list = query.list();
             if (!list.isEmpty()) {
-                res = (QuestEvent) list.get(0);
+                res = list.get(0);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -73,23 +57,11 @@ public class QuestEvent {
         return res;
     }
 
-    public static QuestEvent getByID(Integer publicID) {
-        QuestEvent res = null;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            res = session.get(QuestEvent.class, publicID);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
-    @SuppressWarnings("unchecked")
     public static List<QuestEvent> getAll(Quest quest) {
         List<QuestEvent> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM QuestEvent WHERE quest = " + quest.getPublicID());
+            Query<QuestEvent> query = session.createQuery("FROM QuestEvent WHERE quest.publicID = " + quest.getPublicID(), QuestEvent.class);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -107,7 +79,7 @@ public class QuestEvent {
 
     public QuestEvent getLinkedQuestEvent() {
         if (linkedQuestEventID != null) {
-            return QuestEvent.getByID(linkedQuestEventID);
+            return QuestEvent.getByID(QuestEvent.class, linkedQuestEventID);
         }
         return null;
     }

@@ -33,7 +33,7 @@ public class VoteOption extends AbstractEntity {
         List<VoteOption> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<VoteOption> query = session.createQuery("FROM VoteOption WHERE voting = " + votingID, VoteOption.class);
+            Query<VoteOption> query = session.createQuery("FROM VoteOption WHERE voting.publicID = " + votingID, VoteOption.class);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -199,7 +199,7 @@ public enum TavernCommands implements Commands {
         public String apply(Message message) {
             StringBuilder sb = new StringBuilder();
             sb.append("Главные выпивохи таверны за всё время:\n");
-            User.getTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedTotal()).append("\n"));
+            User.getTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedTotalNormalized()).append("\n"));
             return sb.toString();
         }
     },
@@ -213,7 +213,7 @@ public enum TavernCommands implements Commands {
         public String apply(Message message) {
             StringBuilder sb = new StringBuilder();
             sb.append("Главные выпивохи таверны за эту неделю:\n");
-            User.getWeekTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedWeek()).append("\n"));
+            User.getWeekTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedWeekNormalized()).append("\n"));
             return sb.toString();
         }
     },

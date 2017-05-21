@@ -39,14 +39,15 @@ public class TournamentBet extends AbstractEntity {
     @Column()
     private int sum;
 
-    @SuppressWarnings("unchecked")
     public static List<TournamentBet> getCurrentBetsByUserID(User user) {
         List<TournamentBet> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
             Tournament current = Tournament.getCurrent();
             if (current != null) {
-                Query query = session.createQuery("FROM TournamentBet WHERE Tournament = " + current.getPublicID() + " and from = " + user.getUserID());
+                Query<TournamentBet> query = session.createQuery("FROM TournamentBet " +
+                        "WHERE tournament.publicID = " + current.getPublicID() + " " +
+                        "and from.userID = " + user.getUserID(), TournamentBet.class);
                 res = query.list();
             }
         } catch (Exception ex) {
@@ -83,12 +84,11 @@ public class TournamentBet extends AbstractEntity {
         return sb.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private static List<TournamentBet> getAllByTournament(Tournament tournament) {
         List<TournamentBet> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM TournamentBet WHERE Tournament = " + tournament.getPublicID());
+            Query<TournamentBet> query = session.createQuery("FROM TournamentBet WHERE tournament.publicID = " + tournament.getPublicID(), TournamentBet.class);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -54,19 +54,19 @@ public class Tournament extends AbstractEntity {
         Tournament res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM Tournament WHERE state in (:states)");
+            Query<Tournament> query = session.createQuery("FROM Tournament WHERE state in (:states)", Tournament.class);
             query.setParameterList("states", Arrays.asList(TournamentState.REGISTRATION, TournamentState.PROGRESS));
             query.setMaxResults(1);
-            List list = query.list();
+            List<Tournament> list = query.list();
             if (!list.isEmpty()) {
-                res = (Tournament) list.get(0);
+                res = list.get(0);
             } else {
-                query = session.createQuery("FROM Tournament WHERE state =:state order by registrationDateTime");
+                query = session.createQuery("FROM Tournament WHERE state =:state order by registrationDateTime", Tournament.class);
                 query.setParameter("state", TournamentState.ANOUNCE);
                 query.setMaxResults(1);
                 list = query.list();
                 if (!list.isEmpty()) {
-                    res = (Tournament) list.get(0);
+                    res = list.get(0);
                 }
             }
         } catch (Exception ex) {

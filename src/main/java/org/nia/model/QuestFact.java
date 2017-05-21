@@ -20,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "cwt_QuestFact")
-public class QuestFact {
+public class QuestFact extends AbstractEntity {
     @Id
     @Column()
     @GeneratedValue
@@ -30,22 +30,6 @@ public class QuestFact {
     private Quest quest;
     @Enumerated(EnumType.STRING)
     private EQuestFact questFact;
-
-
-    public boolean save() {
-        boolean res = false;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.saveOrUpdate(this);
-            tx.commit();
-            session.refresh(this);
-            res = true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
 
     public boolean delete() {
         boolean res = false;
@@ -61,12 +45,11 @@ public class QuestFact {
         return res;
     }
 
-    @SuppressWarnings("unchecked")
     public static List<QuestFact> getAll(Quest quest) {
         List<QuestFact> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("FROM QuestFact WHERE quest = " + quest.getPublicID());
+            Query<QuestFact> query = session.createQuery("FROM QuestFact WHERE quest.publicID = " + quest.getPublicID(), QuestFact.class);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();

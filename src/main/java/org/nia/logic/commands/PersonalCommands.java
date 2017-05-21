@@ -77,7 +77,7 @@ public enum PersonalCommands implements Commands {
                 String votingID = matcher.group(1);
                 String voteOption = matcher.group(2);
                 try {
-                    Voting voting = Voting.getByID(Integer.valueOf(votingID));
+                    Voting voting = Voting.getByID(Voting.class, Integer.valueOf(votingID));
                     if (voting == null) {
                         return "Неверно указан ID голосования";
                     } else {
@@ -106,7 +106,7 @@ public enum PersonalCommands implements Commands {
         public String apply(Message message) {
             String votingID = StringUtils.substringAfter(message.getText(), this.getText());
             try {
-                Voting voting = Voting.getByID(Integer.valueOf(votingID));
+                Voting voting = Voting.getByID(Voting.class, Integer.valueOf(votingID));
                 if (voting == null) {
                     return "Неверно указан ID голосования";
                 }
@@ -288,7 +288,7 @@ public enum PersonalCommands implements Commands {
                 res += "\nТы закодован еще на " + duration + " минут.";
             }
             res += "\n\n" + user.getFightClubStats()
-                    + "\n\n " + Emoji.DRINK + "Выпито напитков в таверне за эту неделю/всего: " + user.getDrinkedWeek() / 2 + "/" + user.getDrinkedTotal() / 2
+                    + "\n\n " + Emoji.DRINK + "Выпито напитков в таверне за эту неделю/всего: " + user.getDrinkedWeekNormalized() + "/" + user.getDrinkedTotalNormalized()
                     + "\n" + Emoji.MEDAL + "Побед в боях бойцовского клуба: " + user.getFightClubWins();
             return res;
         }
