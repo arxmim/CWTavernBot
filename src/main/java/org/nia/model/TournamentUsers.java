@@ -55,7 +55,7 @@ public class TournamentUsers extends AbstractEntity {
 //            } else {
                 Set<Integer> has = list.stream().map(TournamentUsers::getPosition).collect(Collectors.toSet());
                 int newCount = has.size() + 1;
-                if (newCount >= tournament.getMaxUsers()) {
+                if (newCount > tournament.getMaxUsers()) {
                     return "Извини, " + user + ", но места для участников уже все заняты. В следующий раз соображай быстрее!";
                 }
                 ArrayList<Integer> hasNot = new ArrayList<>();
