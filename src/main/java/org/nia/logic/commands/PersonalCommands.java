@@ -134,13 +134,14 @@ public enum PersonalCommands implements Commands {
                     return "Неверно указан тип турнира";
                 }
                 tournament.setState(TournamentState.ANOUNCE);
-                GregorianCalendar gc = new GregorianCalendar();
-                gc.setTime(new Date());
+
+                TimeZone tz = TimeZone.getTimeZone("Europe/Moscow");
+                Calendar gc = Calendar.getInstance(tz);
                 gc.set(Calendar.HOUR_OF_DAY, Integer.valueOf(matcher.group(2)));
                 gc.set(Calendar.MINUTE, Integer.valueOf(matcher.group(3)));
                 gc.set(Calendar.SECOND, 0);
                 gc.set(Calendar.MILLISECOND, 0);
-                gc.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
+
                 tournament.setRegistrationDateTime(gc.getTime());
                 tournament.setMaxUsers(Integer.valueOf(matcher.group(4)));
                 tournament.save();
