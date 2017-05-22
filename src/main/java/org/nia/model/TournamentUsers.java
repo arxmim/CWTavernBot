@@ -51,11 +51,11 @@ public class TournamentUsers extends AbstractEntity {
             Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers WHERE tournament.publicID = " + tournament.getPublicID(), TournamentUsers.class);
             query.setMaxResults(1);
             List<TournamentUsers> list = query.list();
-            if (list.stream().filter(tu -> tu.getUser().getUserID() == user.getUserID()).findFirst().isPresent()) {
-                return user + ", ты уже зарегистрировался на турнир!";
-            } else {
+//            if (list.stream().filter(tu -> tu.getUser().getUserID() == user.getUserID()).findFirst().isPresent()) {
+//                return user + ", ты уже зарегистрировался на турнир!";
+//            } else {
                 Set<Integer> has = list.stream().map(TournamentUsers::getPosition).collect(Collectors.toSet());
-                int newCount = has.size();
+                int newCount = has.size() + 1;
                 if (newCount >= tournament.getMaxUsers()) {
                     return "Извини, " + user + ", но места для участников уже все заняты. В следующий раз соображай быстрее!";
                 }
@@ -72,7 +72,7 @@ public class TournamentUsers extends AbstractEntity {
                 tu.setUser(user);
                 tu.save();
                 return user + ", ты успешно зарегистрирован на турнир, твой номер - " + position + ", уже зарегистрировано - " + newCount;
-            }
+//            }
         } catch (Exception ex) {
             ex.printStackTrace();
             return "Что-то пошло не так. Регистрация не удалась";

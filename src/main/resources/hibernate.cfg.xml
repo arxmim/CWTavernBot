@@ -13,9 +13,9 @@
         <!--<property name="hibernate.id.new_generator_mappings">-->
             <!--false-->
         <!--</property>-->
-        <property name="hibernate.hbm2ddl.auto">
-            create-drop
-        </property>
+        <!--<property name="hibernate.hbm2ddl.auto">-->
+            <!--create-->
+        <!--</property>-->
         <mapping class="org.nia.model.User"/>
         <mapping class="org.nia.model.Voting"/>
         <mapping class="org.nia.model.VoteUser"/>
