@@ -49,7 +49,6 @@ public class TournamentUsers extends AbstractEntity {
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
             Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers WHERE tournament.publicID = " + tournament.getPublicID(), TournamentUsers.class);
-            query.setMaxResults(1);
             List<TournamentUsers> list = query.list();
 //            if (list.stream().filter(tu -> tu.getUser().getUserID() == user.getUserID()).findFirst().isPresent()) {
 //                return user + ", ты уже зарегистрировался на турнир!";
