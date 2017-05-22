@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.nia.db.HibernateConfig;
 import org.nia.logic.lists.DrinkType;
@@ -205,7 +206,8 @@ public class User extends AbstractEntity {
         int res = 0;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<Long> query = session.createQuery("select count(*) FROM User where voteFor = " + vote, Long.class);
+            Query<Long> query = session.createQuery("select count(1) FROM User usr where usr.voteFor = :voteFor", Long.class);
+            query.setParameter("voteFor", vote);
             query.setMaxResults(12);
             res = query.uniqueResult().intValue();
         } catch (Exception ex) {
@@ -217,8 +219,11 @@ public class User extends AbstractEntity {
     static void flushVotes() {
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query query = session.createQuery("update User set voteFor = null");
+            Transaction transaction = session.beginTransaction();
+            Query query = session.createQuery("UPDATE User usr SET usr.voteFor = :voteFor");
+            query.setParameter("voteFor", null);
             query.executeUpdate();
+            transaction.commit();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

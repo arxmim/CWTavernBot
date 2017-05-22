@@ -135,7 +135,7 @@ public class TournamentUsers extends AbstractEntity {
             if (current != null) {
                 Query<TournamentUsers> query = session.createQuery("FROM TournamentUsers " +
                         "WHERE tournament.publicID = " + current.getPublicID() +
-                        " and user.userID = " + userID, TournamentUsers.class);
+                        " and user.userID = " + userID + " order by inFight desc", TournamentUsers.class);
                 query.setMaxResults(1);
                 List<TournamentUsers> list = query.list();
                 if (!list.isEmpty()) {

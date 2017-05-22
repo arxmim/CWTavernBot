@@ -58,7 +58,7 @@ public enum TournamentType {
 
         @Override
         public int evalFinalResult(TournamentUsers first, TournamentUsers second) {
-            String voteFor = first.getUser().toString();
+            String voteFor = String.valueOf(first.getUser().getUserID());
             int voteCount = User.getVotersForCount(voteFor);
             return first.getScore() + new Random().nextInt(151) + voteCount;
         }
@@ -98,7 +98,7 @@ public enum TournamentType {
 
         @Override
         public int evalFinalResult(TournamentUsers first, TournamentUsers second) {
-            String voteFor = first.getUser().toString();
+            String voteFor = String.valueOf(first.getUser().getUserID());
             int voteCount = User.getVotersForCount(voteFor);
             ArenaCommands.Weapon winWep = ArenaCommands.Weapon.getByNumber(first.getScore());
             ArenaCommands.Weapon loseWep = ArenaCommands.Weapon.getByNumber(second.getScore());

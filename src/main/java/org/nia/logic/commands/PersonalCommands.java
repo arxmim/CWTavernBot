@@ -12,10 +12,7 @@ import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -143,6 +140,7 @@ public enum PersonalCommands implements Commands {
                 gc.set(Calendar.MINUTE, Integer.valueOf(matcher.group(3)));
                 gc.set(Calendar.SECOND, 0);
                 gc.set(Calendar.MILLISECOND, 0);
+                gc.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
                 tournament.setRegistrationDateTime(gc.getTime());
                 tournament.setMaxUsers(Integer.valueOf(matcher.group(4)));
                 tournament.save();
