@@ -27,7 +27,7 @@ public class QuestEvent extends AbstractEntity {
     @GeneratedValue
     private Integer publicID;
     @ManyToOne
-    @JoinColumn(name = "userID", nullable = false)
+    @JoinColumn(name = "questID", nullable = false)
     private Quest quest;
     @Column
     private Date eventTime;
