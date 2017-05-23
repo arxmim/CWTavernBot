@@ -338,7 +338,7 @@ public class User extends AbstractEntity {
     }
 
     public User getFightWithUser() {
-        return User.getByID(User.class, fightWithUserID);
+        return getByID(User.class, fightWithUserID);
     }
 
     public void setFightWithUser(User fightWithUser) {
