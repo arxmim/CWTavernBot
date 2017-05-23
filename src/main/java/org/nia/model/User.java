@@ -387,4 +387,8 @@ public class User extends AbstractEntity {
     public int getDrinkedWeekNormalized() {
         return drinkedWeek / 2;
     }
+
+    public boolean isBarmenOrAdmin() {
+        return isBarmen || isAdmin;
+    }
 }
