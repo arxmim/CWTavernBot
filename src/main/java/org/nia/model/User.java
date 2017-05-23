@@ -338,6 +338,9 @@ public class User extends AbstractEntity {
     }
 
     public User getFightWithUser() {
+        if (fightWithUserID == null) {
+            return null;
+        }
         return getByID(User.class, fightWithUserID);
     }
 
