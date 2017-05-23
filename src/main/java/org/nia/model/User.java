@@ -139,6 +139,10 @@ public class User {
         return res;
     }
 
+    public boolean isBarmenOrAdmin() {
+        return isBarmen || isAdmin;
+    }
+
     public static User getFromMessage(Message message) {
         return getFromMessage(message.getFrom());
     }
