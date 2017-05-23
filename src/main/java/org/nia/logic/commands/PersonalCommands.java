@@ -12,9 +12,7 @@ import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,7 +74,7 @@ public enum PersonalCommands implements Commands {
                 String votingID = matcher.group(1);
                 String voteOption = matcher.group(2);
                 try {
-                    Voting voting = Voting.getByID(Integer.valueOf(votingID));
+                    Voting voting = Voting.getByID(Voting.class, Integer.valueOf(votingID));
                     if (voting == null) {
                         return "Неверно указан ID голосования";
                     } else {
@@ -86,7 +84,7 @@ public enum PersonalCommands implements Commands {
                         option.save();
                         return "Вариант \"" + voteOption + "\" добавлен в голосование " + votingID;
                     }
-                } catch (Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
                     return "Что-то пошло не так";
                 }
@@ -105,13 +103,13 @@ public enum PersonalCommands implements Commands {
         public String apply(Message message) {
             String votingID = StringUtils.substringAfter(message.getText(), this.getText());
             try {
-                Voting voting = Voting.getByID(Integer.valueOf(votingID));
+                Voting voting = Voting.getByID(Voting.class, Integer.valueOf(votingID));
                 if (voting == null) {
                     return "Неверно указан ID голосования";
                 }
                 voting.start(User.getFromMessage(message.getFrom()));
                 return "";
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 return "Что-то пошло не так";
             }
@@ -136,18 +134,39 @@ public enum PersonalCommands implements Commands {
                     return "Неверно указан тип турнира";
                 }
                 tournament.setState(TournamentState.ANOUNCE);
-                GregorianCalendar gc = new GregorianCalendar();
-                gc.setTime(new Date());
+
+                TimeZone tz = TimeZone.getTimeZone("Europe/Moscow");
+                Calendar gc = Calendar.getInstance(tz);
                 gc.set(Calendar.HOUR_OF_DAY, Integer.valueOf(matcher.group(2)));
                 gc.set(Calendar.MINUTE, Integer.valueOf(matcher.group(3)));
                 gc.set(Calendar.SECOND, 0);
                 gc.set(Calendar.MILLISECOND, 0);
+
                 tournament.setRegistrationDateTime(gc.getTime());
                 tournament.setMaxUsers(Integer.valueOf(matcher.group(4)));
                 tournament.save();
                 return "Турнир создан.\n" + tournament;
             } else {
                 return "Что-то не заполнено. Турнир не создан";
+            }
+        }
+    },
+    SET_ADMIN("/secret_set_admin ") {
+
+        @Override
+        public String apply(Message message) {
+            String nick = StringUtils.substringAfter(message.getText(), text);
+            User user = User.getByNick(nick);
+            if (user == null) {
+                return "Этот посетитель еще не обращался к тавернщику";
+            } else {
+                user.setAdmin(!user.isAdmin());
+                user.save();
+                if (user.isAdmin()) {
+                    return "Пользователь " + nick + " теперь админ";
+                } else {
+                    return "Пользователь " + nick + " больше не админ";
+                }
             }
         }
     },
@@ -186,7 +205,7 @@ public enum PersonalCommands implements Commands {
                 quest.setStartTime(new Date());
                 quest.setUser(user);
                 quest.setEventTime(randomQuest.getFirstEventTime());
-                quest.setQuest(randomQuest);
+                quest.setQuestEnum(randomQuest);
                 quest.setGoldEarned(0);
                 quest.setReturnTime(null);
                 quest.save();
@@ -268,7 +287,7 @@ public enum PersonalCommands implements Commands {
                 res += "\nТы закодован еще на " + duration + " минут.";
             }
             res += "\n\n" + user.getFightClubStats()
-                    + "\n\n " + Emoji.DRINK + "Выпито напитков в таверне за эту неделю/всего: " + user.getDrinkedWeek() / 2 + "/" + user.getDrinkedTotal() / 2
+                    + "\n\n " + Emoji.DRINK + "Выпито напитков в таверне за эту неделю/всего: " + user.getDrinkedWeekNormalized() + "/" + user.getDrinkedTotalNormalized()
                     + "\n" + Emoji.MEDAL + "Побед в боях бойцовского клуба: " + user.getFightClubWins();
             return res;
         }
@@ -277,27 +296,20 @@ public enum PersonalCommands implements Commands {
         @Override
         public String apply(Message message) {
             String name = StringUtils.substringAfter(message.getText(), text).trim();
+            User user;
             if (name.isEmpty()) {
-                User user = User.getFromMessage(message.getFrom());
-                DrinkPrefs prefs = DrinkPrefs.getByUser(user);
-                StringBuilder sb = new StringBuilder();
-                sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
-                prefs.getPrefMap().entrySet().forEach(e -> sb.append(e.getKey().getCommand())
-                        .append(": ").append(e.getValue().getToDrink())
-                        .append(", ").append(e.getValue().getToThrow())
-                        .append(", ").append(e.getValue().getToBeThrown()).append("\n\n"));
-                return sb.toString();
+                user = User.getFromMessage(message.getFrom());
             } else {
-                User user = User.getByNick(name);
-                DrinkPrefs prefs = DrinkPrefs.getByUser(user);
-                StringBuilder sb = new StringBuilder();
-                sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
-                prefs.getPrefMap().entrySet().forEach(e -> sb.append(e.getKey().getCommand())
-                        .append(": ").append(e.getValue().getToDrink())
-                        .append(", ").append(e.getValue().getToThrow())
-                        .append(", ").append(e.getValue().getToBeThrown()).append("\n\n"));
-                return sb.toString();
+                user = User.getByNick(name);
             }
+            List<DrinkPref> prefs = DrinkPref.getByUser(user);
+            StringBuilder sb = new StringBuilder();
+            sb.append("А ты успел засветиться в нашей таверне!\nВот твоя статистика в формате Напиток-Выпито-Брошено-В тебя бросили:\n\n");
+            prefs.forEach(e -> sb.append(e.getDrinkType().getCommand())
+                    .append(": ").append(e.getToDrinkNormalized())
+                    .append(", ").append(e.getToThrow())
+                    .append(", ").append(e.getToBeThrown()).append("\n\n"));
+            return sb.toString();
         }
     },
     //    GO("/gogogo") {

@@ -17,10 +17,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,10 +26,11 @@ import java.util.List;
 /**
  * @author Иван, 08.05.2017.
  */
-@Entity(name = "cwt_Voting")
+@Entity
 @Setter
 @Getter
-public class Voting {
+@Table(name = "cwt_Voting")
+public class Voting extends AbstractEntity {
     @Column
     @Id
     @GeneratedValue
@@ -41,33 +39,6 @@ public class Voting {
     private String text;
     @Column
     private Date startTime;
-
-    @SuppressWarnings("unchecked")
-    public static Voting getByID(Integer publicID) {
-        Voting res = null;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            res = session.get(Voting.class, publicID);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
-    @SuppressWarnings("unchecked")
-    public boolean save() {
-        boolean res = false;
-        SessionFactory factory = HibernateConfig.getSessionFactory();
-        try (Session session = factory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.saveOrUpdate(this);
-            tx.commit();
-            res = true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return res;
-    }
 
     public void start(User user) {
         SessionFactory factory = HibernateConfig.getSessionFactory();
@@ -122,7 +93,7 @@ public class Voting {
             return;
         }
         String strOption = StringUtils.substringAfter(callbackQuery.getData(), "@votingBot");
-        VoteOption option = VoteOption.getByID(Integer.valueOf(strOption));
+        VoteOption option = VoteOption.getByID(VoteOption.class, Integer.valueOf(strOption));
         List<VoteUser> byUser = VoteUser.getByUser(user.getUserID(), option.getVoting().publicID);
         if (byUser.size() > 1) {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();

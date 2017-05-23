@@ -1,137 +1,76 @@
 package org.nia.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.nia.bots.CWTavernBot;
 import org.nia.bots.OficiantThread;
-import org.nia.db.ConnectionDB;
-import org.nia.db.DatabaseManager;
+import org.nia.db.HibernateConfig;
 import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.TournamentState;
 import org.nia.logic.lists.TournamentType;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.sql.*;
+import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 /**
  * @author Иван, 11.03.2017.
  */
-public class Tournament {
-    public static int REGISTRATION_TIME = 15;
+@Entity
+@Getter
+@Setter
+@Table(name = "cwt_Tournament")
+public class Tournament extends AbstractEntity {
+    @Id
+    @Column()
+    @GeneratedValue
     private Integer publicID;
+    @Column(nullable = false)
     private Date registrationDateTime;
-    private TournamentType tournamentType;
-    private TournamentState tournamentState;
+    @Enumerated(EnumType.STRING)
+    private TournamentType type;
+    @Enumerated(EnumType.STRING)
+    private TournamentState state;
+    @Column(nullable = false)
     private int maxUsers;
+    @ManyToOne
+    @JoinColumn(name = "winner")
     private User winner;
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int round = 0;
 
-    public void save() {
-        try {
-            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            if (publicID != null) {
-                PreparedStatement preparedStatement = connectionDB.getPreparedStatement("update cwt_Tournament set registrationDateTime = ?" +
-                        ", tournamentType = ?" +
-                        ", tournamentState = ?" +
-                        ", maxUsers = ?" +
-                        ", winner = ?" +
-                        ", round = ?" +
-                        " where PublicID = ?");
-                preparedStatement.setTimestamp(1, new Timestamp(registrationDateTime.getTime()));
-                preparedStatement.setString(2, tournamentType.name());
-                preparedStatement.setString(3, tournamentState.name());
-                preparedStatement.setInt(4, maxUsers);
-                if (winner != null) {
-                    preparedStatement.setInt(5, winner.getUserID());
-                } else {
-                    preparedStatement.setNull(5, Types.INTEGER);
-                }
-                preparedStatement.setInt(6, round);
-                preparedStatement.setInt(7, publicID);
-                preparedStatement.execute();
-            } else {
-                PreparedStatement preparedStatement = connectionDB.getPreparedStatement("INSERT INTO cwt_Tournament (registrationDateTime, tournamentType, tournamentState, maxUsers, winner, round) " +
-                        "VALUES (?, ?, ?, ?, ?, ?)");
-                preparedStatement.setTimestamp(1, new Timestamp(registrationDateTime.getTime()));
-                preparedStatement.setString(2, tournamentType.name());
-                preparedStatement.setString(3, tournamentState.name());
-                preparedStatement.setInt(4, maxUsers);
-                if (winner != null) {
-                    preparedStatement.setInt(5, winner.getUserID());
-                } else {
-                    preparedStatement.setNull(5, Types.INTEGER);
-                }
-                preparedStatement.setInt(6, round);
-                preparedStatement.execute();
-                preparedStatement = connectionDB.getPreparedStatement("select publicID from cwt_Tournament where registrationDateTime = ?" +
-                        " and tournamentType = ? and tournamentState = ? and maxUsers = ?");
-                preparedStatement.setTimestamp(1, new Timestamp(registrationDateTime.getTime()));
-                preparedStatement.setString(2, tournamentType.name());
-                preparedStatement.setString(3, tournamentState.name());
-                preparedStatement.setInt(4, maxUsers);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                resultSet.next();
-                publicID = resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Integer getPublicID() {
-        return publicID;
-    }
-
-    public void setType(TournamentType tournamentType) {
-        this.tournamentType = tournamentType;
-    }
-
-    public void setState(TournamentState tournamentState) {
-        this.tournamentState = tournamentState;
-    }
-
-    public void setRegistrationDateTime(Date registrationDateTime) {
-        this.registrationDateTime = registrationDateTime;
-    }
-
-    public void setMaxUsers(Integer maxUsers) {
-        this.maxUsers = maxUsers;
-    }
+    @Transient
+    public static int REGISTRATION_TIME = 15;
 
     public static Tournament getCurrent() {
         Tournament res = null;
-        try {
-            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement("select top 1 PublicID, registrationDateTime, tournamentType, tournamentState, maxUsers, round " +
-                    "from cwt_Tournament where tournamentState in ('" + TournamentState.REGISTRATION.name() + "', '" + TournamentState.PROGRESS + "')");
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                res = new Tournament();
-                res.publicID = resultSet.getInt(1);
-                res.registrationDateTime = resultSet.getTimestamp(2);
-                res.tournamentType = TournamentType.valueOf(resultSet.getString(3));
-                res.tournamentState = TournamentState.valueOf(resultSet.getString(4));
-                res.maxUsers = resultSet.getInt(5);
-                res.round = resultSet.getInt(6);
+        SessionFactory factory = HibernateConfig.getSessionFactory();
+        try (Session session = factory.openSession()) {
+            Query<Tournament> query = session.createQuery("FROM Tournament WHERE state in (:states)", Tournament.class);
+            query.setParameterList("states", Arrays.asList(TournamentState.REGISTRATION, TournamentState.PROGRESS));
+            query.setMaxResults(1);
+            List<Tournament> list = query.list();
+            if (!list.isEmpty()) {
+                res = list.get(0);
             } else {
-                preparedStatement = connectionDB.getPreparedStatement("select top 1 PublicID, registrationDateTime, tournamentType, tournamentState, maxUsers, round " +
-                        "from cwt_Tournament where tournamentState ='" + TournamentState.ANOUNCE.name() + "' order by registrationDateTime");
-                resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    res = new Tournament();
-                    res.publicID = resultSet.getInt(1);
-                    res.registrationDateTime = resultSet.getTimestamp(2);
-                    res.tournamentType = TournamentType.valueOf(resultSet.getString(3));
-                    res.tournamentState = TournamentState.valueOf(resultSet.getString(4));
-                    res.maxUsers = resultSet.getInt(5);
-                    res.round = resultSet.getInt(6);
+                query = session.createQuery("FROM Tournament WHERE state =:state order by registrationDateTime", Tournament.class);
+                query.setParameter("state", TournamentState.ANOUNCE);
+                query.setMaxResults(1);
+                list = query.list();
+                if (!list.isEmpty()) {
+                    res = list.get(0);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return res;
     }
@@ -141,51 +80,47 @@ public class Tournament {
         return "Tournament{" +
                 "publicID=" + publicID +
                 ", registrationDateTime=" + registrationDateTime +
-                ", tournamentType=" + tournamentType +
-                ", tournamentState=" + tournamentState +
+                ", type=" + type +
+                ", state=" + state +
                 ", maxUsers=" + maxUsers +
                 ", round=" + round +
                 '}';
     }
 
     public boolean isAnnounced() {
-        return tournamentState == TournamentState.ANOUNCE;
+        return state == TournamentState.ANOUNCE;
     }
 
     public boolean isRegistration() {
-        return tournamentState == TournamentState.REGISTRATION;
+        return state == TournamentState.REGISTRATION;
     }
 
     public boolean isInProgress() {
-        return tournamentState == TournamentState.PROGRESS;
-    }
-
-    public Date getRegistrationDateTime() {
-        return registrationDateTime;
+        return state == TournamentState.PROGRESS;
     }
 
     public List<String> work() {
         ArrayList<String> res = new ArrayList<>();
         if (isAnnounced()) {
-            tournamentState = TournamentState.REGISTRATION;
+            state = TournamentState.REGISTRATION;
             save();
-            res.add("Регистрация на турнир " + tournamentType + " открыта на "+REGISTRATION_TIME+" минут! Приходи в @drinkstardust и жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
+            res.add("Регистрация на турнир " + type + " открыта на "+REGISTRATION_TIME+" минут! Приходи в @drinkstardust и жми /register срочно!\nМаксимальное число участников - " + maxUsers + ". Торопитесь принять участие!" +
                     "\n\nКроме того, пока идет регистрация вы можете поставить ставку на зарегистрировавшихся участников командой /bet");
         } else if (isRegistration()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
             if (pair == null || pair.getRight() == null) {
-                tournamentState = TournamentState.FINISHED;
+                state = TournamentState.FINISHED;
                 save();
                 res.add("Турнира не будет. Не набралось и двух участников");
             } else {
-                tournamentState = TournamentState.PROGRESS;
+                state = TournamentState.PROGRESS;
                 save();
-                res.add(Emoji.DRINKS + "Турнир " + tournamentType + " начинается!\nГлавный приз - почет и уважение!" + Emoji.DRINK + "\n\nПолный список участников:\n" + TournamentUsers.getAllString(this, round + 1) + "\n Первое состязание состоится через 1 минуту, всем занять свои места, МЫ НАЧИНАЕМ!");
+                res.add(Emoji.DRINKS + "Турнир " + type + " начинается!\nГлавный приз - почет и уважение!" + Emoji.DRINK + "\n\nПолный список участников:\n" + TournamentUsers.getAllString(this, round + 1) + "\n Первое состязание состоится через 1 минуту, всем занять свои места, МЫ НАЧИНАЕМ!");
             }
         } else if (isInProgress()) {
             Pair<TournamentUsers, TournamentUsers> pair = TournamentUsers.getTwoUsers(this);
             if (pair == null) {
-                tournamentState = TournamentState.FINISHED;
+                state = TournamentState.FINISHED;
                 save();
                 res.add("Увы, но на финал турнира не нашлось бойцов. Турнир окончен до выявления победителя.");
             } else {
@@ -193,7 +128,7 @@ public class Tournament {
                 TournamentUsers right = pair.getRight();
                 if (right == null) {
                     winner = left.getUser();
-                    tournamentState = TournamentState.FINISHED;
+                    state = TournamentState.FINISHED;
                     save();
                     try {
                         CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage( "Итак, сегодняший турнир окончен, победитель определен! Им стал " + left.getUser() + ". Дружище, ты лучше всех!"));
@@ -235,7 +170,7 @@ public class Tournament {
                         }
                         res.add(roundStr + TournamentUsers.getAllString(this, round));
                     }
-                    if (left.InFight()) {
+                    if (left.isInFight()) {
                         String fightResult;
                         if (left.getScore() == 0 && right.getScore() == 0) {
                             left.setLose(true);
@@ -279,7 +214,7 @@ public class Tournament {
                                 loser.setInFight(false);
                                 loser.setLose(true);
                                 loser.save();
-                                fightResult = tournamentType.getWinPhrase(winner, loser) + "\n";
+                                fightResult = type.getWinPhrase(winner, loser) + "\n";
                                 winner.incRound();
                                 winner.getUser().incFightClubWins();
                                 winner.getUser().save();
@@ -293,12 +228,13 @@ public class Tournament {
                                 right.setScore(0);
                                 right.setInFight(false);
                                 right.save();
-                                fightResult = tournamentType.getTie(left, right) + "\n";
+                                fightResult = type.getTie(left, right) + "\n";
                             }
                         }
                         OficiantThread.INSTANCE.setTournamentPhase(true);
                         fightResult += "Следующее состязание вот-вот начнется!";
                         res.add(fightResult);
+                        User.flushVotes();
                     } else {
                         left.setInFight(true);
                         right.setInFight(true);
@@ -306,49 +242,13 @@ public class Tournament {
                         right.save();
                         res.add(left.getUser() + " - твой выход!\n\n" + left.getUser().getPublicFightClubStats());
                         res.add(right.getUser() + " - твой выход!\n\n" + right.getUser().getPublicFightClubStats());
-                        res.add(tournamentType.getRule() + "\n\nРАУНД НАЧИНАЕТСЯ!");
-                        tournamentType.remindUser(left.getUser());
-                        tournamentType.remindUser(right.getUser());
+                        res.add(type.getRule() + "\n\nРАУНД НАЧИНАЕТСЯ!");
+                        type.remindUser(left.getUser());
+                        type.remindUser(right.getUser());
                     }
                 }
             }
         }
         return res;
-    }
-
-    public int getMaxUsers() {
-        return maxUsers;
-    }
-
-    public TournamentType getType() {
-        return tournamentType;
-    }
-
-    public static Tournament getByID(int publicID) {
-        Tournament res = null;
-        try {
-            ConnectionDB connectionDB = DatabaseManager.getInstance().getConnectionDB();
-            PreparedStatement preparedStatement = connectionDB.getPreparedStatement(
-                    "select registrationDateTime, tournamentType, tournamentState, maxUsers, winner, round from cwt_Tournament where PublicID = ?");
-            preparedStatement.setInt(1, publicID);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                res = new Tournament();
-                res.publicID = publicID;
-                res.registrationDateTime = resultSet.getTimestamp(1);
-                res.tournamentType = TournamentType.valueOf(resultSet.getString(2));
-                res.tournamentState = TournamentState.valueOf(resultSet.getString(3));
-                res.maxUsers = resultSet.getInt(4);
-                res.winner = User.getByID(resultSet.getInt(5));
-                res.round = resultSet.getInt(6);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-
-    public User getWinner() {
-        return winner;
     }
 }

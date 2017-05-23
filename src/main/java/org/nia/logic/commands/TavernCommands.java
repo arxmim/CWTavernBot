@@ -199,7 +199,7 @@ public enum TavernCommands implements Commands {
         public String apply(Message message) {
             StringBuilder sb = new StringBuilder();
             sb.append("Главные выпивохи таверны за всё время:\n");
-            User.getTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedTotal()).append("\n"));
+            User.getTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedTotalNormalized()).append("\n"));
             return sb.toString();
         }
     },
@@ -213,7 +213,7 @@ public enum TavernCommands implements Commands {
         public String apply(Message message) {
             StringBuilder sb = new StringBuilder();
             sb.append("Главные выпивохи таверны за эту неделю:\n");
-            User.getWeekTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedWeek()).append("\n"));
+            User.getWeekTop().forEach(dt -> sb.append(dt.getNick() != null ? dt.getNick() : dt.getName()).append(" - ").append(dt.getDrinkedWeekNormalized()).append("\n"));
             return sb.toString();
         }
     },
@@ -305,8 +305,8 @@ public enum TavernCommands implements Commands {
                     if ("CWTavernBot".equals(message.getReplyToMessage().getFrom().getUserName())) {
                         User bot = User.getByNick("CWTavernBot");
                         try {
-                            DrinkPrefs.incThrow(bot, DrinkType.AVE_WHITE);
-                            DrinkPrefs.incToBeThrown(drinker, DrinkType.AVE_WHITE);
+                            bot.incThrow(DrinkType.AVE_WHITE);
+                            drinker.incToBeThrown(DrinkType.AVE_WHITE);
                             SendMessage msg1 = getMessage(message, "Ха, еще один дурак нашелся! У меня черный пояс по метанию жбанов! /throw");
                             CWTavernBot.INSTANCE.sendMessage(msg1);
                             res = "Вот тебе жбаном по лицу, гадкий " + drinker + ". И стакан я у тебя отберу!";
@@ -322,16 +322,16 @@ public enum TavernCommands implements Commands {
                             Quest currentQuest = Quest.getCurrent(victim);
                             QuestEvent questEvent = QuestEvent.getCurrent(currentQuest);
                             if (questEvent != null && questEvent.getIQuestEvent() == KitchenQuest.KitchenEvent.ROOF_STAIRS) {
-                                DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
-                                DrinkPrefs.incToBeThrown(victim, drinker.getDrinkType());
+                                drinker.incThrow(drinker.getDrinkType());
+                                victim.incToBeThrown(drinker.getDrinkType());
                                 drinker.setDrinkType(null);
                                 drinker.setAlkoCount(0);
                                 drinker.save();
                                 return RoofStairs.INIT.solve(drinker, questEvent, false);
                             }
                         }
-                        DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
-                        DrinkPrefs.incToBeThrown(victim, drinker.getDrinkType());
+                        drinker.incThrow(drinker.getDrinkType());
+                        victim.incToBeThrown(drinker.getDrinkType());
                         if (drinker.getAlkoCount() > 0) {
                             res = String.format(drinker.getDrinkType().getThrowTargetFullPhrase(), drinker, victim);
                         } else {
@@ -339,7 +339,7 @@ public enum TavernCommands implements Commands {
                         }
                     }
                 } else {
-                    DrinkPrefs.incThrow(drinker, drinker.getDrinkType());
+                    drinker.incThrow(drinker.getDrinkType());
                     res = String.format(drinker.getDrinkType().getThrowNonePhrase(), drinker);
                 }
                 drinker.setDrinkType(null);
@@ -547,7 +547,7 @@ public enum TavernCommands implements Commands {
                 }
             }
             int drinked = new Random().nextInt(drinker.getAlkoCount()) + 1;
-            DrinkPrefs.incDrink(drinker, drinker.getDrinkType(), drinked);
+            drinker.incDrink(drinker.getDrinkType(), drinked);
             drinker.setDrinkedTotal(drinker.getDrinkedTotal() + drinked);
             drinker.setDrinkedWeek(drinker.getDrinkedWeek() + drinked);
             drinker.setLastDrinkTime(new Date());
