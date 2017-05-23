@@ -165,7 +165,7 @@ public enum TavernCommands implements Commands {
             if (super.isApplicable(message)) {
                 Tournament current = Tournament.getCurrent();
                 User user = User.getFromMessage(message);
-                return (current != null && current.isRegistration()) || (current != null && current.isAnnounced() && user.isBarmen() && message.isUserMessage());
+                return (current != null && current.isRegistration()) || (current != null && current.isAnnounced() && user.isBarmenOrAdmin() && message.isUserMessage());
             }
             return false;
         }
@@ -174,7 +174,7 @@ public enum TavernCommands implements Commands {
         public String apply(Message message) {
             Tournament tournament = Tournament.getCurrent();
             User user = User.getFromMessage(message.getFrom());
-            if (user.isBarmen()) {
+            if (user.isBarmenOrAdmin()) {
                 String text = message.getText();
                 String nick = StringUtils.substringAfter(text, this.text + " ").trim();
                 if (!nick.isEmpty()) {
@@ -192,7 +192,7 @@ public enum TavernCommands implements Commands {
     TOP("/top") {
         @Override
         public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
         }
 
         @Override
@@ -206,7 +206,7 @@ public enum TavernCommands implements Commands {
     WEEK_TOP("/week_top") {
         @Override
         public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
         }
 
         @Override
@@ -220,7 +220,7 @@ public enum TavernCommands implements Commands {
     BK_TOP("/bk_top") {
         @Override
         public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
         }
 
         @Override
@@ -234,7 +234,7 @@ public enum TavernCommands implements Commands {
     BARMEN_TOP("/barmen_top") {
         @Override
         public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
         }
 
         @Override
@@ -420,10 +420,10 @@ public enum TavernCommands implements Commands {
 //                return "Всем кто недавно пил обновили напитки, " + drinkType.getName() + " для всех и каждому! Пейте, гости дорогие!";
 //            }
             if (drinkType != null) {
-                if (message.isReply() && asker.isBarmen()) {
-//                    if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
-//                        return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
-//                    }
+                if (message.isReply() && asker.isBarmenOrAdmin()) {
+                    if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
+                        return "Сам у себя заказываешь выпивку? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
+                    }
                     User fromMessage = User.getFromMessage(message.getReplyToMessage());
                     if (fromMessage.getAlkoCount() == 2) {
                         return "У гостя и так налито, зачем ему еще наливать?";
@@ -450,7 +450,7 @@ public enum TavernCommands implements Commands {
                 return "";
             } else {
                 if (food != null) {
-                    if (message.isReply() && asker.isBarmen()) {
+                    if (message.isReply() && asker.isBarmenOrAdmin()) {
                         if (message.getFrom().getId().equals(message.getReplyToMessage().getFrom().getId())) {
                             return "Сам у себя заказываешь поесть? Ну нет, так дело не пойдет, кто тебя потом домой понесет?";
                         }
@@ -485,7 +485,7 @@ public enum TavernCommands implements Commands {
     CURSE("/curse") {
         @Override
         public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmen();
+            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
         }
 
         @Override

@@ -21,7 +21,7 @@ public class KitchenQuest implements IQuest {
     @Override
     public String getStart() {
         return "Помощник Лизы ушел в отпуск, и нужна разнообразная помощь по таверне - готовка, уборка, ремонт, всего " +
-                "понемногу.\nТы одел фартук помощника и пошел отдавать долг таверне.";
+                "понемногу.\nТы надел фартук помощника и пошел отдавать долг таверне.";
     }
 
     public enum KitchenEvent implements IQuestEvent {
