@@ -12,7 +12,8 @@ import java.util.List;
  * @author Иван, 09.03.2017.
  */
 public class ServingMessage {
-    private static long tavernChatID = -1001104513622L;//prod
+    private static long tavernChatID = -1001100805125L;//test
+    //private static long tavernChatID = -1001104513622L;//prod
 
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();

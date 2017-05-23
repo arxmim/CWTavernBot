@@ -31,7 +31,8 @@ import java.util.*;
  */
 public class CWTavernBot extends TelegramLongPollingBot {
     public static CWTavernBot INSTANCE = new CWTavernBot();
-    private static final String BOT_NAME = "CWTavernBot";
+    private static final String BOT_NAME = "Tavern_Test_Bot";
+//    private static final String BOT_NAME = "CWTavernBot";
     private static final String LOGTAG = "CWTavernBot";
 
     @Override
