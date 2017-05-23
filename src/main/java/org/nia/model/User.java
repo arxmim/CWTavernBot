@@ -118,7 +118,8 @@ public class User extends AbstractEntity {
         nick = nick.replace("@", "");
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<User> query = session.createQuery("FROM User WHERE nick = " + nick, User.class);
+            Query<User> query = session.createQuery("FROM User WHERE nick = :nick", User.class);
+            query.setParameter("nick", nick);
             List<User> list = query.list();
             if (!list.isEmpty()) {
                 res = list.get(0);
