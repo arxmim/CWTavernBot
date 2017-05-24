@@ -69,7 +69,7 @@ public class QuestCommands implements Commands {
     }
 
     @Override
-    public boolean isApplicable(Message message) {
+    public boolean isApplicable(Message message, User from) {
         return !(event == null || event.getStep().getNext(quest).isEmpty()) && getNextStep(message.getText()).isPresent();
     }
 

@@ -21,7 +21,7 @@ import java.util.Random;
 public enum ArenaCommands implements Commands {
     WEAPON("") {
         @Override
-        public boolean isApplicable(Message message) {
+        public boolean isApplicable(Message message, User from) {
             TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(message.getFrom().getId());
             return currentByUserID != null && currentByUserID.isInFight() && Weapon.getByName(message.getText()) != null;
         }
@@ -77,7 +77,7 @@ public enum ArenaCommands implements Commands {
     }
 
     @Override
-    public boolean isApplicable(Message message) {
+    public boolean isApplicable(Message message, User from) {
         return message.getText().contains(this.text);
     }
 

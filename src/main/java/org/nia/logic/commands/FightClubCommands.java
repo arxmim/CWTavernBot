@@ -20,8 +20,8 @@ import java.util.List;
 public enum FightClubCommands implements Commands {
     DRAKA("/DRAKA") {
         @Override
-        public boolean isApplicable(Message message) {
-            if (!super.isApplicable(message)) {
+        public boolean isApplicable(Message message, User from) {
+            if (!super.isApplicable(message, from)) {
                 return false;
             }
             TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(message.getFrom().getId());
@@ -57,7 +57,7 @@ public enum FightClubCommands implements Commands {
     }
 
     @Override
-    public boolean isApplicable(Message message) {
+    public boolean isApplicable(Message message, User from) {
         return message.getText().contains(this.text);
     }
 

@@ -11,6 +11,7 @@ import org.nia.logic.quests.kitchen.RoofStairs;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -26,10 +27,9 @@ import java.util.regex.Pattern;
 public enum TavernCommands implements Commands {
     BET("/bet ") {
         @Override
-        public boolean isApplicable(Message message) {
-            User user = User.getFromMessage(message);
+        public boolean isApplicable(Message message, User from) {
             String matchText = text;
-            if (user.getCurseTime() != null && user.getCurseTime().after(new Date())) {
+            if (from.getCurseTime() != null && from.getCurseTime().after(new Date())) {
                 matchText = "/" + StringUtils.reverse(matchText.trim().substring(1)) + " ";
             }
             if (Pattern.compile(matchText + "(\\d+)").matcher(message.getText()).find()) {
@@ -99,10 +99,9 @@ public enum TavernCommands implements Commands {
     },
     GIVE_MONEY("/give ") {
         @Override
-        public boolean isApplicable(Message message) {
-            User user = User.getFromMessage(message);
+        public boolean isApplicable(Message message, User from) {
             String matchText = text;
-            if (user.getCurseTime() != null && user.getCurseTime().after(new Date())) {
+            if (from.getCurseTime() != null && from.getCurseTime().after(new Date())) {
                 matchText = "/" + StringUtils.reverse(matchText.trim().substring(1)) + " ";
             }
             return Pattern.compile(matchText + "(\\d+)").matcher(message.getText()).find() && message.isReply();
@@ -141,8 +140,8 @@ public enum TavernCommands implements Commands {
     },
     ASSIST("/assist") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && message.isReply();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && message.isReply();
         }
 
         @Override
@@ -161,11 +160,11 @@ public enum TavernCommands implements Commands {
     },
     REGISTER("/register") {
         @Override
-        public boolean isApplicable(Message message) {
-            if (super.isApplicable(message)) {
+        public boolean isApplicable(Message message, User from) {
+            if (super.isApplicable(message, from)) {
                 Tournament current = Tournament.getCurrent();
-                User user = User.getFromMessage(message);
-                return (current != null && current.isRegistration()) || (current != null && current.isAnnounced() && user.isBarmenOrAdmin() && message.isUserMessage());
+                return (current != null && current.isRegistration()) || (current != null && current.isAnnounced()
+                        && from.isBarmenOrAdmin() && message.isUserMessage());
             }
             return false;
         }
@@ -191,8 +190,8 @@ public enum TavernCommands implements Commands {
     },
     TOP("/top") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isBarmenOrAdmin();
         }
 
         @Override
@@ -205,8 +204,8 @@ public enum TavernCommands implements Commands {
     },
     WEEK_TOP("/week_top") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isBarmenOrAdmin();
         }
 
         @Override
@@ -219,8 +218,8 @@ public enum TavernCommands implements Commands {
     },
     BK_TOP("/bk_top") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isBarmenOrAdmin();
         }
 
         @Override
@@ -233,8 +232,8 @@ public enum TavernCommands implements Commands {
     },
     BARMEN_TOP("/barmen_top") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isBarmenOrAdmin();
         }
 
         @Override
@@ -247,8 +246,8 @@ public enum TavernCommands implements Commands {
     },
     DRAKA("/DRAKA") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && message.isReply();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && message.isReply();
         }
 
         @Override
@@ -280,6 +279,24 @@ public enum TavernCommands implements Commands {
                 current.save();
                 return "Кажется, " + current + " хочет надрать задницу " + to + "! Посмотрим, ответит ли " + to + " на вызов.";
             }
+        }
+    },
+    DELETE_MESSAGE("/delete_message") {
+        @Override
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && message.isReply();
+        }
+
+        @Override
+        public String apply(Message message) {
+            message.getReplyToMessage();
+            DeleteMessage deleteMessage = new DeleteMessage(message.getChatId(), message.getReplyToMessage().getMessageId());
+            try {
+                CWTavernBot.INSTANCE.deleteMessage(deleteMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            return "";
         }
     },
     MENU("/menu") {
@@ -351,8 +368,8 @@ public enum TavernCommands implements Commands {
     },
     SHOW_STATS("/show_stats") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isAdmin();
         }
 
         @Override
@@ -369,9 +386,8 @@ public enum TavernCommands implements Commands {
     },
     GIVE("") {
         @Override
-        public boolean isApplicable(Message message) {
-            User user = User.getFromMessage(message);
-            if (user.getCurseTime() == null || user.getCurseTime().before(new Date())) {
+        public boolean isApplicable(Message message, User from) {
+            if (from.getCurseTime() == null || from.getCurseTime().before(new Date())) {
                 return Arrays.stream(DrinkType.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent() ||
                         Arrays.stream(Food.values()).filter(dt -> message.getText().contains(dt.getCommand())).findFirst().isPresent();
             } else {
@@ -484,8 +500,8 @@ public enum TavernCommands implements Commands {
     },
     CURSE("/curse") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message).isBarmenOrAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isBarmenOrAdmin();
         }
 
         @Override
@@ -575,9 +591,8 @@ public enum TavernCommands implements Commands {
     }
 
     @Override
-    public boolean isApplicable(Message message) {
-        User user = User.getFromMessage(message);
-        if (user.getCurseTime() == null || user.getCurseTime().before(new Date())) {
+    public boolean isApplicable(Message message, User from) {
+        if (from.getCurseTime() == null || from.getCurseTime().before(new Date())) {
             return message.getText().contains(this.text);
         } else {
             return message.getText().contains("/" + StringUtils.reverse(this.text.substring(1)));

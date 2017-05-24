@@ -30,8 +30,8 @@ public enum PersonalCommands implements Commands {
     },
     HELP("/help") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && message.isUserMessage();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && message.isUserMessage();
         }
 
         @Override
@@ -47,8 +47,8 @@ public enum PersonalCommands implements Commands {
     },
     CREATE_VOTING("/create_voting ") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message.getFrom()).isAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isAdmin();
         }
 
         @Override
@@ -62,8 +62,8 @@ public enum PersonalCommands implements Commands {
     },
     ADD_VOTE_OPTION("/add_vote_option ") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message.getFrom()).isAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isAdmin();
         }
 
         @Override
@@ -95,8 +95,8 @@ public enum PersonalCommands implements Commands {
     },
     RUN_VOTING("/run_voting ") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message.getFrom()).isAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isAdmin();
         }
 
         @Override
@@ -117,8 +117,8 @@ public enum PersonalCommands implements Commands {
     },
     CREATE_TOURNAMENT("/create_tournament") {
         @Override
-        public boolean isApplicable(Message message) {
-            return super.isApplicable(message) && User.getFromMessage(message.getFrom()).isAdmin();
+        public boolean isApplicable(Message message, User from) {
+            return super.isApplicable(message, from) && from.isAdmin();
         }
 
         @Override
@@ -172,9 +172,9 @@ public enum PersonalCommands implements Commands {
     },
     SET_BARMEN("/set_barmen ") {
         @Override
-        public boolean isApplicable(Message message) {
+        public boolean isApplicable(Message message, User from) {
             boolean setAdminMessage = message.getText().startsWith(text);
-            return setAdminMessage && User.getFromMessage(message).isAdmin();
+            return setAdminMessage && from.isAdmin();
         }
 
         @Override
@@ -333,7 +333,7 @@ public enum PersonalCommands implements Commands {
     }
 
     @Override
-    public boolean isApplicable(Message message) {
+    public boolean isApplicable(Message message, User from) {
         return message.getText().contains(this.text);
     }
 
