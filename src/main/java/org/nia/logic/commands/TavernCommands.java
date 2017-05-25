@@ -54,9 +54,9 @@ public enum TavernCommands implements Commands {
                 } catch (Exception ex) {
                     return "";
                 }
-//                if (betCount > 30) {
-//                    return user + ", мы тут не магнаты, такие большие ставки не принимаем. Попробуй поставить меньше 30 " + Emoji.GOLD;
-//                }
+                if (betCount < 10) {
+                    return user + ", у нас тут серьезное мероприятие, гроши не собираем! Хочешь поставить, ставь хотя бы десятку " + Emoji.GOLD + "!";
+                }
                 if (betCount > user.getGold()) {
                     return user + ", у тебя нет столько золота, чтобы делать такие ставки";
                 }
@@ -64,7 +64,8 @@ public enum TavernCommands implements Commands {
                     return "";
                 }
                 Integer toBetUserID = message.getReplyToMessage().getFrom().getId();
-                List<TournamentBet> betsByUserID = TournamentBet.getCurrentBetsByUserID(user);
+                Tournament current = Tournament.getCurrent();
+                List<TournamentBet> betsByUserID = TournamentBet.getCurrentBetsByUserID(current.getPublicID(), user);
                 Optional<TournamentBet> betOptional = betsByUserID.stream().filter(bet -> bet.getTo().getUser().getUserID() == toBetUserID).findFirst();
                 if (betOptional.isPresent()) {
                     TournamentBet tournamentBet = betOptional.get();
@@ -281,22 +282,23 @@ public enum TavernCommands implements Commands {
             }
         }
     },
-    DELETE_MESSAGE("/delete_message") {
+    TEST("/some_test ") {
         @Override
         public boolean isApplicable(Message message, User from) {
-            return super.isApplicable(message, from) && message.isReply();
+            return super.isApplicable(message, from) && from.isAdmin();
         }
 
         @Override
         public String apply(Message message) {
-            message.getReplyToMessage();
-            DeleteMessage deleteMessage = new DeleteMessage(message.getChatId(), message.getReplyToMessage().getMessageId());
-            try {
-                CWTavernBot.INSTANCE.deleteMessage(deleteMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-            return "";
+            String nickAndID = StringUtils.substringAfter(message.getText(), text);
+            String[] split = nickAndID.split(" ");
+            String nick = split[1];
+            Integer currentID = Integer.valueOf(split[0]);
+            User user = User.getByNick(nick);
+            List<TournamentBet> bets = TournamentBet.getCurrentBetsByUserID(currentID, user);
+            StringBuilder sb = new StringBuilder();
+            bets.forEach(b-> sb.append(b.getFrom()).append(" ").append(b.getTo().getUser()).append(", sum=").append(b.getSum()).append("\n\n"));
+            return sb.toString();
         }
     },
     MENU("/menu") {

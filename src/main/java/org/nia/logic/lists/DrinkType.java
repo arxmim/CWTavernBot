@@ -42,9 +42,9 @@ public enum DrinkType {
         this.selfThrowPhrases = new ArrayList<>();
         this.enterPhrases = new ArrayList<>();
         givePhrases.add("%s, вот тебе " + onGive + ", можешь смело /drink! ну или /throw, но мы же тут разумные люди, да?");
-        givePhrases.add("%s, специально для тебя " + onGive + " - лучше во всех 5 замках не найти! /drink - ну ты знаешь что делать.");
+        givePhrases.add("%s, специально для тебя " + onGive + " - лучше во всех 7 замках не найти! /drink - ну ты знаешь что делать.");
         givePhrases.add("%s, сегодня нет отбоя от желающих выпить " + onThrow + ", но для тебя у меня всегда найдется в запасе.");
-        givePhrases.add("%s, ты вроде уже пил сегодня " + onThrow + ", но раз ты настаиваешь, держи еще один.");
+        givePhrases.add("%s, ты вроде уже пил сегодня " + onThrow + ", но раз ты настаиваешь, держи еще.");
         givePhrases.add("%s, держи " + onThrow + ", приготовлено по рецепту моей бабушки.");
         drinkPartPhrases.add("%s выпил лишь половину " + onDrink + ", сразу допить не смог. Слабак что ли?");
         drinkPartPhrases.add("%s отпил немного из " + onDrink + ", и как будто немного позеленел. Возможно ему стоит заказывать не такие крепкие напитки?");

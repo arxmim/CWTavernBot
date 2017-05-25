@@ -39,17 +39,14 @@ public class TournamentBet extends AbstractEntity {
     @Column()
     private int sum;
 
-    public static List<TournamentBet> getCurrentBetsByUserID(User user) {
+    public static List<TournamentBet> getCurrentBetsByUserID(Integer current, User user) {
         List<TournamentBet> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Tournament current = Tournament.getCurrent();
-            if (current != null) {
-                Query<TournamentBet> query = session.createQuery("FROM TournamentBet " +
-                        "WHERE tournament.publicID = " + current.getPublicID() + " " +
-                        "and from.userID = " + user.getUserID(), TournamentBet.class);
-                res = query.list();
-            }
+            Query<TournamentBet> query = session.createQuery("FROM TournamentBet " +
+                    "WHERE tournament.publicID = " + current + " " +
+                    "and from.userID = " + user.getUserID(), TournamentBet.class);
+            res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
