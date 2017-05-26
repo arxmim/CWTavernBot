@@ -45,7 +45,7 @@ public class TournamentBet extends AbstractEntity {
         try (Session session = factory.openSession()) {
             Query<TournamentBet> query = session.createQuery("FROM TournamentBet " +
                     "WHERE tournament.publicID = " + current + " " +
-                    "and from.userID = " + user.getUserID(), TournamentBet.class);
+                    "and user.userID = " + user.getUserID(), TournamentBet.class);
             res = query.list();
         } catch (Exception ex) {
             ex.printStackTrace();
