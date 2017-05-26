@@ -28,6 +28,7 @@
         <mapping class="org.nia.model.Tournament"/>
         <mapping class="org.nia.model.TournamentUsers"/>
         <mapping class="org.nia.model.TournamentBet"/>
+        <mapping class="org.nia.model.Dancing"/>
 
 
     </session-factory>

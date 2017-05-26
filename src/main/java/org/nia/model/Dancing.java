@@ -31,10 +31,10 @@ public class Dancing extends AbstractEntity {
     @GeneratedValue
     Integer publicID;
     @ManyToOne
-    @JoinColumn(name = "firstDancerID")
+    @JoinColumn(name = "firstDancerID", nullable = false)
     User firstDancer;
     @ManyToOne
-    @JoinColumn(name = "secondDancerID")
+    @JoinColumn(name = "secondDancerID", nullable = false)
     User secondDancer;
     @Enumerated(EnumType.STRING)
     DanceStep currentStep;
