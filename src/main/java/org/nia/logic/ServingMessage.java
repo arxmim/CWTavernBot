@@ -12,7 +12,8 @@ import java.util.List;
  * @author Иван, 09.03.2017.
  */
 public class ServingMessage {
-    private static long tavernChatID = -1001100805125L;
+//    private static long tavernChatID = -1001100805125L;//test
+    private static long tavernChatID = -1001104513622L;//prod
 
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
@@ -49,7 +50,7 @@ public class ServingMessage {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboad(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
         return sendMessage;
@@ -64,7 +65,7 @@ public class ServingMessage {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboad(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
         return sendMessage;
@@ -82,7 +83,7 @@ public class ServingMessage {
         }
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboad(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
         return sendMessage;
     }

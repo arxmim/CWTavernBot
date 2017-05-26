@@ -118,7 +118,8 @@ public class User extends AbstractEntity {
         nick = nick.replace("@", "");
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<User> query = session.createQuery("FROM User WHERE nick = " + nick, User.class);
+            Query<User> query = session.createQuery("FROM User WHERE nick = :nick", User.class);
+            query.setParameter("nick", nick);
             List<User> list = query.list();
             if (!list.isEmpty()) {
                 res = list.get(0);
@@ -338,7 +339,10 @@ public class User extends AbstractEntity {
     }
 
     public User getFightWithUser() {
-        return User.getByID(User.class, fightWithUserID);
+        if (fightWithUserID == null) {
+            return null;
+        }
+        return getByID(User.class, fightWithUserID);
     }
 
     public void setFightWithUser(User fightWithUser) {
@@ -386,5 +390,9 @@ public class User extends AbstractEntity {
     }
     public int getDrinkedWeekNormalized() {
         return drinkedWeek / 2;
+    }
+
+    public boolean isBarmenOrAdmin() {
+        return isBarmen || isAdmin;
     }
 }

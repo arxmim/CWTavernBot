@@ -71,3 +71,4 @@ CWTavernBot.iml
 target/test-classes/ex1.txt
 src/main/resources/credentials.properties
 target/classes/credentials.properties
+target/classes/hibernate.cfg.xml

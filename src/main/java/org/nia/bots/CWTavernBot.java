@@ -31,7 +31,8 @@ import java.util.*;
  */
 public class CWTavernBot extends TelegramLongPollingBot {
     public static CWTavernBot INSTANCE = new CWTavernBot();
-    private static final String BOT_NAME = "Tavern_Test_Bot";
+//    private static final String BOT_NAME = "Tavern_Test_Bot";
+    private static final String BOT_NAME = "CWTavernBot";
     private static final String LOGTAG = "CWTavernBot";
 
     @Override
@@ -45,27 +46,26 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 if (message.hasText() || message.hasLocation()) {
                     handleIncomingMessage(message);
                 } else {
-                    User newChatMember = message.getNewChatMember();
-                    if (newChatMember != null) {
-                        org.nia.model.User user = org.nia.model.User.getFromMessage(newChatMember);
-                        if (user.getLastDrinkTime() != null && user.getLastDrinkTime().after(DateUtils.addMinutes(new Date(), -20))) {
-                            sendMessage(TavernCommands.GIVE.getMessage(message, user + ", ты либо сидишь в таверне, либо уходишь, хватит бегать туда-сюда!"));
-                        } else {
-                            user.setAlkoCount(2);
-                            int rand = new Random().nextInt(DrinkType.values().length);
-                            DrinkType drinkType = DrinkType.values()[rand];
-                            user.setDrinkType(drinkType);
-                            user.save();
-                            String answer = String.format(drinkType.getEnterPhrase(), user);
-                            sendMessage(TavernCommands.GIVE.getMessage(message, answer));
+                    List<User> newChatMembers = message.getNewChatMembers();
+                    if (newChatMembers != null) {
+                        for (User newChatMember : newChatMembers) {
+                            org.nia.model.User user = org.nia.model.User.getFromMessage(newChatMember);
+                            if (user.getLastDrinkTime() != null && user.getLastDrinkTime().after(DateUtils.addMinutes(new Date(), -20))) {
+                                sendMessage(TavernCommands.GIVE.getMessage(message, user + ", ты либо сидишь в таверне, либо уходишь, хватит бегать туда-сюда!"));
+                            } else {
+                                user.setAlkoCount(2);
+                                int rand = new Random().nextInt(DrinkType.values().length);
+                                DrinkType drinkType = DrinkType.values()[rand];
+                                user.setDrinkType(drinkType);
+                                user.save();
+                                String answer = String.format(drinkType.getEnterPhrase(), user);
+                                sendMessage(TavernCommands.GIVE.getMessage(message, answer));
+                            }
                         }
                     }
-                    BotLogger.info(LOGTAG, "no text");
                 }
             } else if (update.hasCallbackQuery()) {
                 handleIncomingCallback(update.getCallbackQuery());
-            } else {
-                BotLogger.info(LOGTAG, "no message");
             }
         } catch (Exception e) {
             BotLogger.error(LOGTAG, e);
@@ -185,7 +185,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 }
             }
             for (Commands command : commandsList) {
-                if (command.isApplicable(message)) {
+                if (command.isApplicable(message, user)) {
                     String answer = command.apply(message);
                     if (!StringUtils.isEmpty(answer)) {
                         sendMessageRequest = command.getMessage(message, answer);

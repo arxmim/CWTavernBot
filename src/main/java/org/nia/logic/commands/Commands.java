@@ -4,7 +4,7 @@ import org.nia.bots.CWTavernBot;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -17,7 +17,7 @@ public interface Commands {
 
     public String apply(Message message);
 
-    public boolean isApplicable(Message message);
+    public boolean isApplicable(Message message, User from);
 
     public default SendMessage getMessage(Message message, String answer) {
         SendMessage sendMessage = new SendMessage();
@@ -31,14 +31,14 @@ public interface Commands {
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
             replyKeyboardMarkup.setSelective(true);
             replyKeyboardMarkup.setResizeKeyboard(true);
-            replyKeyboardMarkup.setOneTimeKeyboad(true);
+            replyKeyboardMarkup.setOneTimeKeyboard(true);
             List<KeyboardRow> keyboard = CWTavernBot.getKeyboard(User.getFromMessage(message.getFrom()));
             if (keyboard != null && !keyboard.isEmpty()) {
                 replyKeyboardMarkup.setKeyboard(keyboard);
             }
             sendMessage.setReplyMarkup(replyKeyboardMarkup);
         } else {
-            ReplyKeyboardHide replyKeyboardHide = new ReplyKeyboardHide();
+            ReplyKeyboardRemove replyKeyboardHide = new ReplyKeyboardRemove();
             replyKeyboardHide.setSelective(true);
             sendMessage.setReplyMarkup(replyKeyboardHide);
 
@@ -58,7 +58,7 @@ public interface Commands {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboad(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
         List<KeyboardRow> keyboard = CWTavernBot.getKeyboard(user);
         if (keyboard != null && !keyboard.isEmpty()) {
             replyKeyboardMarkup.setKeyboard(keyboard);
