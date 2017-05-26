@@ -282,25 +282,6 @@ public enum TavernCommands implements Commands {
             }
         }
     },
-    TEST("/some_test ") {
-        @Override
-        public boolean isApplicable(Message message, User from) {
-            return super.isApplicable(message, from) && from.isAdmin();
-        }
-
-        @Override
-        public String apply(Message message) {
-            String nickAndID = StringUtils.substringAfter(message.getText(), text);
-            String[] split = nickAndID.split(" ");
-            String nick = split[1];
-            Integer currentID = Integer.valueOf(split[0]);
-            User user = User.getByNick(nick);
-            List<TournamentBet> bets = TournamentBet.getCurrentBetsByUserID(currentID, user);
-            StringBuilder sb = new StringBuilder();
-            bets.forEach(b-> sb.append(b.getFrom()).append(" ").append(b.getTo().getUser()).append(", sum=").append(b.getSum()).append("\n\n"));
-            return sb.toString();
-        }
-    },
     MENU("/menu") {
         @Override
         public String apply(Message message) {
