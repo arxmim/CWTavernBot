@@ -61,7 +61,7 @@ public class Quest extends AbstractEntity {
         List<Quest> qList = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<Quest> query = session.createQuery("FROM Quest WHERE returnTime is null and eventTime > current_date and questName = :questName", Quest.class);
+            Query<Quest> query = session.createQuery("FROM Quest WHERE returnTime is NULL and eventTime > current_date and questName = :questName", Quest.class);
             query.setParameter("questName", questsEnum);
             qList = query.list();
         } catch (Exception ex) {

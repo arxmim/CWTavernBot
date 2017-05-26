@@ -26,7 +26,7 @@ public class QuestCommands implements Commands {
     }
 
     @Override
-    public String apply(Message message) {
+    public String apply(Message message, User from) {
         String res = "";
         Optional<IQuestStep> first = getNextStep(message.getText());
         if (first.isPresent()) {

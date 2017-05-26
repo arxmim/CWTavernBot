@@ -15,6 +15,10 @@ public class ServingMessage {
 //    private static long tavernChatID = -1001100805125L;//test
     private static long tavernChatID = -1001104513622L;//prod
 
+    public static long getTavernChatID() {
+        return tavernChatID;
+    }
+
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(tavernChatID);

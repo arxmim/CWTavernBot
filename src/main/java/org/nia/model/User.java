@@ -77,6 +77,10 @@ public class User extends AbstractEntity {
     private Date curseTime;
     @Column()
     private String voteFor;
+    @Column()
+    private Integer danceWithUserID;
+    @Column()
+    private Date danceTime;
 
     public static User getFromMessage(Message message) {
         return getFromMessage(message.getFrom());
@@ -350,6 +354,20 @@ public class User extends AbstractEntity {
             fightWithUserID = null;
         } else {
             fightWithUserID = fightWithUser.getUserID();
+        }
+    }
+    public User getDanceWithUser() {
+        if (danceWithUserID == null) {
+            return null;
+        }
+        return getByID(User.class, danceWithUserID);
+    }
+
+    public void setDanceWithUser(User danceWithUser) {
+        if (danceWithUser == null) {
+            danceWithUserID = null;
+        } else {
+            danceWithUserID = danceWithUser.getUserID();
         }
     }
 
