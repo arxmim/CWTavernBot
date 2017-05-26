@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Getter
 public enum DanceStep {
-    FOO1("<Название танца 1>") {
+    FOO1("\"Название танца 1\"") {
         @Override
         public boolean hasNextStep(Dancing dancing) {
             return true;
@@ -48,16 +48,16 @@ public enum DanceStep {
 
         @Override
         public DanceAction getNextAfter(DanceAction lastDanceAction) {
-            if (lastDanceAction == null || lastDanceAction.dal == null) {
+            if (lastDanceAction == null) {
                 return new DanceAction(DanceActionList.FOO1_3, true);
             }
-            if (lastDanceAction == new DanceAction(DanceActionList.FOO1_3, true)) {
+            if (lastDanceAction.equals(new DanceAction(DanceActionList.FOO1_3, true))) {
                 return new DanceAction(DanceActionList.FOO1_2, false);
             }
             return null;
         }
     },
-    FOO2("<Название танца 1>") {
+    FOO2("\"Название танца 1\"") {
         @Override
         public boolean hasNextStep(Dancing dancing) {
             return false;
@@ -82,13 +82,13 @@ public enum DanceStep {
 
         @Override
         public DanceAction getNextAfter(DanceAction lastDanceAction) {
-            if (lastDanceAction == null || lastDanceAction.dal == null) {
+            if (lastDanceAction == null) {
                 return new DanceAction(DanceActionList.FOO2_2, true);
             }
-            if (lastDanceAction == new DanceAction(DanceActionList.FOO2_2, true)) {
+            if (lastDanceAction.equals(new DanceAction(DanceActionList.FOO2_2, true))) {
                 return new DanceAction(DanceActionList.FOO2_1, true);
             }
-            if (lastDanceAction == new DanceAction(DanceActionList.FOO2_1, true)) {
+            if (lastDanceAction.equals(new DanceAction(DanceActionList.FOO2_1, true))) {
                 return new DanceAction(DanceActionList.FOO2_4, false);
             }
             return null;
@@ -100,7 +100,7 @@ public enum DanceStep {
 
     DanceStep(String danceName) {
         this.danceName = danceName;
-        this.stepDuration = 45;
+        this.stepDuration = 15;
     }
 
     public SendMessage getInitialSendMessage(Dancing dancing) {
@@ -137,7 +137,7 @@ public enum DanceStep {
 
     public SendMessage getFailMessage(User failer, User second) {
         return ServingMessage.getTournamentMessage("Вместо танца " + failer + " оттоптал ноги своему партнеру, и вся " +
-                "магия танца была разрушена... " + second + " должен быть тобой крайне разочарован этим растяпой!");
+                "магия танца была разрушена... " + second + " должен быть крайне разочарован этим растяпой!");
     }
 
     public SendMessage getSuccessMessage(Dancing dancing) {
@@ -164,6 +164,25 @@ public enum DanceStep {
         User dancer;
         User second;
         boolean isFirst;
+        if (dancing.getCompleted() != null) {
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+            answerCallbackQuery.setText("Танец уже закончился!");
+            EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+            editMessageReplyMarkup.setMessageId(callbackQuery.getMessage().getMessageId());
+            editMessageReplyMarkup.setChatId(callbackQuery.getMessage().getChatId());
+            try {
+                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            try {
+                CWTavernBot.INSTANCE.editMessageReplyMarkup(editMessageReplyMarkup);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
         if (dancing.getFirstDancer().getUserID() != userID && dancing.getSecondDancer().getUserID() != userID) {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
@@ -196,12 +215,16 @@ public enum DanceStep {
             editMessageReplyMarkup.setChatId(callbackQuery.getMessage().getChatId());
             try {
                 CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            try {
                 CWTavernBot.INSTANCE.editMessageReplyMarkup(editMessageReplyMarkup);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
             return;
-        } else if (nextAction == action) {
+        } else if (nextAction.equals(action)) {
             dancing.setLastActionFromFirst(isFirst);
             dancing.setLastDanceAction(dal);
             dancing.save();
@@ -223,6 +246,10 @@ public enum DanceStep {
             answerCallbackQuery.setText("Правильно!");
             try {
                 CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            try {
                 CWTavernBot.INSTANCE.editMessageText(editMessageText);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
@@ -246,7 +273,15 @@ public enum DanceStep {
             SendMessage failMessage = dancing.getCurrentStep().getFailMessage(dancer, second);
             try {
                 CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            try {
                 CWTavernBot.INSTANCE.editMessageText(editMessageText);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            try {
                 CWTavernBot.INSTANCE.sendMessage(failMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
@@ -270,17 +305,18 @@ public enum DanceStep {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof DanceAction)) return false;
 
             DanceAction that = (DanceAction) o;
 
-            return isFirst == that.isFirst && dal == that.dal;
+            if (isFirst != that.isFirst) return false;
+            return dal == that.dal;
 
         }
 
         @Override
         public int hashCode() {
-            int result = dal != null ? dal.hashCode() : 0;
+            int result = dal.hashCode();
             result = 31 * result + (isFirst ? 1 : 0);
             return result;
         }

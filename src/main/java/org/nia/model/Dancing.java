@@ -96,6 +96,8 @@ public class Dancing extends AbstractEntity {
                     e.printStackTrace();
                 }
             } else if (currentStep.hasNextStep(this)){
+                this.lastDanceAction = null;
+                this.lastActionFromFirst = null;
                 this.currentStep = currentStep.nextStep(this);
                 this.nextStepTime = DateUtils.addSeconds(new Date(), currentStep.getStepDuration());
                 this.save();
@@ -123,7 +125,13 @@ public class Dancing extends AbstractEntity {
     }
 
     public DanceStep.DanceAction getNextAction() {
-        return currentStep.getNextAfter(new DanceStep.DanceAction(lastDanceAction, lastActionFromFirst));
+        DanceStep.DanceAction danceAction;
+        if (lastDanceAction == null || lastActionFromFirst == null) {
+            danceAction = null;
+        } else {
+            danceAction = new DanceStep.DanceAction(lastDanceAction, lastActionFromFirst);
+        }
+        return currentStep.getNextAfter(danceAction);
     }
 
 

@@ -3,6 +3,7 @@ package org.nia.logic.commands;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.bots.CWTavernBot;
+import org.nia.logic.lists.DanceStep;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.lists.Food;
 import org.nia.logic.lists.TournamentType;
@@ -283,7 +284,7 @@ public enum TavernCommands implements Commands {
             }
         }
     },
-    DANCE("/dance") {
+    DANCE("/secret_dance") {
         @Override
         public boolean isApplicable(Message message, User from) {
             return super.isApplicable(message, from) && message.isReply();
@@ -298,7 +299,7 @@ public enum TavernCommands implements Commands {
                 return from + ", ты уже танцуешь!";
             }
             if (from.getDanceTime() != null) {
-                long duration = TimeUnit.MINUTES.convert(DateUtils.addMinutes(from.getDanceTime(), 20).getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
+                long duration = TimeUnit.MINUTES.convert(DateUtils.addMinutes(from.getDanceTime(), 5).getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
                 if (duration > 0) {
                     return from + ", ты совсем недавно отжигал своим танцем, не занимай место, дай другим " +
                             "потанцевать! Подожди ещё " + duration + " минут.";
@@ -309,13 +310,15 @@ public enum TavernCommands implements Commands {
                 Dancing dancing = new Dancing();
                 dancing.setFirstDancer(to);
                 dancing.setSecondDancer(from);
+                dancing.setCurrentStep(DanceStep.FOO1);
+                dancing.save();
                 to.setDanceTime(new Date());
                 to.setDanceWithUser(from);
                 to.save();
                 from.setDanceTime(new Date());
                 from.save();
                 return from + " принял приглашение на танец от " + to + " и сейчас они будут зажигать! Танцоры - " +
-                        "готовьтесь, зрители - поддержите смельчаков аплодисментами!";
+                        "готовьтесь, зрители - поддержите смельчаков аплодисментами! Сегодня они покажут нам " + dancing.getCurrentStep().getDanceName();
             } else {
                 from.setDanceWithUser(to);
                 from.save();
