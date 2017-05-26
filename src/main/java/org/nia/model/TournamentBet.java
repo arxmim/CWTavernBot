@@ -43,8 +43,8 @@ public class TournamentBet extends AbstractEntity {
         List<TournamentBet> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {
-            Query<TournamentBet> query = session.createQuery("FROM TournamentBet " +
-                    "WHERE from.userID = :uID AND tournament.publicID = :tID", TournamentBet.class);
+            Query<TournamentBet> query = session.createQuery("FROM TournamentBet tb" +
+                    "WHERE tb.from.userID = :uID AND tb.tournament.publicID = :tID", TournamentBet.class);
             query.setParameter("tID", current);
             query.setParameter("uID", user.getUserID());
             res = query.list();
