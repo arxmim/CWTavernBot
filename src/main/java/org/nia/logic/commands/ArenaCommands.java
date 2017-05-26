@@ -27,7 +27,7 @@ public enum ArenaCommands implements Commands {
         }
 
         @Override
-        public String apply(Message message) {
+        public String apply(Message message, User from) {
             TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(message.getFrom().getId());
             User user = currentByUserID.getUser();
             Weapon weapon = Weapon.getByName(message.getText());
@@ -82,7 +82,7 @@ public enum ArenaCommands implements Commands {
     }
 
     @Override
-    public String apply(Message message) {
+    public String apply(Message message, User from) {
         return "";
     }
 

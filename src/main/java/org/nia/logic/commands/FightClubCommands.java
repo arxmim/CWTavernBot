@@ -29,7 +29,7 @@ public enum FightClubCommands implements Commands {
         }
 
         @Override
-        public String apply(Message message) {
+        public String apply(Message message, User from) {
             TournamentUsers currentByUserID = TournamentUsers.getCurrentByUserID(message.getFrom().getId());
             User user = currentByUserID.getUser();
             currentByUserID.setScore(user.getFightClubStatsSum());
@@ -88,7 +88,7 @@ public enum FightClubCommands implements Commands {
     }
 
     @Override
-    public String apply(Message message) {
+    public String apply(Message message, User from) {
         return "";
     }
 

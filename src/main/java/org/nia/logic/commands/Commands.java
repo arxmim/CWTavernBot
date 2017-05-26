@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface Commands {
 
-    public String apply(Message message);
+    public String apply(Message message, User from);
 
     public boolean isApplicable(Message message, User from);
 

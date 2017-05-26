@@ -2,6 +2,7 @@ package org.nia.bots;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.nia.logic.ServingMessage;
+import org.nia.model.Dancing;
 import org.nia.model.Tournament;
 import org.nia.model.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -45,6 +46,7 @@ public class OficiantThread extends Thread {
                         bot.sendMessage(ServingMessage.getTournamentMessage(answer));
                     }
                 }
+                Dancing.getAllCurrent().forEach(Dancing::process);
                 GregorianCalendar gcNow = new GregorianCalendar();
                 gcNow.setTime(now);
                 if (!DateUtils.isSameDay(gcWas, gcNow) && gcNow.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {

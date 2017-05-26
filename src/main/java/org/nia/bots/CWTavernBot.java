@@ -7,6 +7,7 @@ import org.nia.logic.commands.Commands;
 import org.nia.logic.commands.PersonalCommands;
 import org.nia.logic.commands.QuestCommands;
 import org.nia.logic.commands.TavernCommands;
+import org.nia.logic.lists.DanceStep;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.quests.ICrossQuestStep;
 import org.nia.model.*;
@@ -146,6 +147,8 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 }
             } else if (callbackQuery.getData().startsWith("@votingBot")) {
                 Voting.processVote(callbackQuery, user);
+            } else if (callbackQuery.getData().startsWith("dance")) {
+                DanceStep.processCallbackQuery(callbackQuery);
             }
         }
     }
@@ -186,7 +189,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
             }
             for (Commands command : commandsList) {
                 if (command.isApplicable(message, user)) {
-                    String answer = command.apply(message);
+                    String answer = command.apply(message, user);
                     if (!StringUtils.isEmpty(answer)) {
                         sendMessageRequest = command.getMessage(message, answer);
                     }
@@ -194,7 +197,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 }
             }
             if (sendMessageRequest == null && message.isUserMessage() && user.inTavern()) {
-                String answer = PersonalCommands.MY_INFO.apply(message);
+                String answer = PersonalCommands.MY_INFO.apply(message, user);
                 sendMessageRequest = PersonalCommands.MY_INFO.getMessage(message, answer);
             }
         }
