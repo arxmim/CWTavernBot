@@ -310,6 +310,7 @@ public enum TavernCommands implements Commands {
                 Dancing dancing = new Dancing();
                 dancing.setFirstDancer(to);
                 dancing.setSecondDancer(from);
+                dancing.setChatID(message.getChatId());
                 dancing.setCurrentStep(DanceStep.VALS1);
                 dancing.save();
                 to.setDanceTime(new Date());

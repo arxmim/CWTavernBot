@@ -46,6 +46,8 @@ public class Dancing extends AbstractEntity {
     Date nextStepTime;
     @Column
     Boolean completed;
+    @Column
+    Long chatID;
 
     public static Dancing getCurrent(User user) {
         SessionFactory sessionFactory = HibernateConfig.getSessionFactory();

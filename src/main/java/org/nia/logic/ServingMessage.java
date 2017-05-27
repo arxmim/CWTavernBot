@@ -1,6 +1,7 @@
 package org.nia.logic;
 
 import org.nia.bots.CWTavernBot;
+import org.nia.model.Dancing;
 import org.nia.model.User;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -14,13 +15,9 @@ import java.util.List;
 public class ServingMessage {
 //    private static long tavernChatID = -1001100805125L;//test
     private static long tavernChatID = -1001104513622L;//prod
-    private static long danceChatID = -1001083996255L;//prod
 
     public static long getTavernChatID() {
         return tavernChatID;
-    }
-    public static long getDanceChatID() {
-        return danceChatID;
     }
 
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
@@ -79,9 +76,9 @@ public class ServingMessage {
         return sendMessage;
     }
 
-    public static SendMessage getDanceMessage(String answer) {
+    public static SendMessage getDanceMessage(Dancing dancing, String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(danceChatID);
+        sendMessage.setChatId(dancing.getChatID());
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 
