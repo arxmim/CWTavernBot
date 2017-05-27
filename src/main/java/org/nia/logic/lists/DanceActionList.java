@@ -7,14 +7,48 @@ import lombok.Getter;
  */
 @Getter
 public enum DanceActionList {
-    FOO1_1("\"Движение 1_1\""),
-    FOO1_2("\"Движение 1_2\""),
-    FOO1_3("\"Движение 1_3\""),
-    FOO1_4("\"Движение 1_4\""),
-    FOO2_1("\"Движение 2_1\""),
-    FOO2_2("\"Движение 2_2\""),
-    FOO2_3("\"Движение 2_3\""),
-    FOO2_4("\"Движение 2_4\"");
+    VALS1("поклон"){
+        @Override
+        public String doName() {
+            return "поклонился";
+        }
+    },
+    VALS2("протянуть руку к партнеру") {
+        @Override
+        public String doName() {
+            return "протянул руку к партнеру";
+        }
+
+        @Override
+        public String willDoName() {
+            return getActionName();
+        }
+    },
+    VALS3("взмах рукой"),
+    VALS4("обнять партнера за талию"){
+        @Override
+        public String doName() {
+            return "обнял партнера за талию";
+        }
+    },
+    VALS5("положить руку партнеру на плечо"){
+        @Override
+        public String doName() {
+            return "положил руку партнеру на плечо";
+        }
+    },
+    VALS6("начать кружиться"){
+        @Override
+        public String doName() {
+            return "начал кружиться";
+        }
+
+        @Override
+        public String willDoName() {
+            return super.willDoName();
+        }
+    },
+    VALS7("реверанс");
 
     private String actionName;
 
@@ -24,6 +58,10 @@ public enum DanceActionList {
 
     public String doName() {
         return "сделал " + actionName;
+    }
+
+    public String willDoName() {
+        return "сделать " + actionName;
     }
 
     @Override

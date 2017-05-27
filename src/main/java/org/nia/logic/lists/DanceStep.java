@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Getter
 public enum DanceStep {
-    FOO1("\"Название танца 1\"") {
+    VALS1("\"Вальс новичков\"") {
         @Override
         public boolean hasNextStep(Dancing dancing) {
             return true;
@@ -31,33 +31,33 @@ public enum DanceStep {
 
         @Override
         public DanceStep nextStep(Dancing dancing) {
-            return FOO2;
+            return VALS2;
         }
 
         @Override
         public List<DanceActionList> getStepActions() {
-            return Arrays.asList(DanceActionList.FOO1_1, DanceActionList.FOO1_2, DanceActionList.FOO1_3, DanceActionList.FOO1_4);
+            return Arrays.asList(DanceActionList.VALS1, DanceActionList.VALS2, DanceActionList.VALS3, DanceActionList.VALS4);
         }
 
         @Override
         public String getStepText(Dancing dancing) {
             return dancing.getFirstDancer() + " и " + dancing.getSecondDancer() + " стоят друг перед другом, " +
                     "начинает играть легкая музыка. Сперва " + dancing.getFirstDancer() + " должен " +
-                    DanceActionList.FOO1_3 + ", ну а потом его партнер должен " + DanceActionList.FOO1_2;
+                    DanceActionList.VALS3.willDoName() + ", ну а потом его партнер должен " + DanceActionList.VALS2.willDoName();
         }
 
         @Override
         public DanceAction getNextAfter(DanceAction lastDanceAction) {
             if (lastDanceAction == null) {
-                return new DanceAction(DanceActionList.FOO1_3, true);
+                return new DanceAction(DanceActionList.VALS3, true);
             }
-            if (lastDanceAction.equals(new DanceAction(DanceActionList.FOO1_3, true))) {
-                return new DanceAction(DanceActionList.FOO1_2, false);
+            if (lastDanceAction.equals(new DanceAction(DanceActionList.VALS3, true))) {
+                return new DanceAction(DanceActionList.VALS2, false);
             }
             return null;
         }
     },
-    FOO2("\"Название танца 1\"") {
+    VALS2("\"Вальс новичков\"") {
         @Override
         public boolean hasNextStep(Dancing dancing) {
             return false;
@@ -70,26 +70,26 @@ public enum DanceStep {
 
         @Override
         public List<DanceActionList> getStepActions() {
-            return Arrays.asList(DanceActionList.FOO2_1, DanceActionList.FOO2_2, DanceActionList.FOO2_3, DanceActionList.FOO2_4);
+            return Arrays.asList(DanceActionList.VALS5, DanceActionList.VALS4, DanceActionList.VALS6, DanceActionList.VALS7);
         }
 
         @Override
         public String getStepText(Dancing dancing) {
             return dancing.getFirstDancer() + " и " + dancing.getSecondDancer() + " уже неплохо отжигают! Сейчас " +
-                    dancing.getFirstDancer() + " должен " + DanceActionList.FOO2_2 + " и " +
-                    DanceActionList.FOO2_1 + ", ну а потом его партнер должен " + DanceActionList.FOO2_4;
+                    dancing.getFirstDancer() + " должен " + DanceActionList.VALS4.willDoName() + " и " +
+                    DanceActionList.VALS6.willDoName() + ", ну а потом его партнер должен " + DanceActionList.VALS5.willDoName();
         }
 
         @Override
         public DanceAction getNextAfter(DanceAction lastDanceAction) {
             if (lastDanceAction == null) {
-                return new DanceAction(DanceActionList.FOO2_2, true);
+                return new DanceAction(DanceActionList.VALS4, true);
             }
-            if (lastDanceAction.equals(new DanceAction(DanceActionList.FOO2_2, true))) {
-                return new DanceAction(DanceActionList.FOO2_1, true);
+            if (lastDanceAction.equals(new DanceAction(DanceActionList.VALS4, true))) {
+                return new DanceAction(DanceActionList.VALS6, true);
             }
-            if (lastDanceAction.equals(new DanceAction(DanceActionList.FOO2_1, true))) {
-                return new DanceAction(DanceActionList.FOO2_4, false);
+            if (lastDanceAction.equals(new DanceAction(DanceActionList.VALS6, true))) {
+                return new DanceAction(DanceActionList.VALS5, false);
             }
             return null;
         }
