@@ -18,6 +18,9 @@ public class ServingMessage {
     public static long getTavernChatID() {
         return tavernChatID;
     }
+    public static long getDanceChatID() {
+        return danceChatID;
+    }
 
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
@@ -63,6 +66,21 @@ public class ServingMessage {
     public static SendMessage getTournamentMessage(String answer) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(tavernChatID);
+        sendMessage.enableHtml(true);
+        sendMessage.setText(answer);
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+
+        return sendMessage;
+    }
+
+    public static SendMessage getDanceMessage(String answer) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(danceChatID);
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 

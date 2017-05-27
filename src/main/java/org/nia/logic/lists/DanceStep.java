@@ -105,7 +105,7 @@ public enum DanceStep {
 
     public SendMessage getInitialSendMessage(Dancing dancing) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(ServingMessage.getTavernChatID());
+        sendMessage.setChatId(ServingMessage.getDanceChatID());
         sendMessage.enableHtml(true);
         sendMessage.setText(getStepText(dancing));
         InlineKeyboardMarkup inlineKeyboardMarkup = getInlineKeyboardMarkup(dancing);
@@ -130,18 +130,18 @@ public enum DanceStep {
 
 
     public SendMessage getTimedFailMessage(Dancing dancing) {
-        return ServingMessage.getTournamentMessage("Танцоры немного постояли на сцене, сделали пару неловких движений, " +
+        return ServingMessage.getDanceMessage("Танцоры немного постояли на сцене, сделали пару неловких движений, " +
                 "но ничего приличного так и не показали. Позор вам, " + dancing.getFirstDancer() + ", " +
                 dancing.getSecondDancer() + "!");
     }
 
     public SendMessage getFailMessage(User failer, User second) {
-        return ServingMessage.getTournamentMessage("Вместо танца " + failer + " оттоптал ноги своему партнеру, и вся " +
+        return ServingMessage.getDanceMessage("Вместо танца " + failer + " оттоптал ноги своему партнеру, и вся " +
                 "магия танца была разрушена... " + second + " должен быть крайне разочарован этим растяпой!");
     }
 
     public SendMessage getSuccessMessage(Dancing dancing) {
-        return ServingMessage.getTournamentMessage("Поразительно! Эти ребята отлично танцуют! Так держать, " +
+        return ServingMessage.getDanceMessage("Поразительно! Эти ребята отлично танцуют! Так держать, " +
                 dancing.getFirstDancer() + " и " + dancing.getSecondDancer() + ", ваше выступление было потрясающим!");
     }
 
