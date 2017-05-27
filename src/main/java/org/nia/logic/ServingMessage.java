@@ -14,6 +14,7 @@ import java.util.List;
 public class ServingMessage {
 //    private static long tavernChatID = -1001100805125L;//test
     private static long tavernChatID = -1001104513622L;//prod
+    private static long danceChatID = -1001083996255L;//prod
 
     public static long getTavernChatID() {
         return tavernChatID;
