@@ -43,7 +43,7 @@ public enum DanceStep {
         public String getStepText(Dancing dancing) {
             return dancing.getFirstDancer() + " и " + dancing.getSecondDancer() + " стоят друг перед другом, " +
                     "начинает играть легкая музыка. Сперва " + dancing.getFirstDancer() + " должен " +
-                    DanceActionList.VALS3.willDoName() + ", ну а потом его партнер должен " + DanceActionList.VALS2.willDoName();
+                    DanceActionList.VALS3.willDoName() + ", ну а потом " + dancing.getSecondDancer() + " должен " + DanceActionList.VALS2.willDoName();
         }
 
         @Override
@@ -77,7 +77,7 @@ public enum DanceStep {
         public String getStepText(Dancing dancing) {
             return dancing.getFirstDancer() + " и " + dancing.getSecondDancer() + " уже неплохо отжигают! Сейчас " +
                     dancing.getFirstDancer() + " должен " + DanceActionList.VALS4.willDoName() + " и " +
-                    DanceActionList.VALS6.willDoName() + ", ну а потом его партнер должен " + DanceActionList.VALS5.willDoName();
+                    DanceActionList.VALS6.willDoName() + ", ну а потом " + dancing.getSecondDancer() + " должен " + DanceActionList.VALS5.willDoName();
         }
 
         @Override

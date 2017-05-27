@@ -41,9 +41,9 @@ public class CWTavernBot extends TelegramLongPollingBot {
         try {
             if (update.hasMessage()) {
                 Message message = update.getMessage();
-                if (message.getChatId() != null && message.getChat() != null) {
-                    System.out.println(message.getChatId() + " " + message.getChat().getTitle());
-                }
+//                if (message.getChatId() != null && message.getChat() != null) {
+//                    System.out.println(message.getChatId() + " " + message.getChat().getTitle());
+//                }
                 if (new Date((long) message.getDate() * 1000).before(DateUtils.addMinutes(new Date(), -3))) {
                     return;
                 }
