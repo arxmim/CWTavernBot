@@ -30,11 +30,21 @@ public enum DanceActionList {
         public String doName() {
             return "обнял партнера за талию";
         }
+
+        @Override
+        public String willDoName() {
+            return getActionName();
+        }
     },
     VALS5("положить руку партнеру на плечо"){
         @Override
         public String doName() {
             return "положил руку партнеру на плечо";
+        }
+
+        @Override
+        public String willDoName() {
+            return getActionName();
         }
     },
     VALS6("начать кружиться"){
@@ -45,7 +55,7 @@ public enum DanceActionList {
 
         @Override
         public String willDoName() {
-            return super.willDoName();
+            return getActionName();
         }
     },
     VALS7("реверанс");

@@ -299,7 +299,7 @@ public enum TavernCommands implements Commands {
                 return from + ", ты уже танцуешь!";
             }
             if (from.getDanceTime() != null) {
-                long duration = TimeUnit.MINUTES.convert(DateUtils.addMinutes(from.getDanceTime(), 5).getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
+                long duration = TimeUnit.MINUTES.convert(DateUtils.addMinutes(from.getDanceTime(), 2).getTime() - new Date().getTime(), TimeUnit.MILLISECONDS);
                 if (duration > 0) {
                     return from + ", ты совсем недавно отжигал своим танцем, не занимай место, дай другим " +
                             "потанцевать! Подожди ещё " + duration + " минут.";
