@@ -264,7 +264,6 @@ public class CWTavernBot extends TelegramLongPollingBot {
             } else {
                 KeyboardRow keyboardButtons = new KeyboardRow();
                 keyboardButtons.add(PersonalCommands.MY_INFO.getText());
-                keyboardButtons.add(PersonalCommands.QUEST.getText());
                 keyboardRows.add(keyboardButtons);
             }
         }

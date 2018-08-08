@@ -6,13 +6,15 @@ import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.Location;
 import org.nia.logic.lists.TournamentState;
 import org.nia.logic.lists.TournamentType;
-import org.nia.logic.quests.QuestsEnum;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -196,18 +198,21 @@ public enum PersonalCommands implements Commands {
         @Override
         public String apply(Message message, User from) {
             if (from.inTavern()) {
-                QuestsEnum randomQuest = Location.getRandomQuest();
-                from.setLocation(Location.QUEST);
-                Quest quest = new Quest();
-                quest.setStartTime(new Date());
-                quest.setUser(from);
-                quest.setEventTime(randomQuest.getFirstEventTime());
-                quest.setQuestEnum(randomQuest);
-                quest.setGoldEarned(0);
-                quest.setReturnTime(null);
-                quest.save();
-                from.save();
-                return randomQuest.getIQuest().getStart() + "\n\nТы можешь вернуться в любой момент, но чем дольше ты проведешь на задании, тем больше получишь в награду.";
+                return "Остап уехал. Ты со вздохом посмотрел на столик в углу таверны, который всегда был завален " +
+                        "бумагами Остапа, а сейчас был абсолютно чист. Что ж, эпоха ушла, может быть удастся встретить " +
+                        "этого щедрого дядьку в будущем.";
+//                QuestsEnum randomQuest = Location.getRandomQuest();
+//                from.setLocation(Location.QUEST);
+//                Quest quest = new Quest();
+//                quest.setStartTime(new Date());
+//                quest.setUser(from);
+//                quest.setEventTime(randomQuest.getFirstEventTime());
+//                quest.setQuestEnum(randomQuest);
+//                quest.setGoldEarned(0);
+//                quest.setReturnTime(null);
+//                quest.save();
+//                from.save();
+//                return randomQuest.getIQuest().getStart() + "\n\nТы можешь вернуться в любой момент, но чем дольше ты проведешь на задании, тем больше получишь в награду.";
             } else {
                 return "";
             }
