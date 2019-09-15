@@ -19,6 +19,6 @@ public class PropertiesLoader {
     }
 
     public String getConnectionString() {
-        return System.getenv("HEROKU_POSTGRESQL_ONYX_JDBC_URL");
+        return System.getenv("JDBC_DATABASE_URL");
     }
 }
