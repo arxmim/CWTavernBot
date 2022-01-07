@@ -40,6 +40,7 @@ public interface Commands {
         } else {
             ReplyKeyboardRemove replyKeyboardHide = new ReplyKeyboardRemove();
             replyKeyboardHide.setSelective(true);
+            replyKeyboardHide.setRemoveKeyboard(false);
             sendMessage.setReplyMarkup(replyKeyboardHide);
 
         }
