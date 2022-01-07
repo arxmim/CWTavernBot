@@ -32,10 +32,7 @@ public interface Commands {
             replyKeyboardMarkup.setSelective(true);
             replyKeyboardMarkup.setResizeKeyboard(true);
             replyKeyboardMarkup.setOneTimeKeyboard(true);
-            List<KeyboardRow> keyboard = CWTavernBot.getKeyboard(User.getFromMessage(message.getFrom()));
-            if (keyboard != null && !keyboard.isEmpty()) {
-                replyKeyboardMarkup.setKeyboard(keyboard);
-            }
+            replyKeyboardMarkup.setKeyboard(CWTavernBot.getKeyboard(User.getFromMessage(message.getFrom())));
             sendMessage.setReplyMarkup(replyKeyboardMarkup);
         } else {
             ReplyKeyboardRemove replyKeyboardHide = new ReplyKeyboardRemove();

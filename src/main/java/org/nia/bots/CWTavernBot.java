@@ -222,7 +222,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
     public static List<KeyboardRow> getKeyboard(org.nia.model.User user) {
         ArrayList<KeyboardRow> keyboardRows = new ArrayList<>();
         if (user == null) {
-            return keyboardRows;
+            return Collections.emptyList();
         } else if (user.onQuest()) {
             Quest quest = Quest.getCurrent(user);
             QuestEvent event = QuestEvent.getCurrent(quest);
