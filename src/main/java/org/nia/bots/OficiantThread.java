@@ -5,7 +5,7 @@ import org.nia.logic.ServingMessage;
 import org.nia.model.Dancing;
 import org.nia.model.Tournament;
 import org.nia.model.User;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +43,7 @@ public class OficiantThread extends Thread {
                     tournamentPhase = false;
                     List<String> answerList = current.work();
                     for (String answer : answerList) {
-                        bot.sendMessage(ServingMessage.getTournamentMessage(answer));
+                        bot.execute(ServingMessage.getTournamentMessage(answer));
                     }
                 }
                 Dancing.getAllCurrent().forEach(Dancing::process);
@@ -106,7 +106,7 @@ public class OficiantThread extends Thread {
         });
         try {
             if (!servedDrink.isEmpty() || !servedFood.isEmpty()) {
-                bot.sendMessage(ServingMessage.getMessage(servedDrink, servedFood));
+                bot.execute(ServingMessage.getMessage(servedDrink, servedFood));
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();

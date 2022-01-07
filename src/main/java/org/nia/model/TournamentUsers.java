@@ -127,7 +127,7 @@ public class TournamentUsers extends AbstractEntity {
         return res;
     }
 
-    public static TournamentUsers getCurrentByUserID(int userID) {
+    public static TournamentUsers getCurrentByUserID(long userID) {
         TournamentUsers res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {

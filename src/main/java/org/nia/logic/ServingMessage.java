@@ -3,9 +3,9 @@ package org.nia.logic;
 import org.nia.bots.CWTavernBot;
 import org.nia.model.Dancing;
 import org.nia.model.User;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class ServingMessage {
 
     public static SendMessage getMessage(List<User> served, List<User> servedFood) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(tavernChatID);
+        sendMessage.setChatId(String.valueOf(tavernChatID));
         sendMessage.enableHtml(true);
         StringBuilder sb = new StringBuilder();
         sb.append("А вот и я! ");
@@ -63,7 +63,7 @@ public class ServingMessage {
 
     public static SendMessage getTournamentMessage(String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(tavernChatID);
+        sendMessage.setChatId(String.valueOf(tavernChatID));
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 
@@ -78,7 +78,7 @@ public class ServingMessage {
 
     public static SendMessage getDanceMessage(Dancing dancing, String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(dancing.getChatID());
+        sendMessage.setChatId(String.valueOf(dancing.getChatID()));
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
 
@@ -93,7 +93,7 @@ public class ServingMessage {
 
     public static SendMessage getTimedMessage(User user, String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(Long.valueOf(user.getUserID()));
+        sendMessage.setChatId(String.valueOf(Long.valueOf(user.getUserID())));
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();

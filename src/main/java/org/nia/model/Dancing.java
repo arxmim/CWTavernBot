@@ -10,8 +10,8 @@ import org.nia.bots.CWTavernBot;
 import org.nia.db.HibernateConfig;
 import org.nia.logic.lists.DanceActionList;
 import org.nia.logic.lists.DanceStep;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.persistence.*;
 import java.util.Collections;
@@ -79,7 +79,7 @@ public class Dancing extends AbstractEntity {
             this.save();
             SendMessage message = currentStep.getInitialSendMessage(this);
             try {
-                CWTavernBot.INSTANCE.sendMessage(message);
+                CWTavernBot.INSTANCE.execute(message);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -93,7 +93,7 @@ public class Dancing extends AbstractEntity {
                 this.secondDancer.save();
                 SendMessage message = this.currentStep.getTimedFailMessage(this);
                 try {
-                    CWTavernBot.INSTANCE.sendMessage(message);
+                    CWTavernBot.INSTANCE.execute(message);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -105,7 +105,7 @@ public class Dancing extends AbstractEntity {
                 this.save();
                 SendMessage message = currentStep.getInitialSendMessage(this);
                 try {
-                    CWTavernBot.INSTANCE.sendMessage(message);
+                    CWTavernBot.INSTANCE.execute(message);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -118,7 +118,7 @@ public class Dancing extends AbstractEntity {
                 this.secondDancer.save();
                 SendMessage message = this.currentStep.getSuccessMessage(this);
                 try {
-                    CWTavernBot.INSTANCE.sendMessage(message);
+                    CWTavernBot.INSTANCE.execute(message);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }

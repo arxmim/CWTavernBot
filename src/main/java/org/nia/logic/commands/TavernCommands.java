@@ -11,9 +11,9 @@ import org.nia.logic.quests.kitchen.KitchenQuest;
 import org.nia.logic.quests.kitchen.RoofStairs;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +62,7 @@ public enum TavernCommands implements Commands {
                 if (message.getReplyToMessage() == null) {
                     return "";
                 }
-                Integer toBetUserID = message.getReplyToMessage().getFrom().getId();
+                Long toBetUserID = message.getReplyToMessage().getFrom().getId();
                 Tournament current = Tournament.getCurrent();
                 List<TournamentBet> betsByUserID = TournamentBet.getCurrentBetsByUserID(current.getPublicID(), from);
                 Optional<TournamentBet> betOptional = betsByUserID.stream().filter(bet -> bet.getTo().getUser().getUserID() == toBetUserID).findFirst();
@@ -353,7 +353,7 @@ public enum TavernCommands implements Commands {
                             bot.incThrow(DrinkType.AVE_WHITE);
                             from.incToBeThrown(DrinkType.AVE_WHITE);
                             SendMessage msg1 = getMessage(message, "Ха, еще один дурак нашелся! У меня черный пояс по метанию жбанов! /throw");
-                            CWTavernBot.INSTANCE.sendMessage(msg1);
+                            CWTavernBot.INSTANCE.execute(msg1);
                             res = "Вот тебе жбаном по лицу, гадкий " + from + ". И стакан я у тебя отберу!";
                         } catch (TelegramApiException e) {
                             e.printStackTrace();

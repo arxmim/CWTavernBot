@@ -5,14 +5,14 @@ import org.nia.bots.CWTavernBot;
 import org.nia.logic.ServingMessage;
 import org.nia.model.Dancing;
 import org.nia.model.User;
-import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.api.objects.CallbackQuery;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,7 +105,7 @@ public enum DanceStep {
 
     public SendMessage getInitialSendMessage(Dancing dancing) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(dancing.getChatID());
+        sendMessage.setChatId(String.valueOf(dancing.getChatID()));
         sendMessage.enableHtml(true);
         sendMessage.setText(getStepText(dancing));
         InlineKeyboardMarkup inlineKeyboardMarkup = getInlineKeyboardMarkup(dancing);
@@ -159,8 +159,8 @@ public enum DanceStep {
 
     public static void processCallbackQuery(CallbackQuery callbackQuery) {
         String[] split = callbackQuery.getData().split(",");
-        Dancing dancing = Dancing.getByID(Dancing.class, Integer.valueOf(split[2]));
-        Integer userID = callbackQuery.getFrom().getId();
+        Dancing dancing = Dancing.getByID(Dancing.class, Long.valueOf(split[2]));
+        Long userID = callbackQuery.getFrom().getId();
         User dancer;
         User second;
         boolean isFirst;
@@ -170,14 +170,14 @@ public enum DanceStep {
             answerCallbackQuery.setText("Танец уже закончился!");
             EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
             editMessageReplyMarkup.setMessageId(callbackQuery.getMessage().getMessageId());
-            editMessageReplyMarkup.setChatId(callbackQuery.getMessage().getChatId());
+            editMessageReplyMarkup.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
             try {
-                CWTavernBot.INSTANCE.editMessageReplyMarkup(editMessageReplyMarkup);
+                CWTavernBot.INSTANCE.execute(editMessageReplyMarkup);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -188,7 +188,7 @@ public enum DanceStep {
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
             answerCallbackQuery.setText("Не мешай людям танцевать!");
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -212,14 +212,14 @@ public enum DanceStep {
 
             EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
             editMessageReplyMarkup.setMessageId(callbackQuery.getMessage().getMessageId());
-            editMessageReplyMarkup.setChatId(callbackQuery.getMessage().getChatId());
+            editMessageReplyMarkup.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
             try {
-                CWTavernBot.INSTANCE.editMessageReplyMarkup(editMessageReplyMarkup);
+                CWTavernBot.INSTANCE.execute(editMessageReplyMarkup);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -231,7 +231,7 @@ public enum DanceStep {
             boolean hasNext = dancing.getNextAction() != null;
             EditMessageText editMessageText = new EditMessageText();
             editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
-            editMessageText.setChatId(callbackQuery.getMessage().getChatId());
+            editMessageText.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
             if (hasNext) {
                 InlineKeyboardMarkup inlineKeyboardMarkup = dancing.getCurrentStep().getInlineKeyboardMarkup(dancing);
                 editMessageText.setReplyMarkup(inlineKeyboardMarkup);
@@ -245,12 +245,12 @@ public enum DanceStep {
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
             answerCallbackQuery.setText("Правильно!");
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
             try {
-                CWTavernBot.INSTANCE.editMessageText(editMessageText);
+                CWTavernBot.INSTANCE.execute(editMessageText);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -264,7 +264,7 @@ public enum DanceStep {
             second.save();
             EditMessageText editMessageText = new EditMessageText();
             editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
-            editMessageText.setChatId(callbackQuery.getMessage().getChatId());
+            editMessageText.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
             String text = callbackQuery.getMessage().getText() + "\n\n" + dancer + " запорол танец!";
             editMessageText.setText(text);
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -272,17 +272,17 @@ public enum DanceStep {
             answerCallbackQuery.setText("Ты запорол танец!");
             SendMessage failMessage = dancing.getCurrentStep().getFailMessage(dancing, dancer, second);
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
             try {
-                CWTavernBot.INSTANCE.editMessageText(editMessageText);
+                CWTavernBot.INSTANCE.execute(editMessageText);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
             try {
-                CWTavernBot.INSTANCE.sendMessage(failMessage);
+                CWTavernBot.INSTANCE.execute(failMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

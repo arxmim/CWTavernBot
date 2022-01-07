@@ -25,7 +25,7 @@ public class QuestEvent extends AbstractEntity {
     @Id
     @Column()
     @GeneratedValue
-    private Integer publicID;
+    private Long publicID;
     @ManyToOne
     @JoinColumn(name = "questID", nullable = false)
     private Quest quest;
@@ -36,7 +36,7 @@ public class QuestEvent extends AbstractEntity {
     @Column
     private Boolean win;
     @Column
-    private Integer linkedQuestEventID;
+    private Long linkedQuestEventID;
     @Column
     private String eventName;
     @Column

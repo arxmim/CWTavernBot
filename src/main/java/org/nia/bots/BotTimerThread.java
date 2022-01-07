@@ -9,8 +9,8 @@ import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 import org.nia.model.User;
 import org.nia.strings.Emoji;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +52,7 @@ public class BotTimerThread extends Thread {
                                 linkedQuest.setEventTime(linkedQuest.getQuestEnum().getNextEventTime(linkedQuest));
                                 linkedQuest.save();
                                 try {
-                                    bot.sendMessage(ServingMessage.getTimedMessage(linkedQuest.getUser(), goodText));
+                                    bot.execute(ServingMessage.getTimedMessage(linkedQuest.getUser(), goodText));
                                 } catch (TelegramApiRequestException e) {
                                     if (!e.getErrorCode().equals(403)) {
                                         e.printStackTrace();
@@ -68,7 +68,7 @@ public class BotTimerThread extends Thread {
                             quest.setEventTime(quest.getQuestEnum().getNextEventTime(quest));
                             quest.save();
                             try {
-                                bot.sendMessage(ServingMessage.getTimedMessage(usr, badText));
+                                bot.execute(ServingMessage.getTimedMessage(usr, badText));
                             } catch (TelegramApiRequestException e) {
                                 if (!e.getErrorCode().equals(403)) {
                                     e.printStackTrace();
@@ -86,7 +86,7 @@ public class BotTimerThread extends Thread {
                                 usr.setGold(usr.getGold() + reward);
                                 usr.save();
                                 try {
-                                    bot.sendMessage(ServingMessage.getTimedMessage(usr, "Ты пробыл на задании довольно долго, пора возвращаться. Ты заработав " + reward + Emoji.GOLD));
+                                    bot.execute(ServingMessage.getTimedMessage(usr, "Ты пробыл на задании довольно долго, пора возвращаться. Ты заработав " + reward + Emoji.GOLD));
                                 } catch (TelegramApiRequestException e) {
                                     if (!e.getErrorCode().equals(403)) {
                                         e.printStackTrace();
@@ -105,7 +105,7 @@ public class BotTimerThread extends Thread {
                                 event.save();
                                 iQuestEvent.getInit().doWork(event);
                                 try {
-                                    bot.sendMessage(ServingMessage.getTimedMessage(usr, iQuestEvent.getInit().getText(quest)));
+                                    bot.execute(ServingMessage.getTimedMessage(usr, iQuestEvent.getInit().getText(quest)));
                                 } catch (TelegramApiRequestException e) {
                                     if (!e.getErrorCode().equals(403)) {
                                         e.printStackTrace();

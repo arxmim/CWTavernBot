@@ -6,7 +6,7 @@ import org.nia.logic.ServingMessage;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 import org.nia.model.User;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Date;
 
@@ -45,7 +45,7 @@ public interface IQuestAction {
             randomActive.setEventTime(linkedEvent.getEventTime());
             randomActive.save();
             try {
-                BOT.sendMessage(ServingMessage.getTimedMessage(from.getQuest().getUser()
+                BOT.execute(ServingMessage.getTimedMessage(from.getQuest().getUser()
                         , String.format(from.getStep().getInterceptText(), randomActive.getUser())));
                 applyAction(from, linkedEvent);
             } catch (TelegramApiException e) {
@@ -89,13 +89,13 @@ public interface IQuestAction {
         User fromUser = from.getQuest().getUser();
         User toUser = to.getQuest().getUser();
         try {
-            BOT.sendMessage(ServingMessage.getTimedMessage(fromUser
+            BOT.execute(ServingMessage.getTimedMessage(fromUser
                     , this.getEventText() + "\n" + String.format(this.getFromEndText(), toUser) + ending));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
         try {
-            BOT.sendMessage(ServingMessage.getTimedMessage(toUser
+            BOT.execute(ServingMessage.getTimedMessage(toUser
                     , String.format(this.getExplainText(), fromUser) + "\n"
                             + this.getEventText() + "\n"
                             + String.format(this.getToEndText(), fromUser) + ending));

@@ -24,7 +24,7 @@ class AbstractEntity {
         return res;
     }
 
-    public static <T extends AbstractEntity> T getByID(Class<T> clz, int publicID) {
+    public static <T extends AbstractEntity> T getByID(Class<T> clz, Long publicID) {
         T res = null;
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {

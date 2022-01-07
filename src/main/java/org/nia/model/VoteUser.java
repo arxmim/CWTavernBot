@@ -45,7 +45,7 @@ public class VoteUser extends AbstractEntity {
         return res;
     }
 
-    static List<VoteUser> getByUser(int userID, Integer votingID) {
+    static List<VoteUser> getByUser(long userID, Integer votingID) {
         List<VoteUser> res = new ArrayList<>();
         SessionFactory factory = HibernateConfig.getSessionFactory();
         try (Session session = factory.openSession()) {

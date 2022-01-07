@@ -13,7 +13,7 @@ import org.nia.logic.ServingMessage;
 import org.nia.logic.lists.TournamentState;
 import org.nia.logic.lists.TournamentType;
 import org.nia.strings.Emoji;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -131,7 +131,7 @@ public class Tournament extends AbstractEntity {
                     state = TournamentState.FINISHED;
                     save();
                     try {
-                        CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage( "Итак, сегодняший турнир окончен, победитель определен! Им стал " + left.getUser() + ". Дружище, ты лучше всех!"));
+                        CWTavernBot.INSTANCE.execute(ServingMessage.getTournamentMessage( "Итак, сегодняший турнир окончен, победитель определен! Им стал " + left.getUser() + ". Дружище, ты лучше всех!"));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }

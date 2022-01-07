@@ -2,11 +2,11 @@ package org.nia.logic.commands;
 
 import org.nia.bots.CWTavernBot;
 import org.nia.model.User;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardRemove;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public interface Commands {
 
     public default SendMessage getMessage(Message message, String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(message.getChat().getId());
+        sendMessage.setChatId(String.valueOf(message.getChat().getId()));
         //sendMessage.enableMarkdown(true);
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
@@ -49,7 +49,7 @@ public interface Commands {
 
     public default SendMessage getPersonalMessage(User user, String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId((long) user.getUserID());
+        sendMessage.setChatId(String.valueOf(user.getUserID()));
         //sendMessage.enableMarkdown(true);
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);

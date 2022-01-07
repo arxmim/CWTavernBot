@@ -9,8 +9,8 @@ import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 import org.nia.model.User;
 import org.nia.strings.Emoji;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 
@@ -32,7 +32,7 @@ public enum RoofStairs implements IQuestStep {
         @Override
         public String getGoodText(Quest quest) {
             try {
-                CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(quest.getUser() + " спрыгнул сам!"));
+                CWTavernBot.INSTANCE.execute(ServingMessage.getTournamentMessage(quest.getUser() + " спрыгнул сам!"));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -55,7 +55,7 @@ public enum RoofStairs implements IQuestStep {
             if (max.isPresent()) {
                 res = max.get().toString();
                 try {
-                    CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(quest.getUser()
+                    CWTavernBot.INSTANCE.execute(ServingMessage.getTournamentMessage(quest.getUser()
                             + " неудачно спрыгнул ровно на " + res + ", сшиб того со стула и разлил напитки. Недотепа!"));
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
@@ -73,7 +73,7 @@ public enum RoofStairs implements IQuestStep {
         @Override
         public void doWork(QuestEvent questEvent) {
             try {
-                CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTournamentMessage(questEvent.getQuest().getUser()
+                CWTavernBot.INSTANCE.execute(ServingMessage.getTournamentMessage(questEvent.getQuest().getUser()
                         + " менял свечи под потолком таверны, и лестница под ним опрокинулась! Бедолага сидит на " +
                         "балке под крышей таверны и ему нужна помощь! Ответьте на его сообщение командой " +
                         "/assist, чтобы подать ему лестницу!"));
@@ -113,7 +113,7 @@ public enum RoofStairs implements IQuestStep {
             helper.setGold(helper.getGold() + 3);
             helper.save();
             try {
-                CWTavernBot.INSTANCE.sendMessage(sendMessage);
+                CWTavernBot.INSTANCE.execute(sendMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -136,7 +136,7 @@ public enum RoofStairs implements IQuestStep {
             helper.setGold(gold);
             helper.save();
             try {
-                CWTavernBot.INSTANCE.sendMessage(sendMessage);
+                CWTavernBot.INSTANCE.execute(sendMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

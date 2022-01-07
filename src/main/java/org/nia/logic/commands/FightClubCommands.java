@@ -4,11 +4,11 @@ import org.nia.bots.CWTavernBot;
 import org.nia.logic.ServingMessage;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public enum FightClubCommands implements Commands {
                 try {
                     SendMessage tournamentMessage = ServingMessage.getTournamentMessage(res + "\nКоличество болельщиков: 0");
                     setKeyboard(user, tournamentMessage);
-                    CWTavernBot.INSTANCE.sendMessage(tournamentMessage);
+                    CWTavernBot.INSTANCE.execute(tournamentMessage);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -64,7 +64,7 @@ public enum FightClubCommands implements Commands {
     @Override
     public SendMessage getMessage(Message message, String answer) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(message.getChat().getId());
+        sendMessage.setChatId(String.valueOf(message.getChat().getId()));
         sendMessage.enableHtml(true);
         sendMessage.setText(answer);
         if (!message.isUserMessage()) {

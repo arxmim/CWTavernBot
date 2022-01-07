@@ -6,7 +6,7 @@ import org.nia.logic.quests.IQuestStep;
 import org.nia.model.Quest;
 import org.nia.model.QuestEvent;
 import org.nia.model.User;
-import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.Date;
 import java.util.Optional;

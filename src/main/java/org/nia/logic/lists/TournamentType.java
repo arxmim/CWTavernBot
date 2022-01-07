@@ -7,7 +7,7 @@ import org.nia.logic.commands.FightClubCommands;
 import org.nia.logic.commands.PersonalCommands;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,7 +50,7 @@ public enum TournamentType {
         @Override
         public void remindUser(User user) {
             try {
-                CWTavernBot.INSTANCE.sendMessage(PersonalCommands.HELP.getPersonalMessage(user, getRule()));
+                CWTavernBot.INSTANCE.execute(PersonalCommands.HELP.getPersonalMessage(user, getRule()));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -90,7 +90,7 @@ public enum TournamentType {
         @Override
         public void remindUser(User user) {
             try {
-                CWTavernBot.INSTANCE.sendMessage(PersonalCommands.HELP.getPersonalMessage(user, "Выбирай, чем будешь драться!"));
+                CWTavernBot.INSTANCE.execute(PersonalCommands.HELP.getPersonalMessage(user, "Выбирай, чем будешь драться!"));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

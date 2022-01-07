@@ -12,7 +12,7 @@ import org.nia.logic.lists.DrinkType;
 import org.nia.logic.lists.Food;
 import org.nia.logic.lists.Location;
 import org.nia.strings.Emoji;
-import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import java.util.List;
 public class User extends AbstractEntity {
     @Id
     @Column()
-    private int userID;
+    private Long userID;
     @Column()
     private String nick;
     @Column(nullable = false)
@@ -72,13 +72,13 @@ public class User extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private Location location;
     @Column()
-    private Integer fightWithUserID;
+    private Long fightWithUserID;
     @Column()
     private Date curseTime;
     @Column()
     private String voteFor;
     @Column()
-    private Integer danceWithUserID;
+    private Long danceWithUserID;
     @Column()
     private Date danceTime;
 
@@ -86,8 +86,8 @@ public class User extends AbstractEntity {
         return getFromMessage(message.getFrom());
     }
 
-    public static User getFromMessage(org.telegram.telegrambots.api.objects.User user) {
-        int userID = user.getId();
+    public static User getFromMessage(org.telegram.telegrambots.meta.api.objects.User user) {
+        Long userID = user.getId();
         User res = getByID(User.class, userID);
         if (res == null) {
             res = new User();

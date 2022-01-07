@@ -5,11 +5,11 @@ import org.nia.logic.ServingMessage;
 import org.nia.model.DrinkPref;
 import org.nia.model.TournamentUsers;
 import org.nia.model.User;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public enum ArenaCommands implements Commands {
             try {
                 SendMessage sendMessage = ServingMessage.getTournamentMessage(String.format(currentByUserID.getTournament().getType().getStartPhrase() + "\nКоличество болельщиков: 0", user));
                 setKeyboard(currentByUserID.getUser(), sendMessage);
-                CWTavernBot.INSTANCE.sendMessage(sendMessage);
+                CWTavernBot.INSTANCE.execute(sendMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

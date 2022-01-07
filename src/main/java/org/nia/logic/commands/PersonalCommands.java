@@ -8,8 +8,8 @@ import org.nia.logic.lists.TournamentState;
 import org.nia.logic.lists.TournamentType;
 import org.nia.model.*;
 import org.nia.strings.Emoji;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -74,7 +74,7 @@ public enum PersonalCommands implements Commands {
                 String votingID = matcher.group(1);
                 String voteOption = matcher.group(2);
                 try {
-                    Voting voting = Voting.getByID(Voting.class, Integer.valueOf(votingID));
+                    Voting voting = Voting.getByID(Voting.class, Long.valueOf(votingID));
                     if (voting == null) {
                         return "Неверно указан ID голосования";
                     } else {
@@ -103,7 +103,7 @@ public enum PersonalCommands implements Commands {
         public String apply(Message message, User from) {
             String votingID = StringUtils.substringAfter(message.getText(), this.getText());
             try {
-                Voting voting = Voting.getByID(Voting.class, Integer.valueOf(votingID));
+                Voting voting = Voting.getByID(Voting.class, Long.valueOf(votingID));
                 if (voting == null) {
                     return "Неверно указан ID голосования";
                 }
@@ -237,7 +237,7 @@ public enum PersonalCommands implements Commands {
                         linkedQuest.save();
                         linkedQuestEvent.save();
                         try {
-                            CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTimedMessage(linkedQuest.getUser(), from + " сбежал. Ты свалил на него все проблемы и смог немного подзаработать."));
+                            CWTavernBot.INSTANCE.execute(ServingMessage.getTimedMessage(linkedQuest.getUser(), from + " сбежал. Ты свалил на него все проблемы и смог немного подзаработать."));
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }

@@ -11,19 +11,18 @@ import org.nia.logic.lists.DanceStep;
 import org.nia.logic.lists.DrinkType;
 import org.nia.logic.quests.ICrossQuestStep;
 import org.nia.model.*;
-import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.api.objects.CallbackQuery;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.User;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.logging.BotLogger;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 
@@ -55,7 +54,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                         for (User newChatMember : newChatMembers) {
                             org.nia.model.User user = org.nia.model.User.getFromMessage(newChatMember);
                             if (user.getLastDrinkTime() != null && user.getLastDrinkTime().after(DateUtils.addMinutes(new Date(), -20))) {
-                                sendMessage(TavernCommands.GIVE.getMessage(message, user + ", ты либо сидишь в таверне, либо уходишь, хватит бегать туда-сюда!"));
+                                execute(TavernCommands.GIVE.getMessage(message, user + ", ты либо сидишь в таверне, либо уходишь, хватит бегать туда-сюда!"));
                             } else {
                                 user.setAlkoCount(2);
                                 int rand = new Random().nextInt(DrinkType.values().length);
@@ -63,7 +62,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                                 user.setDrinkType(drinkType);
                                 user.save();
                                 String answer = String.format(drinkType.getEnterPhrase(), user);
-                                sendMessage(TavernCommands.GIVE.getMessage(message, answer));
+                                execute(TavernCommands.GIVE.getMessage(message, answer));
                             }
                         }
                     }
@@ -72,7 +71,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                 handleIncomingCallback(update.getCallbackQuery());
             }
         } catch (Exception e) {
-            BotLogger.error(LOGTAG, e);
+            e.printStackTrace();
         }
 
     }
@@ -88,7 +87,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
                     answerCallbackQuery.setText("Боец уже отвоевал!");
                     try {
-                        answerCallbackQuery(answerCallbackQuery);
+                        execute(answerCallbackQuery);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -100,7 +99,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
                     answerCallbackQuery.setText("Боец уже отвоевал!");
                     try {
-                        answerCallbackQuery(answerCallbackQuery);
+                        execute(answerCallbackQuery);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -111,7 +110,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
                     answerCallbackQuery.setText("Ты уже проголосовал!");
                     try {
-                        answerCallbackQuery(answerCallbackQuery);
+                        execute(answerCallbackQuery);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -124,7 +123,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     count++;
                     EditMessageText editMessageText = new EditMessageText();
                     editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
-                    editMessageText.setChatId(callbackQuery.getMessage().getChatId());
+                    editMessageText.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
                     InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
                     List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
                     List<InlineKeyboardButton> row = new ArrayList<>();
@@ -142,8 +141,8 @@ public class CWTavernBot extends TelegramLongPollingBot {
                     answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
                     answerCallbackQuery.setText("Голос принят!");
                     try {
-                        answerCallbackQuery(answerCallbackQuery);
-                        editMessageText(editMessageText);
+                        execute(answerCallbackQuery);
+                        execute(editMessageText);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -205,7 +204,7 @@ public class CWTavernBot extends TelegramLongPollingBot {
             }
         }
         if (sendMessageRequest != null) {
-            sendMessage(sendMessageRequest);
+            execute(sendMessageRequest);
         }
     }
 

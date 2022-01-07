@@ -9,13 +9,13 @@ import org.hibernate.Transaction;
 import org.nia.bots.CWTavernBot;
 import org.nia.db.HibernateConfig;
 import org.nia.logic.ServingMessage;
-import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.api.objects.CallbackQuery;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class Voting extends AbstractEntity {
         try {
             List<VoteOption> voteOptions = VoteOption.getAll(this.getPublicID());
             if (voteOptions.isEmpty()) {
-                CWTavernBot.INSTANCE.sendMessage(ServingMessage.getTimedMessage(user, "Нет ни одного варианта для голосования!"));
+                CWTavernBot.INSTANCE.execute(ServingMessage.getTimedMessage(user, "Нет ни одного варианта для голосования!"));
             } else {
 //                SendMessage sendMessage = ServingMessage.getTournamentMessage(text);
                 SendMessage sendMessage = ServingMessage.getTimedMessage(user, text);
@@ -70,7 +70,7 @@ public class Voting extends AbstractEntity {
                 inlineKeyboardMarkup.setKeyboard(keyboard);
                 sendMessage.setReplyMarkup(inlineKeyboardMarkup);
                 try {
-                    CWTavernBot.INSTANCE.sendMessage(sendMessage);
+                    CWTavernBot.INSTANCE.execute(sendMessage);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -86,21 +86,21 @@ public class Voting extends AbstractEntity {
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
             answerCallbackQuery.setText("Ты слишком мало пьешь в таверне и не имеешь права голоса!");
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
             return;
         }
         String strOption = StringUtils.substringAfter(callbackQuery.getData(), "@votingBot");
-        VoteOption option = VoteOption.getByID(VoteOption.class, Integer.valueOf(strOption));
+        VoteOption option = VoteOption.getByID(VoteOption.class, Long.valueOf(strOption));
         List<VoteUser> byUser = VoteUser.getByUser(user.getUserID(), option.getVoting().publicID);
         if (byUser.size() > 1) {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
             answerCallbackQuery.setText("Ты уже проголосовал дважды!");
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -110,7 +110,7 @@ public class Voting extends AbstractEntity {
             answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
             answerCallbackQuery.setText("Ты уже проголосовал за этого кандидата, выбери другого!");
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -126,7 +126,7 @@ public class Voting extends AbstractEntity {
 
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
-        editMessageText.setChatId(callbackQuery.getMessage().getChatId());
+        editMessageText.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
         editMessageText.setText(callbackQuery.getMessage().getText());
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -150,8 +150,8 @@ public class Voting extends AbstractEntity {
         answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
         answerCallbackQuery.setText("Голос принят!");
             try {
-                CWTavernBot.INSTANCE.answerCallbackQuery(answerCallbackQuery);
-                CWTavernBot.INSTANCE.editMessageText(editMessageText);
+                CWTavernBot.INSTANCE.execute(answerCallbackQuery);
+                CWTavernBot.INSTANCE.execute(editMessageText);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
