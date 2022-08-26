@@ -263,7 +263,7 @@ public enum TavernCommands implements Commands {
                 }
             }
             User to = User.getFromMessage(message.getReplyToMessage());
-            if (to.getFightWithUser() != null && to.getFightWithUser().getUserID() == from.getUserID()) {
+            if (to.getFightWithUser() != null && Objects.equals(to.getFightWithUser().getUserID(), from.getUserID())) {
                 Random random = new Random();
                 to.setFightTime(new Date());
                 to.setFightWithUser(null);
