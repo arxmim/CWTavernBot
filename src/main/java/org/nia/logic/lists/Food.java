@@ -11,7 +11,8 @@ public enum Food {
     GUS("/gus", "подушенный и зажаренный до хрустящей корочки гусь", "зажаренного гуся", "этого "),
     CHEESE("/cheese", "тарелка сыра", "тарелку сыра", "эту "),
     FRI("/fri", "картошка фри", "картошку фри", "эту "),
-    SHAURMA("/shaurma", "сочная шаурма из поросенка", "шаурму", "эту ");
+    SHAURMA("/shaurma", "сочная шаурма из поросенка", "шаурму", "эту "),
+    ICE_CREAM("/ice_cream", "ванильное мороженое", "мороженку", "эту ");
     private final String command;
     private final String name;
     private final List<String> givePhrases;
